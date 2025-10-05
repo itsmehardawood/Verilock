@@ -65,7 +65,7 @@ export default function SearchForm() {
   };
 
   return (
-    <div className="bg-gray-900 rounded-xl shadow-sm border border-gray-700 p-6">
+    <div className="bg-black/10 rounded-xl shadow-sm border border-gray-700 p-6">
       {/* Heading */}
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-100">Search for Fake Profiles</h2>
@@ -106,7 +106,7 @@ export default function SearchForm() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Enter social profile name for search"
-            className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+            className="w-full px-4 py-3 bg-gray-950 text-gray-100 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
             disabled={loading}
           />
         </div>

@@ -31,11 +31,11 @@ export default function facebookPage  () {
                 <p className="text-sm text-gray-400">Welcome back, Eric!</p>
               </div>
             </div>
-            {/* <div className="flex items-center space-x-4">
-              <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <div className="flex items-center space-x-4">
+              {/* <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 Add Credits
-              </button>
-            </div> */}
+              </button> */}
+            </div>
           </div>
         </header>
 

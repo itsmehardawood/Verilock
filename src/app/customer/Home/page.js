@@ -28,14 +28,14 @@ const HomePage = () => {
                 <Menu className="w-6 h-6 text-gray-600" />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-200">Dashboard</h1>
-                <p className="text-sm text-gray-400">Welcome back, Eric!</p>
+                <h1 className="text-2xl font-bold text-gray-200">Admin Dashboard</h1>
+                <p className="text-sm text-gray-400">Welcome back!</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              {/* <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 Add Credits
-              </button>
+              </button> */}
             </div>
           </div>
         </header>

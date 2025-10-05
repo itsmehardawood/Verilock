@@ -41,7 +41,7 @@ const BlockedHistory = () => {
       platform: 'LinkedIn',
       reportedDate: '2024-09-26',
       reason: 'Fake Verification',
-      status: 'reported',
+      status: 'pending',
       followers: '8.9K'
     }
   ];
@@ -73,7 +73,7 @@ const BlockedHistory = () => {
   });
 
   return (
-    <div className="max-w-7xl mx-auto p-6 bg-gray-950 min-h-screen">
+    <div className="max-w-7xl mx-auto p-6 bg-black min-h-screen">
       {/* Title */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-white">Reported Profiles History</h1>
@@ -82,7 +82,7 @@ const BlockedHistory = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-gray-900 rounded-lg shadow border border-gray-800 p-4">
+        <div className="bg-gray-900/10 rounded-lg shadow border border-gray-800 p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Total Reported</p>
@@ -92,7 +92,7 @@ const BlockedHistory = () => {
           </div>
         </div>
         
-        <div className="bg-gray-900 rounded-lg shadow border border-gray-800 p-4">
+        <div className="bg-gray-900/10 rounded-lg shadow border border-gray-800 p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">This Month</p>
@@ -102,7 +102,7 @@ const BlockedHistory = () => {
           </div>
         </div>
         
-        <div className="bg-gray-900 rounded-lg shadow border border-gray-800 p-4">
+        <div className="bg-gray-900/10 rounded-lg shadow border border-gray-800 p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Pending</p>
@@ -114,7 +114,7 @@ const BlockedHistory = () => {
       </div>
 
       {/* Filters + Search */}
-      <div className="bg-gray-900 rounded-lg shadow border border-gray-800 p-6">
+      <div className="bg-gray-900/15 rounded-lg shadow border border-gray-800 p-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div className="flex items-center space-x-2">
@@ -122,7 +122,7 @@ const BlockedHistory = () => {
               <select
                 value={selectedFilter}
                 onChange={(e) => setSelectedFilter(e.target.value)}
-                className="px-4 py-2 bg-gray-800 text-gray-200 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                className="px-4 py-2 bg-gray-900 text-gray-200 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               >
                 <option value="all">All Status</option>
                 <option value="reported">Reported</option>
@@ -133,7 +133,7 @@ const BlockedHistory = () => {
             <select
               value={selectedPlatform}
               onChange={(e) => setSelectedPlatform(e.target.value)}
-              className="px-4 py-2 bg-gray-800 text-gray-200 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="px-4 py-2 bg-gray-900 text-gray-200 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
             >
               <option value="all">All Platforms</option>
               <option value="Instagram">Instagram</option>
@@ -149,7 +149,7 @@ const BlockedHistory = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search profiles..."
-              className="w-full pl-10 pr-4 py-2 bg-gray-800 text-gray-200 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2 bg-gray-900 text-gray-200 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
             />
           </div>
         </div>
@@ -161,7 +161,7 @@ const BlockedHistory = () => {
             const StatusIcon = statusInfo.icon;
             
             return (
-              <div key={profile.id} className="border border-gray-800 bg-gray-900 rounded-lg p-5 hover:shadow-md transition-shadow">
+              <div key={profile.id} className="border border-gray-800 bg-gray-900/20 rounded-lg p-5 hover:shadow-md transition-shadow">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-3">
@@ -188,7 +188,7 @@ const BlockedHistory = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                    <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-3">
                       <div className="bg-red-900/20 rounded-lg p-3 border border-red-800">
                         <p className="text-xs text-gray-400 mb-1">Fake Profile</p>
                         <div className="flex items-center justify-between">
@@ -200,7 +200,7 @@ const BlockedHistory = () => {
                         <p className="text-xs text-gray-500 mt-1">{profile.followers} followers</p>
                       </div>
 
-                      <div className="bg-green-900/20 rounded-lg p-3 border border-green-800">
+                      {/* <div className="bg-green-900/20 rounded-lg p-3 border border-green-800">
                         <p className="text-xs text-gray-400 mb-1">Original Profile</p>
                         <div className="flex items-center justify-between">
                           <p className="text-sm font-medium text-white">{profile.originalProfile}</p>
@@ -209,7 +209,7 @@ const BlockedHistory = () => {
                           </button>
                         </div>
                         <p className="text-xs text-gray-500 mt-1">Verified Account</p>
-                      </div>
+                      </div> */}
                     </div>
 
                     <div className="flex flex-wrap items-center gap-4">

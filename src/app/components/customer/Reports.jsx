@@ -63,7 +63,7 @@ const Reports = () => {
     const styles = {
       high: 'bg-red-500/20 text-red-400',
       medium: 'bg-yellow-500/20 text-yellow-400',
-      low: 'bg-green-500/20 text-green-400'
+      low: 'bg-red-500/20 text-red-400'
     };
     return styles[confidence] || styles.low;
   };
@@ -84,14 +84,14 @@ const Reports = () => {
   });
 
   return (
-    <div className="max-w-7xl mx-auto p-6 bg-gray-900 min-h-screen text-gray-100">
+    <div className="max-w-7xl mx-auto p-6 bg-black min-h-screen text-gray-100">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-white">Reports</h1>
         <p className="text-gray-400 mt-1">View and download detailed scan reports</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-gray-800 rounded-lg shadow-md p-4">
+        <div className="bg-gray-800/15 rounded-lg shadow-md p-4 border">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Total Reports</p>
@@ -101,17 +101,17 @@ const Reports = () => {
           </div>
         </div>
 
-        <div className="bg-gray-800 rounded-lg shadow-md p-4">
+        <div className="bg-gray-800/15 rounded-lg shadow-md p-4 border">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">High Risk</p>
-              <p className="text-2xl font-bold text-red-400 mt-1">23</p>
+              <p className="text-2xl font-bold text-red-500 mt-1">23</p>
             </div>
-            <AlertCircle className="w-8 h-8 text-red-400" />
+            <AlertCircle className="w-8 h-8 text-red-500" />
           </div>
         </div>
 
-        <div className="bg-gray-800 rounded-lg shadow-md p-4">
+        <div className="bg-gray-800/15 rounded-lg shadow-md p-4 border ">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">Medium Risk</p>
@@ -121,18 +121,18 @@ const Reports = () => {
           </div>
         </div>
 
-        <div className="bg-gray-800 rounded-lg shadow-md p-4">
+        <div className="bg-gray-800/15 rounded-lg shadow-md p-4 border">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">No Risk</p>
-              <p className="text-2xl font-bold text-green-400 mt-1">79</p>
+              <p className="text-2xl font-bold text-gray-400 mt-1">79</p>
             </div>
-            <CheckCircle className="w-8 h-8 text-green-400" />
+            <CheckCircle className="w-8 h-8 text-gray-400" />
           </div>
         </div>
       </div>
 
-      <div className="bg-gray-800 rounded-lg shadow-md p-6">
+      <div className="bg-gray-800/15 rounded-lg shadow-md p-6 border border-gray-600">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div className="flex items-center space-x-2">
             <Filter className="w-5 h-5 text-gray-400" />
@@ -192,7 +192,7 @@ const Reports = () => {
                     <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
                       report.fakesFound > 5 ? 'bg-red-500/20 text-red-400' :
                       report.fakesFound > 0 ? 'bg-yellow-500/20 text-yellow-400' :
-                      'bg-green-500/20 text-green-400'
+                      'bg-red-500/20 text-red-400'
                     }`}>
                       {report.fakesFound}
                     </span>
@@ -207,7 +207,7 @@ const Reports = () => {
                       <button className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors">
                         <Eye className="w-4 h-4" />
                       </button>
-                      <button className="p-2 text-green-400 hover:bg-green-500/20 rounded-lg transition-colors">
+                      <button className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors">
                         <Download className="w-4 h-4" />
                       </button>
                     </div>
