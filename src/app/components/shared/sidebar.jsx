@@ -1,125 +1,4 @@
 
-// import React, { useState } from 'react';
-// import { Search, Home, History, FileText, CreditCard, BarChart3, Settings, LogOut, Menu, X, AlertCircle } from 'lucide-react';
-// import { useRouter } from 'next/navigation';
-// // import Dashboard from './../../customer/layout';
-
-
-// export default function Sidebar ({ isOpen, toggleSidebar }) {
-//   const [activeItem, setActiveItem] = useState('dashboard');
-//   const [openDropdown, setOpenDropdown] = useState(false);
-//   const router = useRouter();
-
-//   const menuItems = [
-//     { id: 'dashboard', icon: Home, label: 'Home', href: '/customer/Home' },
-//     { id: 'search', icon: Search, label: 'Search Profiles', href: '/customer/search' },
-//     { id: 'history', icon: History, label: 'Reported Profiles', href: '/customer/history' },
-//     { id: 'reports', icon: FileText, label: 'Reports', href: '/customer/reports' },
-//     { id: 'analytics', icon: BarChart3, label: 'Analytics', href: '/customer/Analytics' },
-//     { id: 'billing', icon: CreditCard, label: 'Billing', href: '/customer/Billing' },
-//     // { id: 'settings', icon: Settings, label: 'Settings', href: '/settings' },
-//   ];
-
-//   const handleNavigation = (href) => {
-//     router.push(href);
-//     toggleSidebar(); // close sidebar on mobile
-//   };
-
-//   return (
-//     <>
-//       {/* Mobile Overlay */}
-//       {isOpen && (
-//         <div 
-//           className="fixed inset-0 z-20 lg:hidden"
-//           onClick={toggleSidebar}
-//         />
-//       )}
-      
-//       {/* Sidebar */}
-//       <aside
-//         className={`
-//           fixed lg:static inset-y-0 left-0 z-30
-//           w-68 bg-slate-900 border-r border-gray-950
-//           transform transition-transform duration-300 ease-in-out
-//           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-//         `}
-//       >
-//       <div className="flex flex-col h-full">
-//         {/* Logo */}
-//         <div className="flex items-center justify-between py-5 px-4 border-b border-gray-950">
-//           <div className="flex items-center space-x-2">
-//             {/* <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
-//               <AlertCircle className="w-5 h-5 text-white" />
-//             </div> */}
-//             <span className="text-lg font-bold text-gray-200 pl-2">
-//               Social Profile Scrapper
-//             </span>
-//           </div>
-//           <button onClick={toggleSidebar} className="lg:hidden">
-//             <X className="w-6 h-6 text-gray-600" />
-//           </button>
-//         </div>
-
-//         {/* User Info */}
-//         <div className="p-4  border-b border-gray-950">
-//           <div className="mt-3 rounded-lg p-2">
-//             <div className="flex justify-between items-center">
-//               <span className="text-xs text-gray-200">Credits available</span>
-//               <span className="text-sm font-bold text-green-600">$ 250</span>
-//             </div>
-//           </div>
-//         </div>
-
-//               {/* Navigation */}
-//               <nav className="flex-1 overflow-y-auto p-4">
-//                 <ul className="space-y-1">
-//                   {menuItems.map((item) => {
-//                     const Icon = item.icon;
-//                     const isActive = activeItem === item.id;
-//                     return (
-//                       <li key={item.id}>
-//                         <button
-//                           // onClick={() => setActiveItem(item.id)}
-//                           onClick={() => {
-//                             setActiveItem(item.id);
-//                             router.push(item.href);  // ✅ navigate to route
-//                             toggleSidebar();         // close sidebar on mobile
-//                           }}
-//                           className={`
-//                             w-full flex items-center space-x-3 px-4 py-3 rounded-lg
-//                             transition-colors duration-200
-//                             ${isActive 
-//                               ? 'bg-blue-500/15 text-red-500' 
-//                               : 'text-red-500 hover:bg-gray-800/45'
-//                             }
-//                           `}
-//                         >
-//                           <Icon className="w-5 h-5" />
-//                           <span className="font-medium">{item.label}</span>
-//                         </button>
-//                       </li>
-//                     );
-//                   })}
-//                 </ul>
-//               </nav>
-
-//               {/* Logout */}
-//               <div className="p-4 border-t border-gray-700">
-//                 <button onClick={() => {
-//                     // localStorage.removeItem('token');   // clear auth token
-//                     router.push('/');                   // redirect to login/home page
-//                   }}
-//                   className="w-full flex items-center space-x-3 px-6 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-colors duration-200">
-//                   <LogOut className="w-5 h-5" />
-//                   <span className="font-medium">Logout</span>
-//                 </button>
-//               </div>
-//             </div>
-//       </aside>
-//     </>
-//   );
-// };
-
 // 'use client';
 // import React, { useState } from 'react';
 // import { Search, Home, History, FileText, CreditCard, BarChart3, Settings, LogOut, Menu, X, AlertCircle, ChevronDown, ChevronRight, FacebookIcon } from 'lucide-react';
@@ -315,12 +194,12 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
       children: [
         { id: 'facebook', icon: <FaFacebook className="text-white font-medium" />, label: 'Facebook Channel', href: '/customer/profiles/facebook' },
         { id: 'instagram', icon: <FaInstagram className="text-white font-semibold" />, label: 'Instagram Channel', href: '/customer/profiles/instagram' },
-        { id: 'twitter', icon: <FaTwitter className="text-white" />, label: 'Twitter(X) Channel', href: '/customer/profiles/Twitter' },
+        { id: 'x', icon: <FaTwitter className="text-white" />, label: 'Twitter(X) Channel', href: '/customer/profiles/Twitter' },
         { id: 'linkedin', icon: <FaLinkedin className="text-white" />, label: 'LinkedIn Channel', href: '/customer/profiles/Linkedin' },
         { id: 'tiktok', icon: <FaTiktok className="text-white" />, label: 'Tiktok Channel', href: '/customer/profiles/Tiktok' },
       ]
     },
-    { id: 'history', icon: History, label: 'Reported Profiles', href: '/customer/history' },
+    { id: 'history', icon: History, label: 'Takedown Profiles', href: '/customer/history' },
     { id: 'reports', icon: FileText, label: 'Reports', href: '/customer/reports' },
     { id: 'billing', icon: CreditCard, label: 'Payment Management', href: '/customer/Billing' },
   ];
@@ -352,20 +231,20 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center justify-between py-5 px-4 border-b border-gray-950">
+          <div className="flex items-center justify-between py-5 px-4 border-b border-gray-700">
             <span className="text-lg font-bold text-gray-200 pl-2">
-              Social Profile Scrapper
+              Social Media Security
             </span>
             <button onClick={toggleSidebar} className="lg:hidden">
-              <X className="w-6 h-6 text-gray-600" />
+              <X className="w-6 h-6 text-gray-500" />
             </button>
           </div>
          {/* User Info */}
-           <div className="p-4 border-b border-gray-950">
+           <div className="p-4 border-b border-gray-600">
              <div className="mt-3 rounded-lg p-2">
-               <div className="flex justify-between items-center rounded-2xl bg-red-500/10 p-1">
-                 <span className="text-sm text-red-500 py-2 px-2">Balance Remaining</span>
-                 <span className="text-sm font-bold text-green-600 pr-2">$ 250</span>
+               <div className="flex justify-between items-center rounded-2xl p-1">
+                 <span className="text-sm text-white py-2 px-2">Balance Remaining</span>
+                 <span className="text-sm font-bold text-gray-200 pr-2">$ 250</span>
                </div>
              </div>
            </div>
@@ -381,7 +260,7 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
                     className={`
                       w-full flex font-semibold items-center space-x-3 px-4 py-3 rounded-lg
                       transition-colors duration-200
-                      ${activeItem === item.id ? 'bg-blue-500/15 text-red-500' : 'text-red-500 hover:bg-gray-700/45'}
+                      ${activeItem === item.id ? 'bg-blue-500/15 text-red-500' : 'text-white hover:bg-gray-600/45'}
                     `}
                   >
                     <item.icon className="w-5 h-5" />
@@ -390,14 +269,14 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
 
                   {/* Submenu (if exists) */}
                   {item.children && (
-                    <ul className="ml-6 mt-2 space-y-1">
+                    <ul className="ml-1 mt-2 space-y-1">
                       {item.children.map((child) => (
                         <li key={child.id}>
                           <button
                             onClick={() => handleNavigation(child.href, child.id)}
                             className={`
                               w-full flex items-center space-x-2 px-4 py-3 rounded-lg text-md
-                              ${activeItem === child.id ? 'bg-blue-500/10 text-blue-400' : 'text-gray-400 hover:bg-gray-700/35'}
+                              ${activeItem === child.id ? 'bg-blue-500/10 text-red-500' : 'text-gray-400 hover:bg-gray-700/35'}
                             `}
                           >
                             {child.icon}

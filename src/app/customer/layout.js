@@ -4,6 +4,8 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/shared/sidebar';
 import { useRouter } from 'next/navigation';
+import Header from '../components/shared/header';
+import { StatsProvider } from '../context/Statscontext';
 
 
 export default function Dashboard({ children }) {
@@ -38,17 +40,19 @@ export default function Dashboard({ children }) {
        {/* Main content area */}
        <div className="flex-1 flex flex-col overflow-hidden">
          {/* Header with logout */}
-         {/* <Header
+          <Header
            onMenuClick={() => setSidebarOpen(!sidebarOpen)}
-          title="Admin Panel"
-           user={user}
+           title="Admin Dashboard"
+          //  user={user}
            onLogout={handleLogout}   // ✅ pass logout function
-        /> */}
+        />
 
 
          {/* Scrollable content area */}
          <main className="flex-1 overflow-y-auto">
+           <StatsProvider>
            {children}
+           </StatsProvider>
          </main>
        </div>
      </div>

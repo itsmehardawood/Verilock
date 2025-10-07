@@ -6,18 +6,18 @@ import { BarChart3, MenuIcon, UserIcon } from 'lucide-react';
 
 export default function Header({ onMenuClick, title, user, onLogout }) {
   return (
-    <header className="bg-white shadow-sm z-10">
+    <header className="bg-slate-900 shadow-sm z-10 border-b border-gray-200">
       <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
         {/* Left side - Menu + Title */}
         <div className="flex items-center">
           {/* Mobile menu button */}
           <button
             onClick={onMenuClick}
-            className="lg:hidden text-gray-600 hover:text-gray-900 mr-2"
+            className="lg:hidden text-gray-300 hover:text-gray-400 mr-2"
           >
             <MenuIcon className="h-6 w-6" />
           </button>
-          <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
+          <h1 className="text-lg font-semibold text-gray-200">{title}</h1>
         </div>
 
         {/* Right side - User info */}
@@ -31,14 +31,7 @@ export default function Header({ onMenuClick, title, user, onLogout }) {
                 <UserIcon className="h-6 w-6 text-white" />
               </div>
             </>
-          ) : (
-            {/* <a
-              href="/admin/login"
-              className="text-sm font-medium text-blue-600 hover:text-blue-800"
-            >
-              Logout
-            </a> */}
-          )}
+          ) : null /* planned: add login link later */}
 
           {onLogout && (
             <button

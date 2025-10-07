@@ -18,7 +18,7 @@ const HomePage = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="bg-blue-500/25 border-b border-gray-950 px-6 py-4">
+        {/* <header className="bg-blue-500/25 border-b border-gray-950 px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <button 
@@ -33,12 +33,12 @@ const HomePage = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              {/* <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 Add Credits
-              </button> */}
+              </button>
             </div>
           </div>
-        </header>
+        </header> */}
 
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto p-6">

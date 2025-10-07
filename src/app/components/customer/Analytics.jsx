@@ -624,7 +624,7 @@ const Analytics = () => {
           <PlatformChart platform="tiktok" data={platformsData.tiktok} />
         </div>
 
-        <div className="mt-8 bg-gray-800 rounded-lg border border-gray-700 p-6">
+        {/* <div className="mt-8 bg-gray-800 rounded-lg border border-gray-700 p-6">
           <h3 className="text-lg font-bold text-gray-100 mb-4">API Integration Guide</h3>
           <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
             <p className="text-sm text-gray-300 mb-3">
@@ -651,7 +651,7 @@ const Analytics = () => {
 }`}
             </pre>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

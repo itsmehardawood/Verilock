@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Shield, Trash2, AlertCircle, Search, Filter, Calendar, ExternalLink, UserX, Clock, BarChart } from 'lucide-react';
-import { ProfileDetailModal } from './modal';
+// import { ProfileDetailModal } from './modal';
 
 const BlockedHistory = () => {
   const [selectedFilter, setSelectedFilter] = useState('all');
@@ -17,9 +17,9 @@ const BlockedHistory = () => {
       fakeProfileUrl: '@johnsmith_fake_official',
       originalProfile: '@johnsmith_official',
       platform: 'Instagram',
-      reportedDate: '2024-09-28',
+      takedownDate: '2024-09-28',
       reason: 'Impersonation',
-      status: 'reported',
+      status: 'takedown',
       followers: '12.5K'
     },
     {
@@ -28,9 +28,9 @@ const BlockedHistory = () => {
       fakeProfileUrl: 'sarah.johnson.fake',
       originalProfile: 'sarah.johnson.1990',
       platform: 'Facebook',
-      reportedDate: '2024-09-27',
+      takedownDate: '2024-09-27',
       reason: 'Identity Theft',
-      status: 'reported',
+      status: 'takedown',
       followers: '3.2K'
     },
     {
@@ -39,7 +39,7 @@ const BlockedHistory = () => {
       fakeProfileUrl: '@mike_davis_pro',
       originalProfile: '@mikedavis',
       platform: 'LinkedIn',
-      reportedDate: '2024-09-26',
+      takedownDate: '2024-09-26',
       reason: 'Fake Verification',
       status: 'pending',
       followers: '8.9K'
@@ -49,7 +49,7 @@ const BlockedHistory = () => {
   const getStatusBadge = (status) => {
     const styles = {
       blocked: { bg: 'bg-red-900/30', text: 'text-red-400', icon: UserX },
-      reported: { bg: 'bg-yellow-900/30', text: 'text-yellow-400', icon: AlertCircle },
+      takedown: { bg: 'bg-yellow-900/30', text: 'text-yellow-400', icon: AlertCircle },
       pending: { bg: 'bg-blue-900/30', text: 'text-blue-400', icon: Clock }
     };
     return styles[status] || styles.pending;
@@ -76,8 +76,8 @@ const BlockedHistory = () => {
     <div className="max-w-7xl mx-auto p-6 bg-black min-h-screen">
       {/* Title */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white">Reported Profiles History</h1>
-        <p className="text-gray-400 mt-1">Track and manage reported fake profiles</p>
+        <h1 className="text-3xl font-bold text-white">TakeDown Profiles History</h1>
+        <p className="text-gray-400 mt-1">Track and manage TakeDown profiles</p>
       </div>
 
       {/* Stats */}
@@ -85,7 +85,7 @@ const BlockedHistory = () => {
         <div className="bg-gray-900/10 rounded-lg shadow border border-gray-800 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-400">Total Reported</p>
+              <p className="text-sm text-gray-400">Total Takedown</p>
               <p className="text-2xl font-bold text-white mt-1">156</p>
             </div>
             <Shield className="w-8 h-8 text-red-500" />
@@ -125,7 +125,7 @@ const BlockedHistory = () => {
                 className="px-4 py-2 bg-gray-900 text-gray-200 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               >
                 <option value="all">All Status</option>
-                <option value="reported">Reported</option>
+                <option value="takedown">Takedown</option>
                 <option value="pending">Pending</option>
               </select>
             </div>
@@ -182,7 +182,7 @@ const BlockedHistory = () => {
                           </span>
                           <span className="flex items-center gap-1">
                             <Calendar className="w-4 h-4" />
-                            {profile.reportedDate}
+                            {profile.takedownDate}
                           </span>
                         </div>
                       </div>
@@ -243,7 +243,7 @@ const BlockedHistory = () => {
         {filteredProfiles.length === 0 && (
           <div className="text-center py-12">
             <Shield className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">No Reported profiles found</h3>
+            <h3 className="text-lg font-medium text-white mb-2">No Takedown profiles found</h3>
             <p className="text-gray-400">Try adjusting your search or filter criteria</p>
           </div>
         )}
@@ -263,11 +263,11 @@ const BlockedHistory = () => {
         </div>
       </div>
 
-      <ProfileDetailModal 
+      {/* <ProfileDetailModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         profile={selectedProfile}
-      />
+      /> */}
     </div>
   );
 };

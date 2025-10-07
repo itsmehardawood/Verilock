@@ -53,6 +53,7 @@ export async function getRecentSearches() {
     }
 
     const data = await response.json();
+    console.log('Recent searches data:', data);
     return {
       success: true,
       data,
