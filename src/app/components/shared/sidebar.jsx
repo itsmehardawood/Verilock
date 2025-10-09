@@ -10,25 +10,25 @@
 //   const router = useRouter();
 
 //   const menuItems = [
-//     { id: 'dashboard', icon: Home, label: 'Home', href: '/customer/Home' },
+//     { id: 'dashboard', icon: Home, label: 'Home', href: '/user/Home' },
 //     { 
 //       id: 'search', 
 //       icon: Search, 
 //       label: 'Search Profiles', 
-//       href: '/customer/profiles',
+//       href: '/user/profiles',
 //       hasDropdown: true,
 //       dropdownItems: [
-//         { id: 'facebook', icon: <FaFacebook/>, label: 'Facebook', href: '/customer/profiles/facebook' },
-//         { id: 'instagram', icon: <FaInstagram/>, label:'Instagram' , href: '/customer/search/instagram' },
-//         // { id: 'twitter', label: 'Twitter', href: '/customer/search/twitter' },
-//         { id: 'linkedin', label: 'LinkedIn', href: '/customer/search/linkedin' },
-//         // { id: 'tiktok', label: 'TikTok', href: '/customer/search/tiktok' },
+//         { id: 'facebook', icon: <FaFacebook/>, label: 'Facebook', href: '/user/profiles/facebook' },
+//         { id: 'instagram', icon: <FaInstagram/>, label:'Instagram' , href: '/user/search/instagram' },
+//         // { id: 'twitter', label: 'Twitter', href: '/user/search/twitter' },
+//         { id: 'linkedin', label: 'LinkedIn', href: '/user/search/linkedin' },
+//         // { id: 'tiktok', label: 'TikTok', href: '/user/search/tiktok' },
 //       ]
 //     },
-//     { id: 'history', icon: History, label: 'Reported Profiles', href: '/customer/history' },
-//     { id: 'reports', icon: FileText, label: 'Reports', href: '/customer/reports' },
-//     // { id: 'analytics', icon: BarChart3, label: 'Analytics', href: '/customer/Analytics' },
-//     { id: 'billing', icon: CreditCard, label: 'Billing', href: '/customer/Billing' },
+//     { id: 'history', icon: History, label: 'Reported Profiles', href: '/user/history' },
+//     { id: 'reports', icon: FileText, label: 'Reports', href: '/user/reports' },
+//     // { id: 'analytics', icon: BarChart3, label: 'Analytics', href: '/user/Analytics' },
+//     { id: 'billing', icon: CreditCard, label: 'Billing', href: '/user/Billing' },
 //   ];
 
 //   const handleNavigation = (href, itemId) => {
@@ -186,22 +186,22 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
   const router = useRouter();
 
   const menuItems = [
-    { id: 'dashboard', icon: Home, label: 'Home', href: '/customer/Home' },
+    { id: 'dashboard', icon: Home, label: 'Home', href: '/user/Home' },
     {
       id: 'search',
       icon: Search,
       label: 'Social media channels',
       children: [
-        { id: 'facebook', icon: <FaFacebook className="text-white font-medium" />, label: 'Facebook Channel', href: '/customer/profiles/facebook' },
-        { id: 'instagram', icon: <FaInstagram className="text-white font-semibold" />, label: 'Instagram Channel', href: '/customer/profiles/instagram' },
-        { id: 'x', icon: <FaTwitter className="text-white" />, label: 'Twitter(X) Channel', href: '/customer/profiles/Twitter' },
-        { id: 'linkedin', icon: <FaLinkedin className="text-white" />, label: 'LinkedIn Channel', href: '/customer/profiles/Linkedin' },
-        { id: 'tiktok', icon: <FaTiktok className="text-white" />, label: 'Tiktok Channel', href: '/customer/profiles/Tiktok' },
+        { id: 'facebook', icon: <FaFacebook className="text-white font-medium" />, label: 'Facebook Channel', href: '/user/profiles/facebook' },
+        { id: 'instagram', icon: <FaInstagram className="text-white font-semibold" />, label: 'Instagram Channel', href: '/user/profiles/instagram' },
+        { id: 'x', icon: <FaTwitter className="text-white" />, label: 'Twitter(X) Channel', href: '/user/profiles/Twitter' },
+        { id: 'linkedin', icon: <FaLinkedin className="text-white" />, label: 'LinkedIn Channel', href: '/user/profiles/Linkedin' },
+        { id: 'tiktok', icon: <FaTiktok className="text-white" />, label: 'Tiktok Channel', href: '/user/profiles/Tiktok' },
       ]
     },
-    { id: 'history', icon: History, label: 'Takedown Profiles', href: '/customer/history' },
-    { id: 'reports', icon: FileText, label: 'Reports', href: '/customer/reports' },
-    { id: 'billing', icon: CreditCard, label: 'Payment Management', href: '/customer/Billing' },
+    { id: 'history', icon: History, label: 'Takedown Profiles', href: '/user/history' },
+    { id: 'reports', icon: FileText, label: 'Reports', href: '/user/reports' },
+    { id: 'billing', icon: CreditCard, label: 'Payment Management', href: '/user/Billing' },
   ];
 
   const handleNavigation = (href, id) => {
@@ -233,21 +233,24 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
           {/* Logo */}
           <div className="flex items-center justify-between py-5 px-4 border-b border-gray-700">
             <span className="text-lg font-bold text-gray-200 pl-2">
-              Social Media Security
+              Verilock
             </span>
             <button onClick={toggleSidebar} className="lg:hidden">
               <X className="w-6 h-6 text-gray-500" />
             </button>
           </div>
-         {/* User Info */}
-           <div className="p-4 border-b border-gray-600">
-             <div className="mt-3 rounded-lg p-2">
-               <div className="flex justify-between items-center rounded-2xl p-1">
-                 <span className="text-sm text-white py-2 px-2">Balance Remaining</span>
-                 <span className="text-sm font-bold text-gray-200 pr-2">$ 250</span>
-               </div>
-             </div>
-           </div>
+          <div className="p-4 border-b border-gray-600">
+  <div className="mt-3 rounded-lg p-2">
+    <div
+      className="flex justify-between items-center rounded-2xl p-3
+                 bg-gray-400/10 backdrop-blur-md border border-white/10 
+                 shadow-md hover:bg-gray-400/20 transition-colors"
+    >
+      <span className="text-md text-white font-medium">Balance Remaining</span>
+      <span className="text-sm font-bold text-gray-200">$250</span>
+    </div>
+  </div>
+</div>
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4">
@@ -275,8 +278,8 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
                           <button
                             onClick={() => handleNavigation(child.href, child.id)}
                             className={`
-                              w-full flex items-center space-x-2 px-4 py-3 rounded-lg text-md
-                              ${activeItem === child.id ? 'bg-blue-500/10 text-red-500' : 'text-gray-400 hover:bg-gray-700/35'}
+                              w-full flex font-semibold items-center space-x-2 px-4 py-3 rounded-lg text-md
+                              ${activeItem === child.id ? 'bg-blue-500/10 text-red-500' : 'text-gray-300 hover:bg-gray-700/35'}
                             `}
                           >
                             {child.icon}

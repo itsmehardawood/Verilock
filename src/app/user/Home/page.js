@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { Search, CreditCard,  Menu, AlertCircle } from 'lucide-react';
 // import SearchForm from '@/app/components/customer/searchform';
-import Analytics from '@/app/components/customer/Analytics';
+import Analytics from '@/app/components/user/Analytics';
 
 const HomePage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);

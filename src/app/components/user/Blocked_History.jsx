@@ -19,7 +19,7 @@ const BlockedHistory = () => {
       platform: 'Instagram',
       takedownDate: '2024-09-28',
       reason: 'Impersonation',
-      status: 'takedown',
+      status: 'takedown_complete',
       followers: '12.5K'
     },
     {
@@ -30,7 +30,7 @@ const BlockedHistory = () => {
       platform: 'Facebook',
       takedownDate: '2024-09-27',
       reason: 'Identity Theft',
-      status: 'takedown',
+      status: 'takedown_complete',
       followers: '3.2K'
     },
     {
@@ -49,8 +49,8 @@ const BlockedHistory = () => {
   const getStatusBadge = (status) => {
     const styles = {
       blocked: { bg: 'bg-red-900/30', text: 'text-red-400', icon: UserX },
-      takedown: { bg: 'bg-yellow-900/30', text: 'text-yellow-400', icon: AlertCircle },
-      pending: { bg: 'bg-blue-900/30', text: 'text-blue-400', icon: Clock }
+      takedown_complete: { bg: 'bg-blue-900/30 ', text: 'text-red-400', icon: AlertCircle },
+      pending: { bg: 'bg-yellow-900/30', text: 'text-blue-400', icon: Clock }
     };
     return styles[status] || styles.pending;
   };
@@ -76,7 +76,7 @@ const BlockedHistory = () => {
     <div className="max-w-7xl mx-auto p-6 bg-black min-h-screen">
       {/* Title */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white">TakeDown Profiles History</h1>
+        <h1 className="text-2xl font-bold text-white">TakeDown Profiles History</h1>
         <p className="text-gray-400 mt-1">Track and manage TakeDown profiles</p>
       </div>
 
@@ -125,7 +125,7 @@ const BlockedHistory = () => {
                 className="px-4 py-2 bg-gray-900 text-gray-200 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               >
                 <option value="all">All Status</option>
-                <option value="takedown">Takedown</option>
+                <option value="takedown_complete">Takedown Complete</option>
                 <option value="pending">Pending</option>
               </select>
             </div>
@@ -139,6 +139,8 @@ const BlockedHistory = () => {
               <option value="Instagram">Instagram</option>
               <option value="Facebook">Facebook</option>
               <option value="LinkedIn">LinkedIn</option>
+              <option value="Twitter">Twitter</option>
+              <option value="Twitter">Tiktok</option>
             </select>
           </div>
 
@@ -225,7 +227,7 @@ const BlockedHistory = () => {
                   <div className="flex lg:flex-col gap-2">
                     <button 
                       onClick={() => handleViewDetails(profile)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium whitespace-nowrap"
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium whitespace-nowrap"
                     >
                       View Details
                     </button>
@@ -256,7 +258,7 @@ const BlockedHistory = () => {
             <button className="px-4 py-2 border border-gray-700 rounded-lg text-sm font-medium text-gray-300 hover:bg-gray-800 transition-colors">
               Previous
             </button>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+            <button className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
               Next
             </button>
           </div>

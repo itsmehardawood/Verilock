@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function TestSignup() {
   const router = useRouter();
@@ -12,14 +13,16 @@ export default function TestSignup() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");  const handleChange = (e) => {
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-  };  
-  
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");    
+    setError("");
 
     const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -28,68 +31,113 @@ export default function TestSignup() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
-      });      
-      
-      if (!res.ok) throw new Error("Signup failed"); await res.json();
-      
-      router.push("/customer/Home");
+      });
+
+      if (!res.ok) throw new Error("Signup failed");
+      await res.json();
+
+      router.push("/user/Home");
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  };  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm space-y-4"
-      >
-        <h2 className="text-xl font-semibold text-center">Test Signup</h2>       
-         <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          className="w-full border rounded px-3 py-2"
-          required
-        />       
-         <input
-          type="text"
-          name="country_code"
-          placeholder="Country Code"
-          value={form.country_code}
-          onChange={handleChange}
-          className="w-full border rounded px-3 py-2"
-          required
-        />       
-         <input
-          type="text"
-          name="phone_no"
-          placeholder="Phone Number"
-          value={form.phone_no}
-          onChange={handleChange}
-          className="w-full border rounded px-3 py-2"
-          required
-        />       
-         <input
-          type="text"
-          name="country_name"
-          placeholder="Country Name"
-          value={form.country_name}
-          onChange={handleChange}
-          className="w-full border rounded px-3 py-2"
-          required
-        />        
-        {error && <p className="text-red-500 text-sm">{error}</p>}        
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+  };
+
+  return (
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Background Video */}
+      <div className="absolute inset-0 z-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
         >
-          {loading ? "Signing up..." : "Sign Up"}
-        </button>
-      </form>
+          <source
+            src="https://d3rfyed8zhcsm.cloudfront.net/Header2.mp4"
+            type="video/mp4"
+          />
+        </video>
+        {/* Dark overlay for contrast */}
+        {/* <div className="absolute inset-0 bg-black/50"></div> */}
+      </div>
+
+      {/* Navbar */}
+      <nav className="absolute top-0 left-0 w-full z-10 bg-transparent py-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center">
+            <div className="flex-shrink-0">
+              <Link
+                href="/"
+                className="text-xl sm:text-2xl font-bold text-white drop-shadow-lg"
+              >
+                {/* Optional logo video or text */}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Signup Form */}
+      <div className="relative z-10 w-full max-w-sm bg-white/90 backdrop-blur-md rounded-lg shadow-lg p-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <h2 className="text-xl font-semibold text-center text-gray-800">
+            Verilock Signup
+          </h2>
+
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+            required
+          />
+
+          <input
+            type="text"
+            name="country_code"
+            placeholder="Country Code"
+            value={form.country_code}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+            required
+          />
+
+          <input
+            type="text"
+            name="phone_no"
+            placeholder="Phone Number"
+            value={form.phone_no}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+            required
+          />
+
+          <input
+            type="text"
+            name="country_name"
+            placeholder="Country Name"
+            value={form.country_name}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+            required
+          />
+
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loading ? "Signing up..." : "Sign Up"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

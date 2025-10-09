@@ -185,9 +185,9 @@ import { searchProfiles } from "@/app/lib/api/customer";
 import { AlertCircle, SearchIcon, ExternalLink, Eye } from "lucide-react";
 import React, { useState } from "react";
 import ProfileDetailsModal from "./modal";
-// import { searchProfiles } from "@/lib/api/customer";
+// import ProfileDetailsModal from "./modal";
 
-export default function SearchProfile({ platform , onSearchComplete }) {
+export default function SearchProfile({ platform , onSearchComplete, onViewProfile, onOpenExternal  }) {
   const [username, setUsername] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -232,7 +232,18 @@ export default function SearchProfile({ platform , onSearchComplete }) {
 
   const handleViewProfile = (profile) => {
     console.log("View clicked for profile:", profile);
-    window.open(profile.url, "_blank");
+    // window.open(profile.url, "_blank");
+    onViewProfile?.(profile);
+  };
+
+  const handleOpenExternal = (url, e) => {
+    if (e) e.preventDefault();
+    // Safely call parent callback; if not provided, fall back to opening new tab
+    if (onOpenExternal) {
+      onOpenExternal(url);
+    } else {
+      window.open(url, '_blank');
+    }
   };
 
   return (
@@ -306,6 +317,15 @@ export default function SearchProfile({ platform , onSearchComplete }) {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-4 flex-1">
+                    
+                    {/* Profile Image */}
+                  {profile.profile_image && (
+                    <img
+                      src={profile.profile_image}
+                      alt={`${profile.profile_name} profile`}
+                      className="w-16 h-16 rounded-full border border-gray-600 object-cover"
+                    />
+                  )}
                     {/* Profile Info */}
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-1">
@@ -324,21 +344,22 @@ export default function SearchProfile({ platform , onSearchComplete }) {
                           <span className="text-gray-400">Platform:</span>
                           <span className="text-gray-200 ml-2 capitalize">{profile.platform}</span>
                         </div>
-                        <div>
+                        {/* <div>
                           <span className="text-gray-400">Social-Handle:</span>
                           <span className="text-gray-200 ml-2">{profile.profile_handle}</span>
-                        </div>
+                        </div> */}
                       </div>
 
-                      {/* <a
-                        href={profile.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <a
+                        // href={profile.url}
+                        // target="_blank"
+                        // rel="noopener noreferrer"
+                         onClick={(e) => handleOpenExternal(profile.url, e)}
                         className="inline-flex items-center space-x-1 text-blue-400 hover:text-blue-300 transition-colors mt-2 text-sm"
                       >
                         <ExternalLink className="w-4 h-4" />
                         <span>View Profile</span>
-                      </a> */}
+                      </a>
                     </div>
                   </div>
 

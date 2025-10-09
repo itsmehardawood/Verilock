@@ -4,6 +4,8 @@ import { FileText, Download, Eye, Filter, Calendar, Search, AlertCircle, CheckCi
 
 const Reports = () => {
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [selectedPlatform, setSelectedPlatform] = useState('all');
+  const [selectedTimeframe, setSelectedTimeframe] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   const reports = [
@@ -13,18 +15,16 @@ const Reports = () => {
       platform: 'Instagram',
       scanDate: '2024-09-28',
       status: 'completed',
-      fakesFound: 5,
-      confidence: 'high',
+      reason: 'Impersonated',
       profileUrl: '@johnsmith_official'
     },
     {
       id: 'RPT-002',
       profileName: 'Sarah Johnson',
       platform: 'Facebook',
-      scanDate: '2024-09-27',
+      scanDate: '2025-09-27',
       status: 'completed',
-      fakesFound: 0,
-      confidence: 'low',
+      reason: 'Not Impersonated',
       profileUrl: 'sarah.johnson.1990'
     },
     {
@@ -33,8 +33,7 @@ const Reports = () => {
       platform: 'Twitter',
       scanDate: '2024-09-26',
       status: 'completed',
-      fakesFound: 12,
-      confidence: 'high',
+      reason: 'Impersonated',
       profileUrl: '@mikedavis'
     },
     {
@@ -43,8 +42,7 @@ const Reports = () => {
       platform: 'LinkedIn',
       scanDate: '2024-09-25',
       status: 'completed',
-      fakesFound: 3,
-      confidence: 'medium',
+      reason: 'Not Impersonated',
       profileUrl: 'emily-chen-marketing'
     },
     {
@@ -53,34 +51,53 @@ const Reports = () => {
       platform: 'Instagram',
       scanDate: '2024-09-24',
       status: 'completed',
-      fakesFound: 8,
-      confidence: 'high',
+      reason: 'Impersonated',
       profileUrl: '@robertwilson'
     }
   ];
 
-  const getConfidenceBadge = (confidence) => {
-    const styles = {
-      high: 'bg-red-500/20 text-red-400',
-      medium: 'bg-yellow-500/20 text-yellow-400',
-      low: 'bg-red-500/20 text-red-400'
-    };
-    return styles[confidence] || styles.low;
+  // Helper: Calculate date range based on timeframe filter
+  const isWithinTimeframe = (dateStr, timeframe) => {
+    if (timeframe === 'all') return true;
+
+    const reportDate = new Date(dateStr);
+    const today = new Date();
+    const diffTime = today - reportDate;
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+    switch (timeframe) {
+      case 'week':
+        return diffDays <= 7;
+      case 'month':
+        return diffDays <= 30;
+      case 'two-months':
+        return diffDays <= 60;
+      default:
+        return true;
+    }
   };
 
   const filteredReports = reports.filter(report => {
-    const matchesFilter =
+    // Filter by impersonation reason
+    const matchesReason =
       selectedFilter === 'all' ||
-      (selectedFilter === 'high-risk' && report.fakesFound > 5) ||
-      (selectedFilter === 'medium-risk' && report.fakesFound > 0 && report.fakesFound <= 5) ||
-      (selectedFilter === 'no-risk' && report.fakesFound === 0);
+      (selectedFilter === 'impersonated' && report.reason === 'Impersonated') ||
+      (selectedFilter === 'not-impersonated' && report.reason === 'Not Impersonated');
 
+    // Filter by platform
+    const matchesPlatform =
+      selectedPlatform === 'all' || report.platform.toLowerCase() === selectedPlatform.toLowerCase();
+
+    // Filter by timeframe
+    const matchesTimeframe = isWithinTimeframe(report.scanDate, selectedTimeframe);
+
+    // Filter by search query
     const matchesSearch =
       report.profileName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       report.platform.toLowerCase().includes(searchQuery.toLowerCase()) ||
       report.id.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesFilter && matchesSearch;
+    return matchesReason && matchesPlatform && matchesTimeframe && matchesSearch;
   });
 
   return (
@@ -90,7 +107,8 @@ const Reports = () => {
         <p className="text-gray-400 mt-1">View and download detailed scan reports</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-gray-800/15 rounded-lg shadow-md p-4 border">
           <div className="flex items-center justify-between">
             <div>
@@ -104,8 +122,8 @@ const Reports = () => {
         <div className="bg-gray-800/15 rounded-lg shadow-md p-4 border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-400">High Risk</p>
-              <p className="text-2xl font-bold text-red-500 mt-1">23</p>
+              <p className="text-sm text-gray-400">Impersonated</p>
+              <p className="text-2xl font-bold text-gray-200 mt-1">23</p>
             </div>
             <AlertCircle className="w-8 h-8 text-red-500" />
           </div>
@@ -114,14 +132,14 @@ const Reports = () => {
         <div className="bg-gray-800/15 rounded-lg shadow-md p-4 border ">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-400">Medium Risk</p>
-              <p className="text-2xl font-bold text-yellow-400 mt-1">45</p>
+              <p className="text-sm text-gray-400">Not impersonated</p>
+              <p className="text-2xl font-bold text-gray-200 mt-1">45</p>
             </div>
-            <TrendingUp className="w-8 h-8 text-yellow-400" />
+            <TrendingUp className="w-8 h-8 text-green-400" />
           </div>
         </div>
 
-        <div className="bg-gray-800/15 rounded-lg shadow-md p-4 border">
+        {/* <div className="bg-gray-800/15 rounded-lg shadow-md p-4 border">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-400">No Risk</p>
@@ -129,25 +147,55 @@ const Reports = () => {
             </div>
             <CheckCircle className="w-8 h-8 text-gray-400" />
           </div>
-        </div>
+        </div> */}
       </div>
 
+      {/* Filters */}
       <div className="bg-gray-800/15 rounded-lg shadow-md p-6 border border-gray-600">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <div className="flex items-center space-x-2">
-            <Filter className="w-5 h-5 text-gray-400" />
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 flex-wrap">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Reason Filter */}
+            {/* <div className="flex items-center space-x-2">
+              <Filter className="w-5 h-5 text-gray-400" />
+              <select
+                value={selectedFilter}
+                onChange={(e) => setSelectedFilter(e.target.value)}
+                className="px-4 py-2 bg-gray-900 text-gray-200 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              >
+                <option value="all">All Reports</option>
+                <option value="impersonated">Impersonated</option>
+                <option value="not-impersonated">Not Impersonated</option>
+              </select>
+            </div> */}
+
+            {/* Platform Filter */}
             <select
-              value={selectedFilter}
-              onChange={(e) => setSelectedFilter(e.target.value)}
+              value={selectedPlatform}
+              onChange={(e) => setSelectedPlatform(e.target.value)}
               className="px-4 py-2 bg-gray-900 text-gray-200 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
             >
-              <option value="all">All Reports</option>
-              <option value="high-risk">High Risk</option>
-              <option value="medium-risk">Medium Risk</option>
-              <option value="no-risk">No Risk</option>
+              <option value="all">All Platforms</option>
+              <option value="Instagram">Instagram</option>
+              <option value="Facebook">Facebook</option>
+              <option value="Twitter">Twitter</option>
+              <option value="Twitter">Tiktok</option>
+              <option value="LinkedIn">LinkedIn</option>
+            </select>
+
+            {/* Timeframe Filter */}
+            <select
+              value={selectedTimeframe}
+              onChange={(e) => setSelectedTimeframe(e.target.value)}
+              className="px-4 py-2 bg-gray-900 text-gray-200 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            >
+              <option value="all">All Time</option>
+              <option value="week">Last Week</option>
+              <option value="month">Last Month</option>
+              <option value="two-months">Last 2 Months</option>
             </select>
           </div>
 
+          {/* Search */}
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
@@ -160,6 +208,7 @@ const Reports = () => {
           </div>
         </div>
 
+        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-700">
@@ -168,8 +217,7 @@ const Reports = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Profile URL</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Platform</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Scan Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Fakes Found</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Risk Level</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Reason</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
@@ -189,17 +237,14 @@ const Reports = () => {
                     {report.scanDate}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                      report.fakesFound > 5 ? 'bg-red-500/20 text-red-400' :
-                      report.fakesFound > 0 ? 'bg-yellow-500/20 text-yellow-400' :
-                      'bg-red-500/20 text-red-400'
-                    }`}>
-                      {report.fakesFound}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getConfidenceBadge(report.confidence)}`}>
-                      {report.confidence.toUpperCase()}
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                        report.reason === 'Impersonated'
+                          ? 'bg-red-500/20 text-red-400'
+                          : 'bg-green-500/20 text-green-400'
+                      }`}
+                    >
+                      {report.reason}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -218,6 +263,7 @@ const Reports = () => {
           </table>
         </div>
 
+        {/* Empty State */}
         {filteredReports.length === 0 && (
           <div className="text-center py-12">
             <FileText className="w-12 h-12 text-gray-500 mx-auto mb-4" />
@@ -226,6 +272,7 @@ const Reports = () => {
           </div>
         )}
 
+        {/* Pagination */}
         <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-700">
           <p className="text-sm text-gray-400">
             Showing {filteredReports.length} of {reports.length} reports
@@ -234,7 +281,7 @@ const Reports = () => {
             <button className="px-4 py-2 border border-gray-600 rounded-lg text-sm font-medium text-gray-300 hover:bg-gray-700 transition-colors">
               Previous
             </button>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+            <button className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
               Next
             </button>
           </div>
