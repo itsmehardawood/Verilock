@@ -38,66 +38,54 @@ export async function fetchInstagramProfiles(searchName, limit = 5) {
   }
 }
 
-// export async function searchProfiles({ name, platforms }) {
-//   try {
-//     const response = await fetch(`${API_BASE_URL}/customer/search`, {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({
-//         name,
-//         platforms,
-//       }),
-//     });
+export async function searchProfiles({ name, platforms }) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/customer/search`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name,
+        platforms,
+      }),
+    });
 
-//     if (!response.ok) {
-//       const errorData = await response.json().catch(() => ({}));
-//       throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();    
+
+    // Step 2: If profiles exist, fetch their profile pictures
+//     if (data?.profiles?.length) {
+//       const enrichedProfiles = await Promise.all(
+//         data.profiles.map(async (profile) => {
+//           try {
+//             // Call Next.js route that extracts profile image
+//             const imageResponse = await fetch('/api/fetchProfileImage', {
+//               method: 'POST',
+//               headers: { 'Content-Type': 'application/json' },
+//               body: JSON.stringify({ url: profile.url }),
+//             });
+
+//             const imageData = await imageResponse.json();
+//             return {
+//               ...profile,
+//               profile_image: imageData?.imageUrl || null,
+//             };
+//           } catch (error) {
+//             console.error(`Error fetching image for ${profile.url}:`, error);
+//             return { ...profile, profile_image: null };
+//           }
+//         })
+//       );
+
+//       data.profiles = enrichedProfiles;
 //     }
 
-//     const data = await response.json();    
-
-//     // Step 2: If profiles exist, fetch their profile pictures
-// //     if (data?.profiles?.length) {
-// //       const enrichedProfiles = await Promise.all(
-// //         data.profiles.map(async (profile) => {
-// //           try {
-// //             // Call Next.js route that extracts profile image
-// //             const imageResponse = await fetch('/api/fetchProfileImage', {
-// //               method: 'POST',
-// //               headers: { 'Content-Type': 'application/json' },
-// //               body: JSON.stringify({ url: profile.url }),
-// //             });
-
-// //             const imageData = await imageResponse.json();
-// //             return {
-// //               ...profile,
-// //               profile_image: imageData?.imageUrl || null,
-// //             };
-// //           } catch (error) {
-// //             console.error(`Error fetching image for ${profile.url}:`, error);
-// //             return { ...profile, profile_image: null };
-// //           }
-// //         })
-// //       );
-
-// //       data.profiles = enrichedProfiles;
-// //     }
-
-// //     // Step 3: Return enriched data
-// //     return {
-// //       success: true,
-// //       data,
-// //     };
-// //   } catch (error) {
-// //     console.error('Error searching profiles:', error);
-// //     return {
-// //       success: false,
-// //       error: error.message || 'Failed to search profiles',
-// //     };
-// //   }
-// // }
+//     // Step 3: Return enriched data
 //     return {
 //       success: true,
 //       data,
@@ -110,5 +98,17 @@ export async function fetchInstagramProfiles(searchName, limit = 5) {
 //     };
 //   }
 // }
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    console.error('Error searching profiles:', error);
+    return {
+      success: false,
+      error: error.message || 'Failed to search profiles',
+    };
+  }
+}
 
 

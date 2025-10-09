@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 'use client';
-import Facebook from '@/app/components/customer/search_Profile'
-import SearchForm from '@/app/components/customer/Multi-platform-form';
+// import Facebook from '@/app/components/customer/search_Profile'
+import SearchForm from '@/app/components/user/Multi-platform-form';
 import { AlertCircle, CreditCard, Menu, Search } from 'lucide-react'
 import React, { useState } from 'react'
 
