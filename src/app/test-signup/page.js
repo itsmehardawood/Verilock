@@ -93,7 +93,7 @@ export default function TestSignup() {
             placeholder="Email"
             value={form.email}
             onChange={handleChange}
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+            className="w-full border text-gray-600 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
             required
           />
 
@@ -103,7 +103,7 @@ export default function TestSignup() {
             placeholder="Country Code"
             value={form.country_code}
             onChange={handleChange}
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+            className="w-full border text-gray-600 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
             required
           />
 
@@ -113,7 +113,7 @@ export default function TestSignup() {
             placeholder="Phone Number"
             value={form.phone_no}
             onChange={handleChange}
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+            className="w-full border text-gray-600 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
             required
           />
 
@@ -123,7 +123,7 @@ export default function TestSignup() {
             placeholder="Country Name"
             value={form.country_name}
             onChange={handleChange}
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+            className="w-full border text-gray-600 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
             required
           />
 
@@ -137,6 +137,17 @@ export default function TestSignup() {
             {loading ? "Signing up..." : "Sign Up"}
           </button>
         </form>
+        <div className="text-center">
+                      <span className="text-sm text-gray-600">
+                        New to our App?{" "}
+                        <Link
+                          href="/test-login"
+                          className="font-medium text-blue-600 hover:text-blue-500"
+                        >
+                          Back to Login
+                        </Link>
+                      </span>
+                    </div>
       </div>
     </div>
   );

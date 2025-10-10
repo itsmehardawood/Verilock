@@ -91,7 +91,7 @@ export default function TestLogin() {
             placeholder="Country Code"
             value={form.country_code}
             onChange={handleChange}
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+            className="w-full border text-gray-500 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
             required
           />
 
@@ -101,7 +101,7 @@ export default function TestLogin() {
             placeholder="Email or Phone"
             value={form.login_input}
             onChange={handleChange}
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+            className="w-full border text-gray-500 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
             required
           />
 
@@ -115,6 +115,18 @@ export default function TestLogin() {
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+
+        <div className="text-center">
+            <span className="text-sm text-gray-600">
+                 New to our App?{" "}
+                  <Link
+                   href="/test-signup"
+                   className="font-medium text-blue-600 hover:text-blue-500"
+                  >
+                  Create account
+                  </Link>
+             </span>
+        </div>
       </div>
     </div>
   );

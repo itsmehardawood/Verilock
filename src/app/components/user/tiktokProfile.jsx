@@ -1,10 +1,10 @@
 'use client';
 import { AlertCircle, SearchIcon, ExternalLink, Eye, CheckCircle, Lock, X } from "lucide-react";
 import React, { useState } from "react";
-import { fetchInstagramProfiles } from "@/app/lib/api/customer";
+import { fetchTikTokProfiles } from "@/app/lib/api/customer";
 
 // Profile Details Modal
-function ProfileDetailsModal({ isOpen, profile, onClose }) {
+function TikTokProfileDetailsModal({ isOpen, profile, onClose }) {
   if (!isOpen || !profile) return null;
 
   return (
@@ -17,35 +17,30 @@ function ProfileDetailsModal({ isOpen, profile, onClose }) {
           <X className="w-5 h-5" />
         </button>
         <div className="flex flex-col items-center text-center">
-          {/* <img
-            src={profile.profilePicUrl || "/images/instagram.png"}
+          <img
+            src={profile.profilePicUrl || "/images/tiktok.png"}
             alt={profile.username}
             className="w-24 h-24 rounded-full border border-gray-600 mb-4 object-cover"
-          /> */}
-<img
-  src={getProxiedImageUrl(profile.profilePicUrl) || "/images/instagram.png"}
-  alt={`${profile.fullName || profile.username} profile`}
-  className="w-16 h-16 rounded-full border border-gray-600 object-cover"
-/>
+          />
           <div className="flex items-center gap-2 mb-1">
             <h3 className="text-2xl font-semibold text-gray-100">
-              {profile.fullName || profile.username}
+              {profile.nickName}
             </h3>
             {profile.verified && (
-              <CheckCircle className="w-5 h-5 text-blue-500" />
+              <CheckCircle className="w-5 h-5 text-gray-100" />
             )}
           </div>
           <p className="text-gray-400 mb-3">@{profile.username}</p>
 
-          {profile.private && (
+          {profile.privateAccount && (
             <div className="flex items-center gap-1 text-sm text-yellow-400 mb-3">
               <Lock className="w-4 h-4" />
               <span>Private Account</span>
             </div>
           )}
 
-          {profile.biography && (
-            <p className="text-sm text-gray-300 mb-4">{profile.biography}</p>
+          {profile.signature && (
+            <p className="text-sm text-gray-300 mb-4">{profile.signature}</p>
           )}
 
           <div className="flex justify-center gap-6 text-sm text-gray-300 mb-4">
@@ -56,7 +51,7 @@ function ProfileDetailsModal({ isOpen, profile, onClose }) {
               <strong className="text-white">{profile.following?.toLocaleString() || 0}</strong> Following
             </span>
             <span>
-              <strong className="text-white">{profile.postsCount?.toLocaleString() || 0}</strong> Posts
+              <strong className="text-white">{profile.videos?.toLocaleString() || 0}</strong> Videos
             </span>
           </div>
 
@@ -64,7 +59,7 @@ function ProfileDetailsModal({ isOpen, profile, onClose }) {
             href={profile.profileUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm"
+            className="inline-flex items-center space-x-2 bg-black hover:bg-gray-900 text-white px-4 py-2 rounded-lg text-sm border border-gray-600"
           >
             <ExternalLink className="w-4 h-4" />
             <span>Open Profile</span>
@@ -75,15 +70,7 @@ function ProfileDetailsModal({ isOpen, profile, onClose }) {
   );
 }
 
-// Add this helper function at the top of your component
-const getProxiedImageUrl = (url) => {
-  if (!url || url.includes('/api/proxy/image') || url.includes('/images/')) {
-    return url;
-  }
-  return `/api/proxy/image?url=${encodeURIComponent(url)}`;
-};
-
-export default function InstaProfile() {
+export default function TikTokProfile() {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -98,9 +85,9 @@ export default function InstaProfile() {
     setSearchResults([]);
 
     try {
-      console.log("🚀 Searching Instagram for:", username ,"with limit:", limit);
+      console.log("🚀 Searching TikTok for:", username, "with limit:", limit);
 
-      const apiResponse = await fetchInstagramProfiles(username, limit);
+      const apiResponse = await fetchTikTokProfiles(username, limit);
       console.log("📦 [Full API Response]:", apiResponse);
 
       // ✅ Extract the results array from the API response
@@ -119,25 +106,24 @@ export default function InstaProfile() {
         return;
       }
 
-      // ✅ Transform each result - using CORRECT Instagram API field names
+      // ✅ Transform each result using TikTok API field names
       const formattedProfiles = resultsArray.map((profile, index) => {
         console.log(`Profile ${index}:`, profile);
         
         return {
           id: profile.id || index,
-          username: profile.username || "N/A",
-          fullName: profile.fullName || profile.username || "",
-          profilePicUrl: profile.profilePicUrl || profile.profilePicUrlHD || "/images/instagram.png",
-          profileUrl: profile.url || `https://www.instagram.com/${profile.username}/`,
-          followers: profile.followersCount || 0,
-          following: profile.followsCount || 0, // Note: "followsCount" is the correct field
-          postsCount: profile.postsCount || 0,
-          biography: profile.biography || "",
+          username: profile.name || "N/A",
+          nickName: profile.nickName || profile.name || "",
+          profilePicUrl: profile.avatar || "/images/tiktok.png",
+          profileUrl: `https://www.tiktok.com/@${profile.name}/`,
+          followers: profile.fans || 0,
+          following: profile.following || 0, // Note: following field not in response, you might need to add it
+          videos: profile.video || 0,
+          signature: profile.signature || "",
           verified: profile.verified || false,
-          private: profile.private || false,
-          isBusinessAccount: profile.isBusinessAccount || false,
-          businessCategoryName: profile.businessCategoryName || null,
-          externalUrls: profile.externalUrls || [],
+          privateAccount: profile.privateAccount || false,
+          ttSeller: profile.ttSeller || false,
+          bioLink: profile.bioLink || null,
         };
       });
 
@@ -162,9 +148,9 @@ export default function InstaProfile() {
       {/* Search Form */}
       <div className="bg-black rounded-xl shadow-sm border border-gray-700 p-6">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-100">Search Instagram Profiles</h2>
+          <h2 className="text-2xl font-bold text-gray-100">Search TikTok Profiles</h2>
           <p className="text-gray-400 mt-1">
-            Enter the social media profile details to detect impersonation
+            Enter the TikTok profile details to detect impersonation
           </p>
         </div>
 
@@ -178,8 +164,8 @@ export default function InstaProfile() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter social profile name for search"
-                className="flex-1 px-4 py-3 bg-gray-900 text-gray-100 border border-gray-600 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                placeholder="Enter TikTok username for search"
+                className="flex-1 px-4 py-3 bg-gray-900 text-gray-100 border border-gray-600 rounded-l-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition"
                 required
               />
               <button
@@ -204,7 +190,7 @@ export default function InstaProfile() {
               max="100"
               value={limit}
               onChange={(e) => setLimit(Number(e.target.value))}
-              className="w-full px-4 py-3 bg-gray-900 text-gray-100 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+              className="w-full px-4 py-3 bg-gray-900 text-gray-100 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition"
               placeholder="Enter number of profiles to fetch"
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -243,37 +229,37 @@ export default function InstaProfile() {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-4 flex-1">
-                    {/* <img
-                      src={profile.profilePicUrl || "/images/instagram.png"}
-                      alt={`${profile.fullName || profile.username} profile`}
+                    <img
+                      src={profile.profilePicUrl || "/images/tiktok.png"}
+                      alt={`${profile.nickName || profile.username} profile`}
                       className="w-16 h-16 rounded-full border border-gray-600 object-cover"
-                    /> */}
-                    
-<img
-  src={getProxiedImageUrl(profile.profilePicUrl) || "/images/instagram.png"}
-  alt={profile.username}
-  className="w-24 h-24 rounded-full border border-gray-600 mb-4 object-cover"
-/>
+                    />
 
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-1">
                         <h4 className="text-lg font-semibold text-gray-100">
-                          {profile.fullName || profile.username}
+                          {profile.nickName || profile.username}
                         </h4>
                         {profile.verified && (
-                          <CheckCircle className="w-4 h-4 text-blue-500" />
+                          <CheckCircle className="w-4 h-4 text-red-500" />
                         )}
-                        {profile.private && (
+                        {profile.privateAccount && (
                           <Lock className="w-4 h-4 text-yellow-400" />
                         )}
                       </div>
 
                       <p className="text-sm text-gray-400 mb-2">@{profile.username}</p>
 
+                      {profile.signature && (
+                        <p className="text-sm text-gray-300 mb-2 line-clamp-2">
+                          {profile.signature}
+                        </p>
+                      )}
+
                       <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
                         <div>
                           <span className="text-gray-400">Platform:</span>
-                          <span className="text-gray-200 ml-2">Instagram</span>
+                          <span className="text-gray-200 ml-2">TikTok</span>
                         </div>
                         <div>
                           <span className="text-gray-400">Followers:</span>
@@ -282,25 +268,18 @@ export default function InstaProfile() {
                           </span>
                         </div>
                         <div>
-                          <span className="text-gray-400">Following:</span>
+                          <span className="text-gray-400">Videos:</span>
                           <span className="text-gray-200 ml-2">
-                            {profile.following?.toLocaleString() || 0}
+                            {profile.videos?.toLocaleString() || 0}
                           </span>
                         </div>
-                        <div>
-                          <span className="text-gray-400">Posts:</span>
-                          <span className="text-gray-200 ml-2">
-                            {profile.postsCount?.toLocaleString() || 0}
-                          </span>
-                        </div>
+                        {profile.ttSeller && (
+                          <div>
+                            <span className="text-gray-400">Seller:</span>
+                            <span className="text-green-400 ml-2">Yes</span>
+                          </div>
+                        )}
                       </div>
-
-                      {profile.isBusinessAccount && (
-                        <div className="text-xs text-green-400 mt-1">
-                          Business Account
-                          {profile.businessCategoryName && ` • ${profile.businessCategoryName}`}
-                        </div>
-                      )}
 
                       <a
                         onClick={(e) => handleOpenExternal(profile.profileUrl, e)}
@@ -327,7 +306,7 @@ export default function InstaProfile() {
       )}
 
       {/* Profile Details Modal */}
-      <ProfileDetailsModal
+      <TikTokProfileDetailsModal
         isOpen={!!selectedProfile}
         profile={selectedProfile}
         onClose={() => setSelectedProfile(null)}

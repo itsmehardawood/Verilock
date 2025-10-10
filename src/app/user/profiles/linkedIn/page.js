@@ -1,6 +1,5 @@
 'use client';
-import TikTokProfile from '@/app/components/user/tiktokProfile';
-// import Facebook from '@/app/components/user/search_Profile'
+import LinkedInProfile from '@/app/components/user/linkedinProfile';
 import { AlertCircle, CreditCard, Menu, Search } from 'lucide-react'
 import React, { useState } from 'react'
 
@@ -72,8 +71,8 @@ export default function TikTokPage  () {
               </div>
             </div>
           <div >
-          <TikTokProfile/>
-          </div>
+          <LinkedInProfile/>
+            </div>
         </div>
         </main>
         
