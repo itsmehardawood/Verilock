@@ -1,4 +1,6 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+// const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const BASE_URL = 'https://api.verilock.net';
+
 
 export async function apiFetch(endpoint, options = {}) {
   return fetch(`${BASE_URL}${endpoint}`, {

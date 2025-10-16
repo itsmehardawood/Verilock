@@ -298,28 +298,28 @@ useEffect(() => {
       // Step 3: Store user data in localStorage with both API and Firebase info
       const expiryTime = new Date().getTime() + 3 * 60 * 60 * 1000; // 3 hours from now
       
-      const userData = {
-        user: {
-          id: data.user.id,
-          merchant_id: data.user.merchant_id,
-          email: data.user.email,
-          phone: data.user.phone_no,
-          country_code: data.user.country_code,
-          country_name: data.user.country_name,
-          otp_verified: true, // We know it's verified since we got here
-          business_verified: data.user.business_verified,
-          verification_reason: data.user.verification_reason,
-          role: data.user.role,
-          created_at: data.user.created_at,
-          updated_at: data.user.updated_at,
-          firebaseUid: user.uid,
-          firebasePhone: user.phoneNumber,
-        },
-        expiry: expiryTime,
-        status: data.status
-      };
+      // const userData = {
+      //   user: {
+      //     id: data.user.id,
+      //     merchant_id: data.user.merchant_id,
+      //     email: data.user.email,
+      //     phone: data.user.phone_no,
+      //     country_code: data.user.country_code,
+      //     country_name: data.user.country_name,
+      //     otp_verified: true, // We know it's verified since we got here
+      //     business_verified: data.user.business_verified,
+      //     verification_reason: data.user.verification_reason,
+      //     role: data.user.role,
+      //     created_at: data.user.created_at,
+      //     updated_at: data.user.updated_at,
+      //     firebaseUid: user.uid,
+      //     firebasePhone: user.phoneNumber,
+      //   },
+      //   expiry: expiryTime,
+      //   status: data.status
+      // };
 
-      localStorage.setItem("userData", JSON.stringify(userData));
+      // localStorage.setItem("userData", JSON.stringify(userData));
       // console.log("Account created and verified successfully:", userData);
 
       setSuccess(

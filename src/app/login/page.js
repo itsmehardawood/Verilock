@@ -267,7 +267,7 @@ localStorage.setItem("userData", JSON.stringify(updatedUserData));
       // Only BUSINESS_USER is allowed
       const userRole = apiUserData?.user?.role;
       
-if (userRole === "BUSINESS_USER" || userRole === "ENTERPRISE_USER") {       
+if (userRole === "user" || userRole === "User") {       
    setTimeout(() => {
           router.push("/dashboard");
         }, 1500);
