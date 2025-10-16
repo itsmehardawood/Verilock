@@ -150,7 +150,7 @@ const handleSignIn = async (e) => {
         login_input: emailOrPhone,
       };
 
-      const response = await apiFetch("/login", {
+      const response = await apiFetch("/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -269,7 +269,7 @@ localStorage.setItem("userData", JSON.stringify(updatedUserData));
       
 if (userRole === "user" || userRole === "User") {       
    setTimeout(() => {
-          router.push("/dashboard");
+          router.push("/user/Home");
         }, 1500);
       } else {
         setTimeout(() => {

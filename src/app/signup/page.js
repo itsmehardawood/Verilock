@@ -275,7 +275,7 @@ useEffect(() => {
       };
 
       const response = await apiFetch(
-        "/signup",
+        "/auth/signup",
         {
           method: "POST",
           headers: {
@@ -328,7 +328,7 @@ useEffect(() => {
 
       // Redirect to dashboard
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/user/Home");
       }, 1500);
     } catch (err) {
       console.error("Error during OTP verification or account creation:", err);
