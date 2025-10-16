@@ -3,9 +3,12 @@ import { fetchTwitterProfiles } from "@/app/lib/api/customer";
 import { AlertCircle, SearchIcon, ExternalLink, Eye, CheckCircle, Lock, X, Loader2 } from "lucide-react";
 import React, { useState } from "react";
 import { useBalance } from "@/app/hooks/usebalance";
+import { useReview } from "@/app/contexts/ReviewContext"; // Import the context
 
 // Profile Details Modal
 function TwitterProfileDetailsModal({ isOpen, profile, onClose }) {
+  const { addToReviewLater } = useReview(); // Use the context
+
   if (!isOpen || !profile) return null;
 
   const openProfileWindow = (url) => {
@@ -29,6 +32,19 @@ function TwitterProfileDetailsModal({ isOpen, profile, onClose }) {
     `.replace(/\s+/g, "");
 
     window.open(url, "_blank", features);
+  };
+
+  // ✅ NEW: Handle Review Later with Context API
+  const handleReviewLater = () => {
+    addToReviewLater(profile, 'Twitter');
+    onClose();
+    console.log('📝 Twitter profile added to review later:', profile);
+  };
+
+  // ✅ NEW: Handle Takedown
+  const handleTakedown = () => {
+    console.log('Request Takedown:', profile);
+    onClose();
   };
 
   return (
@@ -64,10 +80,22 @@ function TwitterProfileDetailsModal({ isOpen, profile, onClose }) {
               )}
             </div>
 
-            <div className="text-sm space-y-1">
+            <div className="text-sm space-y-2">
               <p><span className="text-gray-400">Platform:</span> <span className="text-gray-200">Twitter</span></p>
               <p><span className="text-gray-400">Username:</span> <span className="text-gray-200">@{profile.username}</span></p>
-              <p><span className="text-gray-400">URL:</span> <a href={profile.profileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">{profile.profileUrl}</a></p>
+              
+              {/* ✅ UPDATED: URL as button with background */}
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">Profile:</span>
+                <button
+                  onClick={() => openProfileWindow(profile.profileUrl)}
+                  className="inline-flex items-center space-x-1 bg-blue-900/30 hover:bg-blue-800/40 text-blue-400 px-3 py-1 rounded-lg text-sm border border-blue-700 transition-colors"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  <span>Open Twitter Profile</span>
+                </button>
+              </div>
+              
               <p><span className="text-gray-400">Verified:</span> <span className={`font-medium ${profile.verified ? 'text-green-400' : 'text-yellow-400'}`}>{profile.verified ? 'Yes' : 'No'}</span></p>
               <p><span className="text-gray-400">Protected:</span> <span className={`font-medium ${profile.protected ? 'text-red-400' : 'text-green-400'}`}>{profile.protected ? 'Yes' : 'No'}</span></p>
             </div>
@@ -101,21 +129,23 @@ function TwitterProfileDetailsModal({ isOpen, profile, onClose }) {
         </div>
 
         <div className="border-t border-gray-700 my-6"></div>
+        
+        {/* ✅ UPDATED: Action Buttons with Context API Integration */}
         <div className="flex justify-end space-x-3">
           <button
-            onClick={(e) => openProfileWindow(profile.profileUrl, e)}
+            onClick={handleTakedown}
             className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-medium transition"
           >
             Request Takedown
           </button>
           <button
-            onClick={() => console.log('Review Later:', profile)}
+            onClick={handleReviewLater}
             className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium transition"
           >
             Review Later
           </button>
           <button
-            onClick={() => console.log('Ignore:', profile)}
+            onClick={onClose}
             className="bg-gray-700 hover:bg-gray-600 text-gray-200 px-5 py-2.5 rounded-lg font-medium transition"
           >
             Ignore
@@ -141,6 +171,10 @@ export default function TwitterProfile() {
 
   // Use balance hook
   const { balance, deductCredit, isLoading: balanceLoading, canAfford } = useBalance(250);
+
+  // ✅ NEW: Use Review Context to show count in UI (optional)
+  const { reviewProfiles } = useReview();
+  const twitterReviewCount = reviewProfiles.filter(profile => profile.platform === 'Twitter').length;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -334,6 +368,13 @@ export default function TwitterProfile() {
           <p className="text-gray-400 mt-1">
             Enter the Twitter profile details to detect impersonation
           </p>
+          
+          {/* ✅ OPTIONAL: Show Twitter review count */}
+          {twitterReviewCount > 0 && (
+            <p className="text-sm text-blue-400 mt-1">
+              You have {twitterReviewCount} Twitter profile{twitterReviewCount !== 1 ? 's' : ''} in Review Later
+            </p>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">

@@ -3,9 +3,12 @@ import { AlertCircle, SearchIcon, ExternalLink, Eye, CheckCircle, Lock, X, Gradu
 import React, { useState } from "react";
 import { fetchFacebookProfiles } from "@/app/lib/api/customer";
 import { useBalance } from "@/app/hooks/usebalance";
+import { useReview } from "@/app/contexts/ReviewContext"; // Import the context
 
 // Profile Details Modal
 function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
+  const { addToReviewLater } = useReview(); // Use the context
+
   if (!isOpen || !profile) return null;
 
   const getIconForType = (type) => {
@@ -42,6 +45,23 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
     `.replace(/\s+/g, "");
 
     window.open(url, "_blank", features);
+  };
+
+  // ✅ NEW: Handle Review Later with Context API
+  const handleReviewLater = () => {
+    addToReviewLater(profile, 'Facebook');
+    onClose();
+    // Optional: Show success message
+    console.log('📝 Facebook profile added to review later:', profile);
+    // You can add a toast notification here: toast.success('Profile added to Review Later!');
+  };
+
+  // ✅ NEW: Handle Takedown
+  const handleTakedown = () => {
+    console.log('Request Takedown:', profile);
+    // You can implement takedown logic here
+    // For now, just log and close
+    onClose();
   };
 
   return (
@@ -84,8 +104,18 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
             <div className="text-sm space-y-1">
               <p><span className="text-gray-400">Platform:</span> <span className="text-gray-200">Facebook</span></p>
               <p><span className="text-gray-400">User ID:</span> <span className="text-gray-200">{profile.id}</span></p>
-              <p><span className="text-gray-400">URL:</span> <a href={profile.profileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">{profile.profileUrl}</a></p>
-              <p><span className="text-gray-400">Verified:</span> <span className={`font-medium ${profile.verified ? 'text-green-400' : 'text-yellow-400'}`}>{profile.verified ? 'Yes' : 'No'}</span></p>
+              {/* ✅ UPDATED: URL as button with background */}
+                <div className="flex items-center gap-2">
+                    <span className="text-gray-400">Profile:</span>
+                        <button
+                          onClick={() => openProfileWindow(profile.profileUrl)}
+                          className="inline-flex items-center space-x-1 bg-blue-900/30 hover:bg-blue-800/40 text-blue-400 px-3 py-1 rounded-lg text-sm border border-blue-700 transition-colors"
+                        >
+                        <ExternalLink className="w-3 h-3" />
+                        <span>Open LinkedIn Profile</span>
+                        </button>
+                      </div>
+              {/* <p><span className="text-gray-400">Verified:</span> <span className={`font-medium ${profile.verified ? 'text-green-400' : 'text-yellow-400'}`}>{profile.verified ? 'Yes' : 'No'}</span></p> */}
             </div>
           </div>
         </div>
@@ -119,21 +149,24 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
         )}
 
         <div className="border-t border-gray-700 my-6"></div>
+        
+        {/* ✅ UPDATED: Action Buttons with Context API Integration */}
         <div className="flex justify-end space-x-3">
           <button
+            // onClick={handleTakedown}
             onClick={(e) => openProfileWindow(profile.profileUrl, e)}
             className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-medium transition"
           >
             Request Takedown
           </button>
           <button
-            onClick={() => console.log('Review Later:', profile)}
+            onClick={handleReviewLater}
             className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium transition"
           >
             Review Later
           </button>
           <button
-            onClick={() => console.log('Ignore:', profile)}
+            onClick={onClose}
             className="bg-gray-700 hover:bg-gray-600 text-gray-200 px-5 py-2.5 rounded-lg font-medium transition"
           >
             Ignore
@@ -143,6 +176,29 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
     </div>
   );
 }
+
+const openProfileWindow = (url) => {
+    const width = 450;
+    const height = 700;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    
+    const features = `
+      width=${width},
+      height=${height},
+      left=${left},
+      top=${top},
+      resizable,
+      scrollbars,
+      status=no,
+      toolbar=no,
+      menubar=no,
+      noopener,
+      noreferrer
+    `.replace(/\s+/g, "");
+
+    window.open(url, "_blank", features);
+  };
 
 export default function FacebookProfile() {
   const [username, setUsername] = useState("");
@@ -159,6 +215,10 @@ export default function FacebookProfile() {
 
   // Use balance hook
   const { balance, deductCredit, isLoading: balanceLoading, canAfford } = useBalance(250);
+
+  // ✅ NEW: Use Review Context to show count in UI (optional)
+  const { reviewProfiles } = useReview();
+  const facebookReviewCount = reviewProfiles.filter(profile => profile.platform === 'Facebook').length;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -306,28 +366,28 @@ export default function FacebookProfile() {
     }
   };
 
-  const openProfileWindow = (url) => {
-    const width = 450;
-    const height = 700;
-    const left = window.screenX + (window.outerWidth - width) / 2;
-    const top = window.screenY + (window.outerHeight - height) / 2;
+  // const openProfileWindow = (url) => {
+  //   const width = 450;
+  //   const height = 700;
+  //   const left = window.screenX + (window.outerWidth - width) / 2;
+  //   const top = window.screenY + (window.outerHeight - height) / 2;
     
-    const features = `
-      width=${width},
-      height=${height},
-      left=${left},
-      top=${top},
-      resizable,
-      scrollbars,
-      status=no,
-      toolbar=no,
-      menubar=no,
-      noopener,
-      noreferrer
-    `.replace(/\s+/g, "");
+  //   const features = `
+  //     width=${width},
+  //     height=${height},
+  //     left=${left},
+  //     top=${top},
+  //     resizable,
+  //     scrollbars,
+  //     status=no,
+  //     toolbar=no,
+  //     menubar=no,
+  //     noopener,
+  //     noreferrer
+  //   `.replace(/\s+/g, "");
 
-    window.open(url, "_blank", features);
-  };
+  //   window.open(url, "_blank", features);
+  // };
 
   const handleImageError = (e) => {
     console.warn('Facebook image failed to load, using fallback');
@@ -357,6 +417,13 @@ export default function FacebookProfile() {
           <p className="text-gray-400 mt-1">
             Enter the Facebook profile details to detect impersonation
           </p>
+          
+          {/* ✅ OPTIONAL: Show Facebook review count */}
+          {facebookReviewCount > 0 && (
+            <p className="text-sm text-blue-400 mt-1">
+              You have {facebookReviewCount} Facebook profile{facebookReviewCount !== 1 ? 's' : ''} in Review Later
+            </p>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">

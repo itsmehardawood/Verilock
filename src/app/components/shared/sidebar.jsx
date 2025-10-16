@@ -178,7 +178,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Home, Search, History, FileText, CreditCard, LogOut, X } from 'lucide-react';
+import { Home, Search, History, FileText, CreditCard, LogOut, X, Archive } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin, FaTiktok } from 'react-icons/fa';
 import { useBalance } from '@/app/hooks/usebalance';
 
@@ -204,6 +204,7 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
       ]
     },
     { id: 'history', icon: History, label: 'Takedown Profiles', href: '/user/history' },
+    { id: 'Reviewlater', icon: Archive, label: 'Review Later', href: '/user/reviewlater' },
     { id: 'reports', icon: FileText, label: 'Reports', href: '/user/reports' },
     { id: 'billing', icon: CreditCard, label: 'Payment Management', href: '/user/Billing' },
   ];
