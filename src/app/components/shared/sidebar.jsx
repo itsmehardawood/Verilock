@@ -176,14 +176,18 @@
 
 
 'use client';
-import React, { useState } from 'react';
-import { Search, Home, History, FileText, CreditCard, LogOut, X } from 'lucide-react';
-import { FaFacebook, FaInstagram, FaLinkedin, FaTiktok, FaTwitter } from "react-icons/fa";
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Home, Search, History, FileText, CreditCard, LogOut, X } from 'lucide-react';
+import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin, FaTiktok } from 'react-icons/fa';
+import { useBalance } from '@/app/hooks/usebalance';
 
 export default function Sidebar({ isOpen, toggleSidebar }) {
   const [activeItem, setActiveItem] = useState('dashboard');
   const router = useRouter();
+  
+  // Use balance hook to get current balance
+  const { balance, isLoading: balanceLoading } = useBalance(250);
 
   const menuItems = [
     { id: 'dashboard', icon: Home, label: 'Home', href: '/user/Home' },
@@ -239,18 +243,54 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
               <X className="w-6 h-6 text-gray-500" />
             </button>
           </div>
+          
+          {/* Balance Display */}
           <div className="p-4 border-b border-gray-600">
-  <div className="mt-3 rounded-lg p-2">
-    <div
-      className="flex justify-between items-center rounded-2xl p-3
-                 bg-gray-400/10 backdrop-blur-md border border-white/10 
-                 shadow-md hover:bg-gray-400/20 transition-colors"
-    >
-      <span className="text-md text-white font-medium">Balance Remaining</span>
-      <span className="text-sm font-bold text-gray-200">$250</span>
-    </div>
-  </div>
-</div>
+            <div className="mt-3 rounded-lg p-2">
+              <div
+                className="flex justify-between items-center rounded-2xl p-3
+                           bg-gray-400/10 backdrop-blur-md border border-white/10 
+                           shadow-md hover:bg-gray-400/20 transition-colors"
+              >
+                <span className="text-md text-white font-medium">Balance Remaining</span>
+                <div className="flex items-center space-x-2">
+                  {balanceLoading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-3 h-3 border-2 border-gray-200 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-sm text-gray-300">Loading...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="text-sm font-bold text-gray-200">
+                        ${balance} {balance !== 1 ? '' : ''}
+                      </span>
+                      {balance === 0 && (
+                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" title="Low balance"></div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+              
+              {/* Low Balance Warning */}
+              {balance <= 10 && balance > 0 && !balanceLoading && (
+                <div className="mt-2 p-2 bg-yellow-500/20 border border-yellow-500/30 rounded-lg">
+                  <p className="text-xs text-yellow-300 text-center">
+                    Low balance! Only {balance} credit{balance !== 1 ? 's' : ''} remaining
+                  </p>
+                </div>
+              )}
+              
+              {/* Zero Balance Warning */}
+              {balance === 0 && !balanceLoading && (
+                <div className="mt-2 p-2 bg-red-500/20 border border-red-500/30 rounded-lg">
+                  <p className="text-xs text-red-300 text-center">
+                    No credits remaining. Please add credits to continue searching.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4">

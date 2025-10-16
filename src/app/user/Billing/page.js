@@ -3,5 +3,9 @@
 import Billing from "@/app/components/user/billing";
 
 export default function BillingPage() {
-  return <Billing />;
+ 
+  return (
+    <div className="bg-black"><Billing />
+ </div>
+  );
 }

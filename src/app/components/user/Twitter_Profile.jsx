@@ -1,62 +1,125 @@
 'use client';
 import { fetchTwitterProfiles } from "@/app/lib/api/customer";
-import { AlertCircle, SearchIcon, ExternalLink, Eye, CheckCircle, Lock, X } from "lucide-react";
+import { AlertCircle, SearchIcon, ExternalLink, Eye, CheckCircle, Lock, X, Loader2 } from "lucide-react";
 import React, { useState } from "react";
+import { useBalance } from "@/app/hooks/usebalance";
 
 // Profile Details Modal
 function TwitterProfileDetailsModal({ isOpen, profile, onClose }) {
   if (!isOpen || !profile) return null;
 
+  const openProfileWindow = (url) => {
+    const width = 450;
+    const height = 700;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    
+    const features = `
+      width=${width},
+      height=${height},
+      left=${left},
+      top=${top},
+      resizable,
+      scrollbars,
+      status=no,
+      toolbar=no,
+      menubar=no,
+      noopener,
+      noreferrer
+    `.replace(/\s+/g, "");
+
+    window.open(url, "_blank", features);
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 w-full max-w-lg relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/15 backdrop-blur-xs">
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl w-full max-w-2xl p-6 relative">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-white"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition"
         >
-          <X className="w-5 h-5" />
+          <X className="w-6 h-6" />
         </button>
-        <div className="flex flex-col items-center text-center">
+
+        <div className="mb-4 border-b border-gray-700 pb-3">
+          <h2 className="text-2xl font-semibold text-white">
+            Profile Details
+          </h2>
+        </div>
+
+        <div className="flex items-start space-x-4">
           <img
             src={profile.profilePicUrl || "/images/twitter.png"}
             alt={profile.username}
-            className="w-24 h-24 rounded-full border border-gray-600 mb-4 object-cover"
+            className="w-20 h-20 rounded-full border border-gray-600 object-cover flex-shrink-0"
           />
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-2xl font-semibold text-gray-100">
-              {profile.fullName}
-            </h3>
-            {profile.verified && (
-              <CheckCircle className="w-5 h-5 text-blue-400" />
-            )}
+
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-xl font-bold text-gray-100">
+                {profile.fullName}
+              </h3>
+              {profile.verified && (
+                <CheckCircle className="w-5 h-5 text-blue-400" />
+              )}
+            </div>
+
+            <div className="text-sm space-y-1">
+              <p><span className="text-gray-400">Platform:</span> <span className="text-gray-200">Twitter</span></p>
+              <p><span className="text-gray-400">Username:</span> <span className="text-gray-200">@{profile.username}</span></p>
+              <p><span className="text-gray-400">URL:</span> <a href={profile.profileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">{profile.profileUrl}</a></p>
+              <p><span className="text-gray-400">Verified:</span> <span className={`font-medium ${profile.verified ? 'text-green-400' : 'text-yellow-400'}`}>{profile.verified ? 'Yes' : 'No'}</span></p>
+              <p><span className="text-gray-400">Protected:</span> <span className={`font-medium ${profile.protected ? 'text-red-400' : 'text-green-400'}`}>{profile.protected ? 'Yes' : 'No'}</span></p>
+            </div>
           </div>
-          <p className="text-gray-400 mb-3">@{profile.username}</p>
+        </div>
 
-          {profile.description && (
-            <p className="text-sm text-gray-300 mb-4">{profile.description}</p>
-          )}
+        {profile.description && (
+          <>
+            <div className="border-t border-gray-700 my-4"></div>
+            <div>
+              <h4 className="text-sm font-medium text-gray-400 mb-2">Bio</h4>
+              <p className="text-sm text-gray-300">{profile.description}</p>
+            </div>
+          </>
+        )}
 
-          <div className="flex justify-center gap-6 text-sm text-gray-300 mb-4">
-            <span>
-              <strong className="text-white">{profile.followers?.toLocaleString() || 0}</strong> Followers
-            </span>
-            <span>
-              <strong className="text-white">{profile.following?.toLocaleString() || 0}</strong> Following
-            </span>
-            <span>
-              <strong className="text-white">{profile.tweets?.toLocaleString() || 0}</strong> Tweets
-            </span>
+        <div className="border-t border-gray-700 my-4"></div>
+        <div className="grid grid-cols-3 gap-4 text-sm">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-white">{profile.followers?.toLocaleString() || 0}</p>
+            <p className="text-gray-400">Followers</p>
           </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-white">{profile.following?.toLocaleString() || 0}</p>
+            <p className="text-gray-400">Following</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-white">{profile.tweets?.toLocaleString() || 0}</p>
+            <p className="text-gray-400">Tweets</p>
+          </div>
+        </div>
 
-          <a
-            href={profile.profileUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm"
+        <div className="border-t border-gray-700 my-6"></div>
+        <div className="flex justify-end space-x-3">
+          <button
+            onClick={(e) => openProfileWindow(profile.profileUrl, e)}
+            className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-medium transition"
           >
-            <ExternalLink className="w-4 h-4" />
-            <span>Open Profile</span>
-          </a>
+            Request Takedown
+          </button>
+          <button
+            onClick={() => console.log('Review Later:', profile)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium transition"
+          >
+            Review Later
+          </button>
+          <button
+            onClick={() => console.log('Ignore:', profile)}
+            className="bg-gray-700 hover:bg-gray-600 text-gray-200 px-5 py-2.5 rounded-lg font-medium transition"
+          >
+            Ignore
+          </button>
         </div>
       </div>
     </div>
@@ -66,21 +129,48 @@ function TwitterProfileDetailsModal({ isOpen, profile, onClose }) {
 export default function TwitterProfile() {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
-  const [limit, setLimit] = useState(15); // Default limit to 10
   const [selectedProfile, setSelectedProfile] = useState(null);
+  
+  // New states for load more functionality
+  const [currentLimit, setCurrentLimit] = useState(15);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalFetched, setTotalFetched] = useState(0);
+
+  // Use balance hook
+  const { balance, deductCredit, isLoading: balanceLoading, canAfford } = useBalance(250);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Check if user can afford the search
+    if (!canAfford) {
+      setError("Insufficient credits. Please add more credits to continue searching.");
+      return;
+    }
+
+    if (!username.trim()) {
+      setError("Please enter a username to search");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSearchResults([]);
+    setCurrentLimit(15);
+    setTotalFetched(0);
+    setHasMore(false);
 
     try {
-      console.log("🚀 Searching Twitter for:", username, "with limit:", limit);
+      // First deduct the credit
+      const newBalance = await deductCredit(1);
+      console.log("💰 Credit deducted. New balance:", newBalance);
 
-      const apiResponse = await fetchTwitterProfiles(username, limit);
+      console.log("🚀 Searching Twitter for:", username, "with limit:", 15);
+
+      const apiResponse = await fetchTwitterProfiles(username, 15);
       console.log("📦 [Full API Response]:", apiResponse);
 
       // ✅ Extract the results array from the API response
@@ -114,10 +204,8 @@ export default function TwitterProfile() {
           tweets: profile.statuses_count || 0,
           description: profile.description || "",
           verified: profile.is_blue_verified || false,
-          // Note: Twitter API response doesn't have 'protected' field in your example
-          // If you need protected accounts, you'll need to check the actual API response
-          protected: false, // Default to false since it's not in the example
-          location: "", // Not in example response
+          protected: false,
+          location: "",
           createdAt: profile.created_at || "",
           mediaCount: profile.media_count || 0,
         };
@@ -125,18 +213,116 @@ export default function TwitterProfile() {
 
       console.log("✅ [Formatted Profiles]:", formattedProfiles);
       setSearchResults(formattedProfiles);
+      setTotalFetched(formattedProfiles.length);
+      
+      // Check if we can load more (total fetched < 30)
+      if (formattedProfiles.length === 15 && formattedProfiles.length < 30) {
+        setHasMore(true);
+      } else {
+        setHasMore(false);
+      }
 
     } catch (err) {
       console.error("❌ Error during handleSubmit:", err);
-      setError(err.message || "An error occurred while searching profiles");
+      if (err.message.includes('Insufficient credits')) {
+        setError("Insufficient credits. Please add more credits to continue searching.");
+      } else {
+        setError(err.message || "An error occurred while searching profiles");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOpenExternal = (url, e) => {
-    e.preventDefault();
-    window.open(url, "_blank");
+  const handleLoadMore = async () => {
+    if (loadingMore || totalFetched >= 30) return;
+    
+    setLoadingMore(true);
+    setError(null);
+
+    try {
+      const nextLimit = 15;
+      const totalAfterFetch = totalFetched + nextLimit;
+      
+      console.log("🔄 Loading more profiles:", nextLimit, "Total will be:", totalAfterFetch);
+
+      const apiResponse = await fetchTwitterProfiles(username, totalAfterFetch);
+      console.log("📦 [Load More API Response]:", apiResponse);
+
+      // ✅ Extract the results array from the API response
+      const resultsArray =
+        Array.isArray(apiResponse) &&
+        apiResponse.length > 0 &&
+        Array.isArray(apiResponse[0].results)
+          ? apiResponse[0].results
+          : [];
+
+      if (!resultsArray.length) {
+        setHasMore(false);
+        return;
+      }
+
+      // ✅ Transform each result
+      const formattedProfiles = resultsArray.map((profile, index) => {
+        return {
+          id: profile.user_id || index,
+          username: profile.screen_name || "N/A",
+          fullName: profile.name || profile.screen_name || "",
+          profilePicUrl: profile.avatar || "/images/twitter.png",
+          profileUrl: `https://twitter.com/${profile.screen_name}/`,
+          followers: profile.followers_count || 0,
+          following: profile.friends_count || 0,
+          tweets: profile.statuses_count || 0,
+          description: profile.description || "",
+          verified: profile.is_blue_verified || false,
+          protected: false,
+          location: "",
+          createdAt: profile.created_at || "",
+          mediaCount: profile.media_count || 0,
+        };
+      });
+
+      console.log("✅ [Updated Profiles after Load More]:", formattedProfiles);
+      setSearchResults(formattedProfiles);
+      setTotalFetched(formattedProfiles.length);
+      setCurrentLimit(totalAfterFetch);
+      
+      // Check if we can load more (max 30 profiles)
+      if (formattedProfiles.length >= 30 || formattedProfiles.length < totalAfterFetch) {
+        setHasMore(false);
+      } else {
+        setHasMore(true);
+      }
+
+    } catch (err) {
+      console.error("❌ Error during load more:", err);
+      setError(err.message || "An error occurred while loading more profiles");
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  const openProfileWindow = (url) => {
+    const width = 450;
+    const height = 700;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    
+    const features = `
+      width=${width},
+      height=${height},
+      left=${left},
+      top=${top},
+      resizable,
+      scrollbars,
+      status=no,
+      toolbar=no,
+      menubar=no,
+      noopener,
+      noreferrer
+    `.replace(/\s+/g, "");
+
+    window.open(url, "_blank", features);
   };
 
   return (
@@ -163,42 +349,37 @@ export default function TwitterProfile() {
                 placeholder="Enter Twitter username for search"
                 className="flex-1 px-4 py-3 bg-gray-900 text-gray-100 border border-gray-600 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                 required
+                disabled={loading || !canAfford}
               />
               <button
                 type="submit"
-                disabled={loading || !username.trim()}
+                disabled={loading || !username.trim() || !canAfford || balanceLoading}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 rounded-r-lg transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <SearchIcon className="w-5 h-5" />
+                {loading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <SearchIcon className="w-5 h-5" />
+                )}
                 <span>{loading ? "Searching..." : "Search"}</span>
               </button>
             </div>
           </div>
 
-          {/* ✅ Limit Input Field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Result Limit
-            </label>
-            <input
-              type="number"
-              min="1"
-              max="100"
-              value={limit}
-              onChange={(e) => setLimit(Number(e.target.value))}
-              className="w-full px-4 py-3 bg-gray-900 text-gray-100 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-              placeholder="Enter number of profiles to fetch"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Set how many profiles you want to fetch, minimum 15(default: 15)
-            </p>
-          </div>
-
+          {/* Credit Information */}
           <div className="bg-blue-900/40 border border-blue-700 rounded-lg p-4 flex items-start space-x-3">
             <AlertCircle className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-blue-300">
               <p className="font-medium">Each search costs 1 credit</p>
-              <p className="mt-1">You have 250 credits remaining</p>
+              <p className="mt-1">
+                You have {balance} credit{balance !== 1 ? 's' : ''} remaining
+                {balanceLoading && <span className="ml-2">(Processing...)</span>}
+              </p>
+              {!canAfford && (
+                <p className="mt-1 text-red-300 font-medium">
+                  Insufficient credits. Please add more credits to search.
+                </p>
+              )}
             </div>
           </div>
 
@@ -213,11 +394,18 @@ export default function TwitterProfile() {
       {/* Search Results */}
       {searchResults.length > 0 && (
         <div className="bg-black rounded-xl shadow-sm border border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-300 mb-4">
-            Search Results ({searchResults.length})
-          </h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-300">
+              Search Results ({searchResults.length})
+            </h3>
+            {totalFetched > 0 && (
+              <span className="text-sm text-gray-400">
+                Showing {searchResults.length} of maximum 30 profiles
+              </span>
+            )}
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {searchResults.map((profile, index) => (
               <div
                 key={profile.id || profile.username || index}
@@ -269,7 +457,7 @@ export default function TwitterProfile() {
                       </div>
 
                       <a
-                        onClick={(e) => handleOpenExternal(profile.profileUrl, e)}
+                        onClick={(e) => openProfileWindow(profile.profileUrl, e)}
                         className="inline-flex items-center space-x-1 text-blue-400 hover:text-blue-300 transition-colors mt-2 text-sm cursor-pointer"
                       >
                         <ExternalLink className="w-4 h-4" />
@@ -289,6 +477,33 @@ export default function TwitterProfile() {
               </div>
             ))}
           </div>
+
+          {/* Load More Button */}
+          {hasMore && (
+            <div className="flex justify-center">
+              <button
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-gray-200 px-6 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loadingMore ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <span>Load More (15 more profiles)</span>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Maximum reached message */}
+          {totalFetched >= 30 && (
+            <div className="text-center text-gray-400 text-sm mt-4">
+              Maximum of 30 profiles reached
+            </div>
+          )}
         </div>
       )}
 

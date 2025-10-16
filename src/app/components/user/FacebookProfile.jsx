@@ -1,89 +1,194 @@
 'use client';
-import { AlertCircle, SearchIcon, ExternalLink, Eye, CheckCircle, Lock, X } from "lucide-react";
+import { AlertCircle, SearchIcon, ExternalLink, Eye, CheckCircle, Lock, X, GraduationCap, Briefcase, MapPin, Loader2 } from "lucide-react";
 import React, { useState } from "react";
-import { fetchInstagramProfiles } from "@/app/lib/api/customer";
+import { fetchFacebookProfiles } from "@/app/lib/api/customer";
+import { useBalance } from "@/app/hooks/usebalance";
 
 // Profile Details Modal
-function ProfileDetailsModal({ isOpen, profile, onClose }) {
+function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
   if (!isOpen || !profile) return null;
 
+  const getIconForType = (type) => {
+    switch (type) {
+      case 'education':
+        return <GraduationCap className="w-4 h-4" />;
+      case 'work':
+        return <Briefcase className="w-4 h-4" />;
+      case 'location':
+        return <MapPin className="w-4 h-4" />;
+      default:
+        return null;
+    }
+  };
+
+  const openProfileWindow = (url) => {
+    const width = 450;
+    const height = 700;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    
+    const features = `
+      width=${width},
+      height=${height},
+      left=${left},
+      top=${top},
+      resizable,
+      scrollbars,
+      status=no,
+      toolbar=no,
+      menubar=no,
+      noopener,
+      noreferrer
+    `.replace(/\s+/g, "");
+
+    window.open(url, "_blank", features);
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 w-full max-w-lg relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/15 backdrop-blur-xs">
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl w-full max-w-2xl p-6 relative">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-white"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition"
         >
-          <X className="w-5 h-5" />
+          <X className="w-6 h-6" />
         </button>
-        <div className="flex flex-col items-center text-center">
+
+        <div className="mb-4 border-b border-gray-700 pb-3">
+          <h2 className="text-2xl font-semibold text-white">
+            Profile Details
+          </h2>
+        </div>
+
+        <div className="flex items-start space-x-4">
           <img
-            src={profile.profilePicUrl || "/images/instagram.png"}
-            alt={profile.username}
-            className="w-24 h-24 rounded-full border border-gray-600 mb-4 object-cover"
+            src={profile.profilePicUrl || "/images/facebook.png"}
+            alt={profile.fullName}
+            className="w-20 h-20 rounded-full border border-gray-600 object-cover flex-shrink-0"
+            onError={(e) => {
+              e.target.src = "/images/facebook.png";
+              e.target.onerror = null;
+            }}
           />
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-2xl font-semibold text-gray-100">
-              {profile.fullName || profile.username}
-            </h3>
-            {profile.verified && (
-              <CheckCircle className="w-5 h-5 text-blue-500" />
-            )}
-          </div>
-          <p className="text-gray-400 mb-3">@{profile.username}</p>
 
-          {profile.private && (
-            <div className="flex items-center gap-1 text-sm text-yellow-400 mb-3">
-              <Lock className="w-4 h-4" />
-              <span>Private Account</span>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-xl font-bold text-gray-100">
+                {profile.fullName}
+              </h3>
+              {profile.verified && (
+                <CheckCircle className="w-5 h-5 text-blue-500" />
+              )}
             </div>
-          )}
 
-          {profile.biography && (
-            <p className="text-sm text-gray-300 mb-4">{profile.biography}</p>
-          )}
-
-          <div className="flex justify-center gap-6 text-sm text-gray-300 mb-4">
-            <span>
-              <strong className="text-white">{profile.followers?.toLocaleString() || 0}</strong> Followers
-            </span>
-            <span>
-              <strong className="text-white">{profile.following?.toLocaleString() || 0}</strong> Following
-            </span>
+            <div className="text-sm space-y-1">
+              <p><span className="text-gray-400">Platform:</span> <span className="text-gray-200">Facebook</span></p>
+              <p><span className="text-gray-400">User ID:</span> <span className="text-gray-200">{profile.id}</span></p>
+              <p><span className="text-gray-400">URL:</span> <a href={profile.profileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">{profile.profileUrl}</a></p>
+              <p><span className="text-gray-400">Verified:</span> <span className={`font-medium ${profile.verified ? 'text-green-400' : 'text-yellow-400'}`}>{profile.verified ? 'Yes' : 'No'}</span></p>
+            </div>
           </div>
+        </div>
 
-          <a
-            href={profile.profileUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm"
+        {profile.userData && profile.userData.length > 0 && (
+          <>
+            <div className="border-t border-gray-700 my-4"></div>
+            <div>
+              <h4 className="text-sm font-medium text-gray-400 mb-3">Profile Information</h4>
+              <div className="space-y-2">
+                {profile.userData.map((data, index) => (
+                  <div key={index} className="flex items-start gap-3 text-sm text-gray-300 p-2 bg-gray-800 rounded-lg">
+                    {data.icon ? (
+                      <img 
+                        src={data.icon} 
+                        alt="" 
+                        className="w-5 h-5 rounded mt-0.5 flex-shrink-0"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      getIconForType(data.type)
+                    )}
+                    <span className="text-left">{data.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
+        <div className="border-t border-gray-700 my-6"></div>
+        <div className="flex justify-end space-x-3">
+          <button
+            onClick={(e) => openProfileWindow(profile.profileUrl, e)}
+            className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-medium transition"
           >
-            <ExternalLink className="w-4 h-4" />
-            <span>Open Profile</span>
-          </a>
+            Request Takedown
+          </button>
+          <button
+            onClick={() => console.log('Review Later:', profile)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium transition"
+          >
+            Review Later
+          </button>
+          <button
+            onClick={() => console.log('Ignore:', profile)}
+            className="bg-gray-700 hover:bg-gray-600 text-gray-200 px-5 py-2.5 rounded-lg font-medium transition"
+          >
+            Ignore
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-export default function InstaProfile() {
+export default function FacebookProfile() {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
   const [selectedProfile, setSelectedProfile] = useState(null);
+  
+  // New states for load more functionality
+  const [currentLimit, setCurrentLimit] = useState(10);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalFetched, setTotalFetched] = useState(0);
+
+  // Use balance hook
+  const { balance, deductCredit, isLoading: balanceLoading, canAfford } = useBalance(250);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Check if user can afford the search
+    if (!canAfford) {
+      setError("Insufficient credits. Please add more credits to continue searching.");
+      return;
+    }
+
+    if (!username.trim()) {
+      setError("Please enter a name to search");
+      return;
+    }
+
     setLoading(true);
     setError(null);
-    setSearchResults([]); // Clear previous results
+    setSearchResults([]);
+    setCurrentLimit(10);
+    setTotalFetched(0);
+    setHasMore(false);
 
     try {
-      console.log("🚀 Searching Instagram for:", username);
+      // First deduct the credit
+      const newBalance = await deductCredit(1);
+      console.log("💰 Credit deducted. New balance:", newBalance);
 
-      const apiResponse = await fetchInstagramProfiles(username);
+      console.log("🚀 Searching Facebook for:", username, "with limit:", 10);
+
+      const apiResponse = await fetchFacebookProfiles(username, 10);
       console.log("📦 [Full API Response]:", apiResponse);
 
       // ✅ Extract the results array from the API response
@@ -98,42 +203,149 @@ export default function InstaProfile() {
 
       if (!resultsArray.length) {
         console.warn("⚠️ No profiles found");
-        setError("No profiles found for this username");
+        setError("No profiles found for this name");
         return;
       }
 
-      // ✅ Transform each result - using correct API field names
+      // ✅ Transform each result using Facebook API field names
       const formattedProfiles = resultsArray.map((profile, index) => {
         console.log(`Profile ${index}:`, profile);
         
         return {
-          id: profile.id || index,
-          username: profile.username || "N/A",
-          fullName: profile.full_name || profile.username || "",
-          profilePicUrl: profile.profile_pic_url || "/images/instagram.png",
-          profileUrl: profile.profile_url || `https://www.instagram.com/${profile.username}/`,
-          followers: profile.follower_count || 0,
-          following: profile.following_count || 0,
-          biography: profile.biography || "",
-          verified: profile.is_verified || false,
-          private: profile.is_private || false,
+          id: profile.userId || index,
+          username: profile.userId || "N/A",
+          fullName: profile.name || "Facebook User",
+          profilePicUrl: profile.profileImage || "/images/facebook.png",
+          profileUrl: profile.profileUrl || `https://www.facebook.com/profile.php?id=${profile.userId}`,
+          userData: profile.userData || [],
+          verified: profile.verified || false,
         };
       });
 
       console.log("✅ [Formatted Profiles]:", formattedProfiles);
       setSearchResults(formattedProfiles);
+      setTotalFetched(formattedProfiles.length);
+      
+      // Check if we can load more (total fetched < 30)
+      if (formattedProfiles.length === 10 && formattedProfiles.length < 30) {
+        setHasMore(true);
+      } else {
+        setHasMore(false);
+      }
 
     } catch (err) {
       console.error("❌ Error during handleSubmit:", err);
-      setError(err.message || "An error occurred while searching profiles");
+      if (err.message.includes('Insufficient credits')) {
+        setError("Insufficient credits. Please add more credits to continue searching.");
+      } else {
+        setError(err.message || "An error occurred while searching profiles");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOpenExternal = (url, e) => {
-    e.preventDefault();
-    window.open(url, "_blank");
+  const handleLoadMore = async () => {
+    if (loadingMore || totalFetched >= 30) return;
+    
+    setLoadingMore(true);
+    setError(null);
+
+    try {
+      const nextLimit = 10;
+      const totalAfterFetch = totalFetched + nextLimit;
+      
+      console.log("🔄 Loading more profiles:", nextLimit, "Total will be:", totalAfterFetch);
+
+      const apiResponse = await fetchFacebookProfiles(username, totalAfterFetch);
+      console.log("📦 [Load More API Response]:", apiResponse);
+
+      // ✅ Extract the results array from the API response
+      const resultsArray =
+        Array.isArray(apiResponse) &&
+        apiResponse.length > 0 &&
+        Array.isArray(apiResponse[0].results)
+          ? apiResponse[0].results
+          : [];
+
+      if (!resultsArray.length) {
+        setHasMore(false);
+        return;
+      }
+
+      // ✅ Transform each result
+      const formattedProfiles = resultsArray.map((profile, index) => {
+        return {
+          id: profile.userId || index,
+          username: profile.userId || "N/A",
+          fullName: profile.name || "Facebook User",
+          profilePicUrl: profile.profileImage || "/images/facebook.png",
+          profileUrl: profile.profileUrl || `https://www.facebook.com/profile.php?id=${profile.userId}`,
+          userData: profile.userData || [],
+          verified: profile.verified || false,
+        };
+      });
+
+      console.log("✅ [Updated Profiles after Load More]:", formattedProfiles);
+      setSearchResults(formattedProfiles);
+      setTotalFetched(formattedProfiles.length);
+      setCurrentLimit(totalAfterFetch);
+      
+      // Check if we can load more (max 30 profiles)
+      if (formattedProfiles.length >= 30 || formattedProfiles.length < totalAfterFetch) {
+        setHasMore(false);
+      } else {
+        setHasMore(true);
+      }
+
+    } catch (err) {
+      console.error("❌ Error during load more:", err);
+      setError(err.message || "An error occurred while loading more profiles");
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  const openProfileWindow = (url) => {
+    const width = 450;
+    const height = 700;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    
+    const features = `
+      width=${width},
+      height=${height},
+      left=${left},
+      top=${top},
+      resizable,
+      scrollbars,
+      status=no,
+      toolbar=no,
+      menubar=no,
+      noopener,
+      noreferrer
+    `.replace(/\s+/g, "");
+
+    window.open(url, "_blank", features);
+  };
+
+  const handleImageError = (e) => {
+    console.warn('Facebook image failed to load, using fallback');
+    e.target.src = "/images/facebook.png";
+    e.target.onerror = null;
+  };
+
+  const getIconForType = (type) => {
+    switch (type) {
+      case 'education':
+        return <GraduationCap className="w-3 h-3" />;
+      case 'work':
+        return <Briefcase className="w-3 h-3" />;
+      case 'location':
+        return <MapPin className="w-3 h-3" />;
+      default:
+        return null;
+    }
   };
 
   return (
@@ -141,42 +353,56 @@ export default function InstaProfile() {
       {/* Search Form */}
       <div className="bg-black rounded-xl shadow-sm border border-gray-700 p-6">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-100">Search Instagram Profiles</h2>
+          <h2 className="text-2xl font-bold text-gray-100">Search Facebook Profiles</h2>
           <p className="text-gray-400 mt-1">
-            Enter the social media profile details to detect impersonation
+            Enter the Facebook profile details to detect impersonation
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Username
+              Name
             </label>
             <div className="flex">
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter social profile name for search"
+                placeholder="Enter Facebook name or user ID for search"
                 className="flex-1 px-4 py-3 bg-gray-900 text-gray-100 border border-gray-600 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                 required
+                disabled={loading || !canAfford}
               />
               <button
                 type="submit"
-                disabled={loading || !username.trim()}
-                className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 rounded-r-lg transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading || !username.trim() || !canAfford || balanceLoading}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 rounded-r-lg transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <SearchIcon className="w-5 h-5" />
+                {loading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <SearchIcon className="w-5 h-5" />
+                )}
                 <span>{loading ? "Searching..." : "Search"}</span>
               </button>
             </div>
           </div>
 
+          {/* Credit Information */}
           <div className="bg-blue-900/40 border border-blue-700 rounded-lg p-4 flex items-start space-x-3">
             <AlertCircle className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-blue-300">
               <p className="font-medium">Each search costs 1 credit</p>
-              <p className="mt-1">You have 250 credits remaining</p>
+              <p className="mt-1">
+                You have {balance} credit{balance !== 1 ? 's' : ''} remaining
+                {balanceLoading && <span className="ml-2">(Processing...)</span>}
+              </p>
+              {!canAfford && (
+                <p className="mt-1 text-red-300 font-medium">
+                  Insufficient credits. Please add more credits to search.
+                </p>
+              )}
             </div>
           </div>
 
@@ -191,54 +417,87 @@ export default function InstaProfile() {
       {/* Search Results */}
       {searchResults.length > 0 && (
         <div className="bg-black rounded-xl shadow-sm border border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-300 mb-4">
-            Search Results ({searchResults.length})
-          </h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-300">
+              Search Results ({searchResults.length})
+            </h3>
+            {totalFetched > 0 && (
+              <span className="text-sm text-gray-400">
+                Showing {searchResults.length} of maximum 30 profiles
+              </span>
+            )}
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {searchResults.map((profile, index) => (
               <div
-                key={profile.id || profile.username || index}
+                key={profile.id || index}
                 className="bg-gray-800/50 rounded-lg p-4 hover:bg-gray-700/40 transition-colors border border-gray-700"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-4 flex-1">
                     <img
-                      src={profile.profilePicUrl || "/images/instagram.png"}
-                      alt={`${profile.fullName || profile.username} profile`}
+                      src={profile.profilePicUrl}
+                      alt={profile.fullName}
                       className="w-16 h-16 rounded-full border border-gray-600 object-cover"
+                      onError={handleImageError}
                     />
 
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-1">
                         <h4 className="text-lg font-semibold text-gray-100">
-                          {profile.fullName || profile.username}
+                          {profile.fullName}
                         </h4>
                         {profile.verified && (
                           <CheckCircle className="w-4 h-4 text-blue-500" />
                         )}
-                        {profile.private && (
-                          <Lock className="w-4 h-4 text-yellow-400" />
-                        )}
                       </div>
 
-                      <p className="text-sm text-gray-400 mb-2">@{profile.username}</p>
+                      <p className="text-sm text-gray-400 mb-2">User ID: {profile.id}</p>
 
-                      <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                      {/* User Data Preview */}
+                      {profile.userData && profile.userData.length > 0 && (
+                        <div className="space-y-1 mb-2">
+                          {profile.userData.slice(0, 2).map((data, dataIndex) => (
+                            <div key={dataIndex} className="flex items-center gap-2 text-xs text-gray-300">
+                              {data.icon ? (
+                                <img 
+                                  src={data.icon} 
+                                  alt="" 
+                                  className="w-3 h-3 rounded"
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                  }}
+                                />
+                              ) : (
+                                getIconForType(data.type)
+                              )}
+                              <span className="line-clamp-1">{data.text}</span>
+                            </div>
+                          ))}
+                          {profile.userData.length > 2 && (
+                            <p className="text-xs text-gray-500">
+                              +{profile.userData.length - 2} more
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm mb-2">
                         <div>
                           <span className="text-gray-400">Platform:</span>
-                          <span className="text-gray-200 ml-2">Instagram</span>
+                          <span className="text-gray-200 ml-2">Facebook</span>
                         </div>
                         <div>
-                          <span className="text-gray-400">Followers:</span>
+                          <span className="text-gray-400">Info:</span>
                           <span className="text-gray-200 ml-2">
-                            {profile.followers?.toLocaleString() || 0}
+                            {profile.userData?.length || 0} details
                           </span>
                         </div>
                       </div>
 
                       <a
-                        onClick={(e) => handleOpenExternal(profile.profileUrl, e)}
+                        onClick={(e) => openProfileWindow(profile.profileUrl, e)}
                         className="inline-flex items-center space-x-1 text-blue-400 hover:text-blue-300 transition-colors mt-2 text-sm cursor-pointer"
                       >
                         <ExternalLink className="w-4 h-4" />
@@ -249,20 +508,47 @@ export default function InstaProfile() {
 
                   <button
                     onClick={() => setSelectedProfile(profile)}
-                    className="flex items-center space-x-2 bg-red-700 hover:bg-red-600 text-gray-200 px-4 py-2 rounded-lg transition-colors text-sm"
+                    className="flex items-center space-x-2 bg-blue-700 hover:bg-blue-600 text-gray-200 px-4 py-2 rounded-lg transition-colors text-sm"
                   >
                     <Eye className="w-4 h-4" />
-                    <span>Details</span>
+                    <span>Profile Details</span>
                   </button>
                 </div>
               </div>
             ))}
           </div>
+
+          {/* Load More Button */}
+          {hasMore && (
+            <div className="flex justify-center">
+              <button
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-gray-200 px-6 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loadingMore ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <span>Load More (10 more profiles)</span>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Maximum reached message */}
+          {totalFetched >= 30 && (
+            <div className="text-center text-gray-400 text-sm mt-4">
+              Maximum of 30 profiles reached
+            </div>
+          )}
         </div>
       )}
 
       {/* Profile Details Modal */}
-      <ProfileDetailsModal
+      <FacebookProfileDetailsModal
         isOpen={!!selectedProfile}
         profile={selectedProfile}
         onClose={() => setSelectedProfile(null)}

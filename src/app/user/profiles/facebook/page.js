@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 'use client';
+import FacebookProfile from '@/app/components/user/FacebookProfile';
 // import Facebook from '@/app/components/customer/search_Profile'
-import SearchForm from '@/app/components/user/Multi-platform-form';
+// import SearchForm from '@/app/components/user/Multi-platform-form';
 import { AlertCircle, CreditCard, Menu, Search } from 'lucide-react'
 import React, { useState } from 'react'
 
@@ -73,8 +74,8 @@ export default function facebookPage  () {
               </div>
             </div>
           <div >
-            
-            <SearchForm/> 
+            <FacebookProfile/>
+            {/* <SearchForm/>  */}
           </div>
         </div>
         </main>

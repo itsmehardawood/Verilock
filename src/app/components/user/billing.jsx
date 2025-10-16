@@ -7,9 +7,9 @@ const Billing = () => {
   const [cardNumber, setCardNumber] = useState('');
   const [expiry, setExpiry] = useState('');
   const [balance, setBalance] = useState(250);
-  const [paymentAmount, setPaymentAmount] = useState('');
+  const [creditAmount, setCreditAmount] = useState('');
   const [selectedCard, setSelectedCard] = useState(null);
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [creditSuccess, setCreditSuccess] = useState(false);
 
   const [paymentMethods, setPaymentMethods] = useState([
     { id: 1, type: 'Visa', last4: '4242', expiry: '12/25', isDefault: true },
@@ -34,32 +34,28 @@ const Billing = () => {
     setShowAddCard(false);
   };
 
-  const handlePayment = (e) => {
+  const handleAddCredit = (e) => {
     e.preventDefault();
-    if (!selectedCard || !paymentAmount) return;
+    if (!selectedCard || !creditAmount) return;
 
-    const amount = parseFloat(paymentAmount);
+    const amount = parseFloat(creditAmount);
     if (isNaN(amount) || amount <= 0) return;
 
-    if (amount > balance) {
-      alert('Insufficient balance!');
-      return;
-    }
-
-    setBalance(balance - amount);
-    setPaymentAmount('');
+    // Add credit to balance instead of deducting
+    setBalance(balance + amount);
+    setCreditAmount('');
     setSelectedCard(null);
-    setPaymentSuccess(true);
+    setCreditSuccess(true);
 
-    setTimeout(() => setPaymentSuccess(false), 2000);
+    setTimeout(() => setCreditSuccess(false), 2000);
   };
 
   return (
     <div className="min-h-screen max-w-7xl mx-auto p-6 bg-black text-white">
       {/* Page Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white">Payment Plan</h1>
-        <p className="text-gray-300 mt-1">Manage your debit cards, make payments, and view your balance</p>
+        <h1 className="text-3xl font-bold text-white">Add Credit</h1>
+        <p className="text-gray-300 mt-1">Manage your debit cards, add credit to your balance, and view your funds</p>
       </div>
 
       {/* Balance Section */}
@@ -82,7 +78,7 @@ const Billing = () => {
           <h2 className="text-xl font-bold text-white">Debit Cards</h2>
           <button
             onClick={() => setShowAddCard(!showAddCard)}
-            className="flex items-center text-red-400 hover:text-red-300 font-semibold"
+            className="flex items-center text-gray-100 hover:text-gray-300 font-semibold"
           >
             <Plus className="w-4 h-4 mr-1" /> Add Debit Card
           </button>
@@ -143,7 +139,7 @@ const Billing = () => {
                 </div>
               </div>
               {method.isDefault && (
-                <span className="text-xs bg-red-900 text-red-400 px-2 py-1 rounded-full font-semibold">
+                <span className="text-xs bg-red-600/30 text-gray-200 px-2 py-1 rounded-full font-semibold">
                   Default
                 </span>
               )}
@@ -152,20 +148,20 @@ const Billing = () => {
         </div>
       </div>
 
-      {/* Payment Section */}
+      {/* Add Credit Section */}
       <div className="bg-gray-900/5 rounded-xl shadow-sm border border-gray-800 p-6">
-        <h2 className="text-xl font-bold text-white mb-4">Make a Payment</h2>
+        <h2 className="text-xl font-bold text-white mb-4">Add Credit to Balance</h2>
 
-        <form onSubmit={handlePayment} className="space-y-4">
+        <form onSubmit={handleAddCredit} className="space-y-4">
           <div>
-            <label className="text-sm text-gray-400">Payment Amount ($)</label>
+            <label className="text-sm text-gray-400">Credit Amount ($)</label>
             <div className="flex items-center bg-gray-900 border border-gray-700 rounded p-2 mt-1">
               <DollarSign className="text-gray-400 mr-2 w-4 h-4" />
               <input
                 type="number"
-                value={paymentAmount}
-                onChange={(e) => setPaymentAmount(e.target.value)}
-                placeholder="Enter amount"
+                value={creditAmount}
+                onChange={(e) => setCreditAmount(e.target.value)}
+                placeholder="Enter amount to add"
                 className="w-full bg-transparent text-white outline-none text-sm"
               />
             </div>
@@ -173,20 +169,20 @@ const Billing = () => {
 
           <button
             type="submit"
-            disabled={!selectedCard || !paymentAmount}
+            disabled={!selectedCard || !creditAmount}
             className={`w-full py-2 rounded-lg font-semibold text-sm transition-colors ${
-              selectedCard && paymentAmount
+              selectedCard && creditAmount
                 ? 'bg-red-600 text-white hover:bg-red-700'
                 : 'bg-gray-800 text-gray-500 cursor-not-allowed'
             }`}
           >
-            {selectedCard ? 'Pay Now' : 'Select a Card to Pay'}
+            {selectedCard ? 'Add Credit' : 'Select a Card to Add Credit'}
           </button>
         </form>
 
-        {paymentSuccess && (
+        {creditSuccess && (
           <div className="flex items-center justify-center mt-4 text-green-400 text-sm font-semibold">
-            <CheckCircle className="w-4 h-4 mr-2" /> Payment successful!
+            <CheckCircle className="w-4 h-4 mr-2" /> Credit added successfully!
           </div>
         )}
       </div>
