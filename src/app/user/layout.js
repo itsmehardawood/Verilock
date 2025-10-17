@@ -26,8 +26,8 @@ export default function Dashboard({ children }) {
   const handleLogout = () => {
     // TODO: hook up to auth/logout logic
     console.log('Logging out...');
-    localStorage.removeItem('token');
-    router.push('/test-login');
+    localStorage.removeItem('userId');
+    router.push('/');
   };
 
 
