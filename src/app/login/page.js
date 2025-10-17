@@ -675,9 +675,8 @@ const storageHelper = {
   
   clearUserData: () => {
     storageHelper.removeItem("userData");
-    storageHelper.removeItem("role");
     storageHelper.removeItem("userId");
-    storageHelper.removeItem("authToken");
+    storageHelper.removeItem("role");
   }
 };
 
@@ -702,9 +701,10 @@ export default function LoginPage() {
   // Check if user is already logged in
   useEffect(() => {
     const checkExistingAuth = () => {
-      const userData = storageHelper.getItem("userData");
-      if (userData) {
-        const userRole = userData.role;
+      const userId = storageHelper.getItem("userId");
+      const userRole = storageHelper.getItem("role");
+      
+      if (userId && userRole) {
         if (userRole === "user" || userRole === "User") {
           router.push("/user/Home");
         }
@@ -812,31 +812,38 @@ export default function LoginPage() {
     if (error) setError("");
   };
 
-  // Store user data securely
+  // Store user data after successful login
   const storeUserData = (userData) => {
-    if (!userData) return;
+    if (!userData || !userData.user) {
+      console.error("Invalid user data structure");
+      return;
+    }
     
-    // Extract essential user information
+    const user = userData.user;
+    
+    // Store user ID - using _id from MongoDB
+    const userId = user._id;
+    storageHelper.setItem("userId", userId);
+    
+    // Store role separately for quick access
+    storageHelper.setItem("role", user.role);
+    
+    // Store complete user data
     const userInfo = {
-      id: userData.user?.id || userData.id,
-      role: userData.user?.role || userData.role,
-      email: userData.user?.email || userData.email,
-      phone_no: userData.user?.phone_no || userData.phone_no,
-      name: userData.user?.name || userData.name,
-      firebaseUid: userData.user?.firebaseUid,
-      firebasePhone: userData.user?.firebasePhone,
-      otp_verified: userData.user?.otp_verified || true,
+      id: userId,
+      email: user.email,
+      country_code: user.country_code,
+      phone_no: user.phone_no,
+      country_name: user.country_name,
+      role: user.role,
       loginTime: new Date().toISOString()
     };
-
-    // Store in localStorage
+    
     storageHelper.setItem("userData", userInfo);
-    storageHelper.setItem("userId", userInfo.id);
-    storageHelper.setItem("role", userInfo.role);
     
     console.log("User data stored successfully:", {
-      id: userInfo.id,
-      role: userInfo.role
+      userId: userId,
+      role: user.role
     });
   };
 
@@ -869,6 +876,7 @@ export default function LoginPage() {
         const data = await response.json();
         console.log("Login API Response:", data);
 
+        // Check if request was successful
         if (!response.ok) {
           throw new Error(data.message || data.error || "Login failed. Please check your credentials.");
         }
@@ -877,7 +885,7 @@ export default function LoginPage() {
         setApiUserData(data);
 
         // Get phone number from backend response
-        const phoneFromBackend = data.user?.phone_no || data.phone_no;
+        const phoneFromBackend = data.user?.phone_no;
 
         if (!phoneFromBackend) {
           throw new Error("No phone number received from backend for OTP verification.");
@@ -957,7 +965,7 @@ export default function LoginPage() {
         };
         setApiUserData(updatedUserData);
         
-        // Store complete user data in localStorage
+        // Store complete user data in localStorage (including userId)
         storeUserData(updatedUserData);
         console.log("User data stored with Firebase info");
       }
