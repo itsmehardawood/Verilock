@@ -15,7 +15,6 @@ const BlockedHistory = () => {
       id: 'BLK-001',
       fakeProfileName: 'John Smith Official',
       fakeProfileUrl: '@johnsmith_fake_official',
-      originalProfile: '@johnsmith_official',
       platform: 'Instagram',
       takedownDate: '2024-09-28',
       reason: 'Impersonation',
@@ -26,7 +25,6 @@ const BlockedHistory = () => {
       id: 'BLK-002',
       fakeProfileName: 'Sarah J',
       fakeProfileUrl: 'sarah.johnson.fake',
-      originalProfile: 'sarah.johnson.1990',
       platform: 'Facebook',
       takedownDate: '2024-09-27',
       reason: 'Identity Theft',
@@ -37,8 +35,7 @@ const BlockedHistory = () => {
       id: 'BLK-003',
       fakeProfileName: 'Mike Davis Pro',
       fakeProfileUrl: '@mike_davis_pro',
-      originalProfile: '@mikedavis',
-      platform: 'LinkedIn',
+      platform: 'Facebook',
       takedownDate: '2024-09-26',
       reason: 'Fake Verification',
       status: 'pending',
@@ -138,7 +135,6 @@ const BlockedHistory = () => {
               <option value="all">All Platforms</option>
               <option value="Instagram">Instagram</option>
               <option value="Facebook">Facebook</option>
-              <option value="LinkedIn">LinkedIn</option>
               <option value="Twitter">Twitter</option>
               <option value="Twitter">Tiktok</option>
             </select>

@@ -101,7 +101,7 @@ function LinkedInProfileDetailsModal({ isOpen, profile, onClose }) {
                   className="inline-flex items-center space-x-1 bg-blue-900/30 hover:bg-blue-800/40 text-blue-400 px-3 py-1 rounded-lg text-sm border border-blue-700 transition-colors"
                 >
                   <ExternalLink className="w-3 h-3" />
-                  <span>Open LinkedIn Profile</span>
+                  <span>Open Profile</span>
                 </button>
               </div>
               

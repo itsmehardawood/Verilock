@@ -11,18 +11,18 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
 
   if (!isOpen || !profile) return null;
 
-  const getIconForType = (type) => {
-    switch (type) {
-      case 'education':
-        return <GraduationCap className="w-4 h-4" />;
-      case 'work':
-        return <Briefcase className="w-4 h-4" />;
-      case 'location':
-        return <MapPin className="w-4 h-4" />;
-      default:
-        return null;
-    }
-  };
+  // const getIconForType = (type) => {
+  //   switch (type) {
+  //     case 'education':
+  //       return <GraduationCap className="w-4 h-4" />;
+  //     case 'work':
+  //       return <Briefcase className="w-4 h-4" />;
+  //     case 'location':
+  //       return <MapPin className="w-4 h-4" />;
+  //     default:
+  //       return null;
+  //   }
+  // };
 
   const openProfileWindow = (url) => {
     const width = 450;
@@ -103,7 +103,7 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
 
             <div className="text-sm space-y-1">
               <p><span className="text-gray-400">Platform:</span> <span className="text-gray-200">Facebook</span></p>
-              <p><span className="text-gray-400">User ID:</span> <span className="text-gray-200">{profile.id}</span></p>
+              {/* <p><span className="text-gray-400">User ID:</span> <span className="text-gray-200">{profile.id}</span></p> */}
               {/* ✅ UPDATED: URL as button with background */}
                 <div className="flex items-center gap-2">
                     <span className="text-gray-400">Profile:</span>
@@ -112,7 +112,7 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
                           className="inline-flex items-center space-x-1 bg-blue-900/30 hover:bg-blue-800/40 text-blue-400 px-3 py-1 rounded-lg text-sm border border-blue-700 transition-colors"
                         >
                         <ExternalLink className="w-3 h-3" />
-                        <span>Open LinkedIn Profile</span>
+                        <span>Open Profile</span>
                         </button>
                       </div>
               {/* <p><span className="text-gray-400">Verified:</span> <span className={`font-medium ${profile.verified ? 'text-green-400' : 'text-yellow-400'}`}>{profile.verified ? 'Yes' : 'No'}</span></p> */}
@@ -436,7 +436,7 @@ export default function FacebookProfile() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter Facebook name or user ID for search"
+                placeholder="Enter  username "
                 className="flex-1 px-4 py-3 bg-gray-900 text-gray-100 border border-gray-600 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                 required
                 disabled={loading || !canAfford}
@@ -520,7 +520,7 @@ export default function FacebookProfile() {
                         )}
                       </div>
 
-                      <p className="text-sm text-gray-400 mb-2">User ID: {profile.id}</p>
+                      {/* <p className="text-sm text-gray-400 mb-2">User ID: {profile.id}</p> */}
 
                       {/* User Data Preview */}
                       {profile.userData && profile.userData.length > 0 && (
@@ -555,12 +555,12 @@ export default function FacebookProfile() {
                           <span className="text-gray-400">Platform:</span>
                           <span className="text-gray-200 ml-2">Facebook</span>
                         </div>
-                        <div>
+                        {/* <div>
                           <span className="text-gray-400">Info:</span>
                           <span className="text-gray-200 ml-2">
                             {profile.userData?.length || 0} details
                           </span>
-                        </div>
+                        </div> */}
                       </div>
 
                       <a

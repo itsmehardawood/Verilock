@@ -109,7 +109,7 @@ function ProfileDetailsModal({ isOpen, profile, onClose }) {
                       className="inline-flex items-center space-x-1 bg-blue-900/30 hover:bg-blue-800/40 text-blue-400 px-3 py-1 rounded-lg text-sm border border-blue-700 transition-colors"
                       >
                       <ExternalLink className="w-3 h-3" />
-                      <span>Open LinkedIn Profile</span>
+                      <span>Open Profile</span>
                       </button>
               </div>
               {profile.private && (
@@ -165,6 +165,21 @@ function ProfileDetailsModal({ isOpen, profile, onClose }) {
               <span className="text-gray-200 ml-2">{profile.externalUrls.length}</span>
             </div>
           )} */}
+        </div>
+
+        <div>
+          <>
+            <div className="border-t border-gray-700 my-4"></div>
+            <div className="mb-6">
+              <h2 className="text-lg font-medium text-red-400 mb-2">Steps to report a Profile</h2>
+              
+              <h4 className="text-sm font-medium text-gray-400 mb-2">Step 1: Go to the profile you want to report</h4>
+              <p className="text-sm text-gray-100 font-medium">Step: 2 Click the “…” (three dots) on their profile</p>
+              <p className="text-sm text-gray-300">Step 3: Select “Find support or report profile”</p>
+              <p className="text-sm text-gray-300">Step 4: Choose “Pretending to be someone” and follow the prompts</p>
+              <p className="text-sm text-gray-300">Step 5: Follow on-screen steps and submit </p>
+            </div>
+          </>
         </div>
 
         {/* ✅ UPDATED: Action Buttons with Context API Integration */}
