@@ -316,7 +316,7 @@ const handleOtpSubmit = async (e) => {
       // Handle API errors that occur after successful OTP verification
       if (err.message.includes("Failed to create account")) {
         setOtpError(
-          "Phone verified but account creation failed. Please contact support."
+          "User already exist with same credentials. Please try signing in instead."
         );
       } else {
         setOtpError(err.message || "Verification failed. Please try again.");

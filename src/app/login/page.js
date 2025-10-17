@@ -639,6 +639,48 @@ import {
 } from "firebase/auth";
 import { apiFetch } from "../lib/api.js";
 
+// Helper functions for secure storage
+const storageHelper = {
+  setItem: (key, value) => {
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+    } catch (error) {
+      console.error("Error storing data:", error);
+    }
+  },
+  
+  getItem: (key) => {
+    try {
+      if (typeof window !== "undefined") {
+        const item = localStorage.getItem(key);
+        return item ? JSON.parse(item) : null;
+      }
+    } catch (error) {
+      console.error("Error retrieving data:", error);
+      return null;
+    }
+  },
+  
+  removeItem: (key) => {
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem(key);
+      }
+    } catch (error) {
+      console.error("Error removing data:", error);
+    }
+  },
+  
+  clearUserData: () => {
+    storageHelper.removeItem("userData");
+    storageHelper.removeItem("role");
+    storageHelper.removeItem("userId");
+    storageHelper.removeItem("authToken");
+  }
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const [isOtpMode, setIsOtpMode] = useState(false);
@@ -656,6 +698,21 @@ export default function LoginPage() {
     countryCode: "+1",
     selectedCountry: "United States",
   });
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkExistingAuth = () => {
+      const userData = storageHelper.getItem("userData");
+      if (userData) {
+        const userRole = userData.role;
+        if (userRole === "user" || userRole === "User") {
+          router.push("/user/Home");
+        }
+      }
+    };
+    
+    checkExistingAuth();
+  }, [router]);
 
   // Initialize Firebase reCAPTCHA
   useEffect(() => {
@@ -755,6 +812,34 @@ export default function LoginPage() {
     if (error) setError("");
   };
 
+  // Store user data securely
+  const storeUserData = (userData) => {
+    if (!userData) return;
+    
+    // Extract essential user information
+    const userInfo = {
+      id: userData.user?.id || userData.id,
+      role: userData.user?.role || userData.role,
+      email: userData.user?.email || userData.email,
+      phone_no: userData.user?.phone_no || userData.phone_no,
+      name: userData.user?.name || userData.name,
+      firebaseUid: userData.user?.firebaseUid,
+      firebasePhone: userData.user?.firebasePhone,
+      otp_verified: userData.user?.otp_verified || true,
+      loginTime: new Date().toISOString()
+    };
+
+    // Store in localStorage
+    storageHelper.setItem("userData", userInfo);
+    storageHelper.setItem("userId", userInfo.id);
+    storageHelper.setItem("role", userInfo.role);
+    
+    console.log("User data stored successfully:", {
+      id: userInfo.id,
+      role: userInfo.role
+    });
+  };
+
   const handleSignIn = async (e) => {
     e.preventDefault();
 
@@ -764,7 +849,7 @@ export default function LoginPage() {
       setSuccess("");
 
       try {
-        // Prepare request body - try different formats based on your API
+        // Prepare request body
         const requestBody = {
           country_code: formData.countryCode,
           login_input: emailOrPhone,
@@ -784,12 +869,11 @@ export default function LoginPage() {
         const data = await response.json();
         console.log("Login API Response:", data);
 
-        // FIXED: Better error handling
         if (!response.ok) {
           throw new Error(data.message || data.error || "Login failed. Please check your credentials.");
         }
 
-        // Store user data in component state (NOT localStorage)
+        // Store user data in component state
         setApiUserData(data);
 
         // Get phone number from backend response
@@ -825,8 +909,7 @@ export default function LoginPage() {
 
       } catch (err) {
         console.error("Error in login process:", err);
-
-        // Handle different error types
+        
         if (err.code === "auth/invalid-phone-number") {
           setError("Invalid phone number format. Please check your number.");
         } else if (err.code === "auth/too-many-requests") {
@@ -861,7 +944,7 @@ export default function LoginPage() {
 
       console.log("Firebase OTP verified successfully:", user);
 
-      // Update user data with Firebase info (in state, NOT localStorage)
+      // Update user data with Firebase info
       if (apiUserData) {
         const updatedUserData = {
           ...apiUserData,
@@ -873,12 +956,15 @@ export default function LoginPage() {
           }
         };
         setApiUserData(updatedUserData);
-        console.log("Updated user data with Firebase info");
+        
+        // Store complete user data in localStorage
+        storeUserData(updatedUserData);
+        console.log("User data stored with Firebase info");
       }
 
       setSuccess("Phone verified successfully! Checking access permissions...");
       
-      // Check user role - only allow specific users
+      // Check user role and redirect
       const userRole = apiUserData?.user?.role;
       
       if (userRole === "user" || userRole === "User") {
@@ -886,6 +972,8 @@ export default function LoginPage() {
           router.push("/user/Home");
         }, 1500);
       } else {
+        // Clear stored data if user is not authorized
+        storageHelper.clearUserData();
         setTimeout(() => {
           setSuccess("");
           setOtpError("Invalid user. Only business users are allowed to access this platform.");
@@ -1220,7 +1308,7 @@ export default function LoginPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-2 sm:space-y-3">
             <div className="flex items-center justify-center space-x-4 text-sm text-black/90 drop-shadow-lg">
-              <span>© Social Media Security</span>
+              <span>© VeriLock</span>
               <span>•</span>
               <a href="#" className="hover:text-white transition-colors">
                 Privacy & terms

@@ -5,29 +5,19 @@ import { fetchFacebookProfiles } from "@/app/lib/api/customer";
 import { useBalance } from "@/app/hooks/usebalance";
 import { useReview } from "@/app/contexts/ReviewContext"; // Import the context
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 // Profile Details Modal
 function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
-  const { addToReviewLater } = useReview(); // Use the context
+  const { addToReviewLater } = useReview();
+  const [isReporting, setIsReporting] = useState(false);
+  const [reportSuccess, setReportSuccess] = useState(false);
 
   if (!isOpen || !profile) return null;
-
-  // const getIconForType = (type) => {
-  //   switch (type) {
-  //     case 'education':
-  //       return <GraduationCap className="w-4 h-4" />;
-  //     case 'work':
-  //       return <Briefcase className="w-4 h-4" />;
-  //     case 'location':
-  //       return <MapPin className="w-4 h-4" />;
-  //     default:
-  //       return null;
-  //   }
-  // };
 
   const openProfileWindow = (url) => {
     const width = 450;
     const height = 700;
-    const left = window.screenX + (window.outerWidth - width) / 2;
+    const left = window.screenX + (window.outerWidth - width) / 1;
     const top = window.screenY + (window.outerHeight - height) / 2;
     
     const features = `
@@ -47,131 +37,241 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
     window.open(url, "_blank", features);
   };
 
-  // ✅ NEW: Handle Review Later with Context API
+  // ✅ NEW: Handle Reported Successfully
+  const handleReportSuccessfully = async () => {
+    setIsReporting(true);
+    try {
+      // Get user_id from localStorage (logged in user)
+      const user_id = localStorage.getItem('user_id') || localStorage.getItem('userId');
+      
+      if (!user_id) {
+        throw new Error('User not found. Please login again.');
+      }
+
+      // Prepare report data according to API requirements
+      const reportData = {
+        reportedProfile: {
+          id: profile.id.toString(), // Convert to string as required
+          platform: "Facebook",
+          username: profile.username,
+          fullName: profile.fullName,
+          profileUrl: profile.profileUrl,
+          profilePicUrl: profile.profilePicUrl,
+          followers: 0 // Facebook doesn't provide followers in current data
+        },
+        reason: "Impersonation",
+        status: "takedown_complete"
+      };
+
+      console.log('📤 Sending report data:', reportData);
+      
+
+      const response = await fetch(`${BASE_URL}/api/takedown?user_id=${user_id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reportData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Profile reported successfully:', result);
+        setReportSuccess(true);
+        
+        // Close modal after success
+        setTimeout(() => {
+          onClose();
+          setReportSuccess(false);
+        }, 2000);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to report profile');
+      }
+    } catch (error) {
+      console.error('❌ Error reporting profile:', error);
+      alert(error.message || 'Failed to report profile. Please try again.');
+    } finally {
+      setIsReporting(false);
+    }
+  };
+
   const handleReviewLater = () => {
     addToReviewLater(profile, 'Facebook');
     onClose();
-    // Optional: Show success message
     console.log('📝 Facebook profile added to review later:', profile);
-    // You can add a toast notification here: toast.success('Profile added to Review Later!');
   };
 
-  // ✅ NEW: Handle Takedown
-  const handleTakedown = () => {
-    console.log('Request Takedown:', profile);
-    // You can implement takedown logic here
-    // For now, just log and close
-    onClose();
+  const getIconForType = (type) => {
+    switch (type) {
+      case 'education':
+        return <GraduationCap className="w-4 h-4" />;
+      case 'work':
+        return <Briefcase className="w-4 h-4" />;
+      case 'location':
+        return <MapPin className="w-4 h-4" />;
+      default:
+        return null;
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/15 backdrop-blur-xs">
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl w-full max-w-2xl p-6 relative">
-        <button
+    <div className="fixed inset-0 z-50 flex items-start justify-start bg-white/15 backdrop-blur-xs pt-16 pl-16">
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl w-full max-w-3xl p-6 relative">
+        {/* <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition"
         >
           <X className="w-6 h-6" />
-        </button>
+        </button> */}
 
         <div className="mb-4 border-b border-gray-700 pb-3">
           <h2 className="text-2xl font-semibold text-white">
-            Profile Details
+            {reportSuccess ? "Reported Successfully! ✅" : "Profile Details"}
           </h2>
         </div>
 
-        <div className="flex items-start space-x-4">
-          <img
-            src={profile.profilePicUrl || "/images/facebook.png"}
-            alt={profile.fullName}
-            className="w-20 h-20 rounded-full border border-gray-600 object-cover flex-shrink-0"
-            onError={(e) => {
-              e.target.src = "/images/facebook.png";
-              e.target.onerror = null;
-            }}
-          />
-
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-xl font-bold text-gray-100">
-                {profile.fullName}
-              </h3>
-              {profile.verified && (
-                <CheckCircle className="w-5 h-5 text-blue-500" />
-              )}
-            </div>
-
-            <div className="text-sm space-y-1">
-              <p><span className="text-gray-400">Platform:</span> <span className="text-gray-200">Facebook</span></p>
-              {/* <p><span className="text-gray-400">User ID:</span> <span className="text-gray-200">{profile.id}</span></p> */}
-              {/* ✅ UPDATED: URL as button with background */}
-                <div className="flex items-center gap-2">
-                    <span className="text-gray-400">Profile:</span>
-                        <button
-                          onClick={() => openProfileWindow(profile.profileUrl)}
-                          className="inline-flex items-center space-x-1 bg-blue-900/30 hover:bg-blue-800/40 text-blue-400 px-3 py-1 rounded-lg text-sm border border-blue-700 transition-colors"
-                        >
-                        <ExternalLink className="w-3 h-3" />
-                        <span>Open Profile</span>
-                        </button>
-                      </div>
-              {/* <p><span className="text-gray-400">Verified:</span> <span className={`font-medium ${profile.verified ? 'text-green-400' : 'text-yellow-400'}`}>{profile.verified ? 'Yes' : 'No'}</span></p> */}
-            </div>
+        {reportSuccess ? (
+          <div className="text-center py-8">
+            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+            <p className="text-gray-300 text-lg">Facebook profile has been reported successfully.</p>
+            <p className="text-gray-400 text-sm mt-2">Redirecting...</p>
           </div>
-        </div>
-
-        {profile.userData && profile.userData.length > 0 && (
+        ) : (
           <>
-            <div className="border-t border-gray-700 my-4"></div>
-            <div>
-              <h4 className="text-sm font-medium text-gray-400 mb-3">Profile Information</h4>
-              <div className="space-y-2">
-                {profile.userData.map((data, index) => (
-                  <div key={index} className="flex items-start gap-3 text-sm text-gray-300 p-2 bg-gray-800 rounded-lg">
-                    {data.icon ? (
-                      <img 
-                        src={data.icon} 
-                        alt="" 
-                        className="w-5 h-5 rounded mt-0.5 flex-shrink-0"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      getIconForType(data.type)
-                    )}
-                    <span className="text-left">{data.text}</span>
+            <div className="flex items-start space-x-4">
+              <img
+                src={profile.profilePicUrl || "/images/facebook.png"}
+                alt={profile.fullName}
+                className="w-20 h-20 rounded-full border border-gray-600 object-cover flex-shrink-0"
+                onError={(e) => {
+                  e.target.src = "/images/facebook.png";
+                  e.target.onerror = null;
+                }}
+              />
+
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-xl font-bold text-gray-100">
+                    {profile.fullName}
+                  </h3>
+                  {profile.verified && (
+                    <CheckCircle className="w-5 h-5 text-blue-500" />
+                  )}
+                </div>
+
+                <div className="text-sm space-y-1">
+                  <p><span className="text-gray-400">Platform:</span> <span className="text-gray-200">Facebook</span></p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-400">Profile:</span>
+                    <button
+                      onClick={() => openProfileWindow(profile.profileUrl)}
+                      className="inline-flex items-center space-x-1 bg-blue-900/30 hover:bg-blue-800/40 text-blue-400 px-3 py-1 rounded-lg text-sm border border-blue-700 transition-colors"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      <span>Open Profile</span>
+                    </button>
                   </div>
-                ))}
+                </div>
               </div>
+            </div>
+
+            {/* ✅ CONCISE: Facebook Reporting Steps */}
+<div className="border-t border-gray-700 my-4"></div>
+<div className="mb-4">
+  <h3 className="text-red-400 font-semibold mb-3 flex items-center gap-2">
+    <AlertCircle className="w-5 h-5" />
+    How to Report on Facebook
+  </h3>
+  
+  <div className="space-y-2 text-sm">
+    <div className="flex items-center gap-2 text-gray-300">
+      <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">1</span>
+      <span>Open profile → Click <strong>⋯</strong> → <strong>"Find support or report"</strong></span>
+    </div>
+    <div className="flex items-center gap-2 text-gray-300">
+      <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">2</span>
+      <span>Choose <strong>"Pretending to be someone"</strong></span>
+    </div>
+    <div className="flex items-center gap-2 text-gray-300">
+      <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">3</span>
+      <span>Complete Facebook's process</span>
+    </div>
+    <div className="flex items-center gap-2 text-green-400 mt-2">
+      <CheckCircle className="w-4 h-4" />
+      <span className="font-medium">Then click "Reported Successfully" below</span>
+    </div>
+  </div>
+</div>
+
+            {profile.userData && profile.userData.length > 0 && (
+              <>
+                <div className="border-t border-gray-700 my-4"></div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-400 mb-3">Profile Information</h4>
+                  <div className="space-y-2">
+                    {profile.userData.map((data, index) => (
+                      <div key={index} className="flex items-start gap-3 text-sm text-gray-300 p-2 bg-gray-800 rounded-lg">
+                        {data.icon ? (
+                          <img 
+                            src={data.icon} 
+                            alt="" 
+                            className="w-5 h-5 rounded mt-0.5 flex-shrink-0"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          getIconForType(data.type)
+                        )}
+                        <span className="text-left">{data.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
+            <div className="border-t border-gray-700 my-6"></div>
+            
+            {/* ✅ UPDATED: Action Buttons with Reported Successfully */}
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={(e) => openProfileWindow(profile.profileUrl, e)}
+                className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-medium transition"
+              >
+                Request Takedown
+              </button>
+              
+              {/* NEW: Reported Successfully Button */}
+              <button
+                onClick={handleReportSuccessfully}
+                disabled={isReporting}
+                className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                {isReporting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <CheckCircle className="w-4 h-4" />
+                )}
+                <span>{isReporting ? "Reporting..." : "Reported Successfully"}</span>
+              </button>
+              
+              <button
+                onClick={handleReviewLater}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium transition"
+              >
+                Review Later
+              </button>
+              <button
+                onClick={onClose}
+                className="bg-gray-700 hover:bg-gray-600 text-gray-200 px-5 py-2.5 rounded-lg font-medium transition"
+              >
+                Ignore
+              </button>
             </div>
           </>
         )}
-
-        <div className="border-t border-gray-700 my-6"></div>
-        
-        {/* ✅ UPDATED: Action Buttons with Context API Integration */}
-        <div className="flex justify-end space-x-3">
-          <button
-            // onClick={handleTakedown}
-            onClick={(e) => openProfileWindow(profile.profileUrl, e)}
-            className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-medium transition"
-          >
-            Request Takedown
-          </button>
-          <button
-            onClick={handleReviewLater}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium transition"
-          >
-            Review Later
-          </button>
-          <button
-            onClick={onClose}
-            className="bg-gray-700 hover:bg-gray-600 text-gray-200 px-5 py-2.5 rounded-lg font-medium transition"
-          >
-            Ignore
-          </button>
-        </div>
       </div>
     </div>
   );
@@ -366,29 +466,6 @@ export default function FacebookProfile() {
     }
   };
 
-  // const openProfileWindow = (url) => {
-  //   const width = 450;
-  //   const height = 700;
-  //   const left = window.screenX + (window.outerWidth - width) / 2;
-  //   const top = window.screenY + (window.outerHeight - height) / 2;
-    
-  //   const features = `
-  //     width=${width},
-  //     height=${height},
-  //     left=${left},
-  //     top=${top},
-  //     resizable,
-  //     scrollbars,
-  //     status=no,
-  //     toolbar=no,
-  //     menubar=no,
-  //     noopener,
-  //     noreferrer
-  //   `.replace(/\s+/g, "");
-
-  //   window.open(url, "_blank", features);
-  // };
-
   const handleImageError = (e) => {
     console.warn('Facebook image failed to load, using fallback');
     e.target.src = "/images/facebook.png";
@@ -520,8 +597,6 @@ export default function FacebookProfile() {
                         )}
                       </div>
 
-                      {/* <p className="text-sm text-gray-400 mb-2">User ID: {profile.id}</p> */}
-
                       {/* User Data Preview */}
                       {profile.userData && profile.userData.length > 0 && (
                         <div className="space-y-1 mb-2">
@@ -555,12 +630,6 @@ export default function FacebookProfile() {
                           <span className="text-gray-400">Platform:</span>
                           <span className="text-gray-200 ml-2">Facebook</span>
                         </div>
-                        {/* <div>
-                          <span className="text-gray-400">Info:</span>
-                          <span className="text-gray-200 ml-2">
-                            {profile.userData?.length || 0} details
-                          </span>
-                        </div> */}
                       </div>
 
                       <a

@@ -5,16 +5,19 @@ import React, { useState } from "react";
 import { useBalance } from "@/app/hooks/usebalance";
 import { useReview } from "@/app/contexts/ReviewContext"; // Import the context
 
-// Profile Details Modal
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 function TwitterProfileDetailsModal({ isOpen, profile, onClose }) {
-  const { addToReviewLater } = useReview(); // Use the context
+  const { addToReviewLater } = useReview();
+  const [isReporting, setIsReporting] = useState(false);
+  const [reportSuccess, setReportSuccess] = useState(false);
 
   if (!isOpen || !profile) return null;
 
   const openProfileWindow = (url) => {
     const width = 450;
     const height = 700;
-    const left = window.screenX + (window.outerWidth - width) / 2;
+    const left = window.screenX + (window.outerWidth - width) / 1;
     const top = window.screenY + (window.outerHeight - height) / 2;
     
     const features = `
@@ -34,122 +37,228 @@ function TwitterProfileDetailsModal({ isOpen, profile, onClose }) {
     window.open(url, "_blank", features);
   };
 
-  // ✅ NEW: Handle Review Later with Context API
+  // ✅ NEW: Handle Reported Successfully
+  const handleReportSuccessfully = async () => {
+    setIsReporting(true);
+    try {
+      // Get user_id from localStorage (logged in user)
+      const user_id = localStorage.getItem('user_id') || localStorage.getItem('userId');
+      
+      if (!user_id) {
+        throw new Error('User not found. Please login again.');
+      }
+
+      // Prepare report data according to API requirements
+      const reportData = {
+        reportedProfile: {
+          id: profile.id.toString(), // Convert to string as required
+          platform: "Twitter",
+          username: profile.username,
+          fullName: profile.fullName || profile.username,
+          profileUrl: profile.profileUrl,
+          profilePicUrl: profile.profilePicUrl,
+          followers: profile.followers || 0
+        },
+        reason: "Impersonation",
+        status: "takedown_complete"
+      };
+
+      console.log('📤 Sending Twitter report data:', reportData);
+
+      const response = await fetch(`${BASE_URL}/api/takedown?user_id=${user_id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reportData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Twitter profile reported successfully:', result);
+        setReportSuccess(true);
+        
+        // Close modal after success
+        setTimeout(() => {
+          onClose();
+          setReportSuccess(false);
+        }, 2000);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to report profile');
+      }
+    } catch (error) {
+      console.error('❌ Error reporting Twitter profile:', error);
+      alert(error.message || 'Failed to report profile. Please try again.');
+    } finally {
+      setIsReporting(false);
+    }
+  };
+
+  // ✅ Handle Review Later with Context API
   const handleReviewLater = () => {
     addToReviewLater(profile, 'Twitter');
     onClose();
     console.log('📝 Twitter profile added to review later:', profile);
   };
 
-  // ✅ NEW: Handle Takedown
-  const handleTakedown = () => {
-    console.log('Request Takedown:', profile);
-    onClose();
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/15 backdrop-blur-xs">
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl w-full max-w-2xl p-6 relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition"
-        >
-          <X className="w-6 h-6" />
-        </button>
+    <div className="fixed inset-0 z-50 flex items-start justify-start bg-white/15 backdrop-blur-xs pt-8 pl-8">
+      {/* Modal Container - Made scrollable */}
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+        <div className="p-6">
+          {/* Header */}
+          <div className="mb-4 border-b border-gray-700 pb-3">
+            <h2 className="text-2xl font-semibold text-white">
+              {reportSuccess ? "Reported Successfully! ✅" : "Profile Details"}
+            </h2>
+          </div>
 
-        <div className="mb-4 border-b border-gray-700 pb-3">
-          <h2 className="text-2xl font-semibold text-white">
-            Profile Details
-          </h2>
-        </div>
-
-        <div className="flex items-start space-x-4">
-          <img
-            src={profile.profilePicUrl || "/images/twitter.png"}
-            alt={profile.username}
-            className="w-20 h-20 rounded-full border border-gray-600 object-cover flex-shrink-0"
-          />
-
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-xl font-bold text-gray-100">
-                {profile.fullName}
-              </h3>
-              {profile.verified && (
-                <CheckCircle className="w-5 h-5 text-blue-400" />
-              )}
+          {reportSuccess ? (
+            <div className="text-center py-8">
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+              <p className="text-gray-300 text-lg">Twitter profile has been reported successfully.</p>
+              <p className="text-gray-400 text-sm mt-2">Redirecting...</p>
             </div>
+          ) : (
+            <>
+              {/* Profile Info - Made more compact */}
+              <div className="flex items-start space-x-4 mb-4">
+                <img
+                  src={profile.profilePicUrl || "/images/twitter.png"}
+                  alt={profile.username}
+                  className="w-16 h-16 rounded-full border border-gray-600 object-cover flex-shrink-0"
+                />
 
-            <div className="text-sm space-y-2">
-              <p><span className="text-gray-400">Platform:</span> <span className="text-gray-200">Twitter</span></p>
-              <p><span className="text-gray-400">Username:</span> <span className="text-gray-200">@{profile.username}</span></p>
-              
-              {/* ✅ UPDATED: URL as button with background */}
-              <div className="flex items-center gap-2">
-                <span className="text-gray-400">Profile:</span>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-lg font-bold text-gray-100">
+                      {profile.fullName}
+                    </h3>
+                    {profile.verified && (
+                      <CheckCircle className="w-4 h-4 text-blue-400" />
+                    )}
+                  </div>
+
+                  <div className="text-sm space-y-1">
+                    <p><span className="text-gray-400">Platform:</span> <span className="text-gray-200">Twitter</span></p>
+                    <p><span className="text-gray-400">Username:</span> <span className="text-gray-200">@{profile.username}</span></p>
+                    
+                    {/* ✅ UPDATED: URL as button with background */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400">Profile:</span>
+                      <button
+                        onClick={() => openProfileWindow(profile.profileUrl)}
+                        className="inline-flex items-center space-x-1 bg-blue-900/30 hover:bg-blue-800/40 text-blue-400 px-2 py-1 rounded text-xs border border-blue-700 transition-colors"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        <span>Open Profile</span>
+                      </button>
+                    </div>
+                    
+                    <div className="flex items-center gap-4 text-xs">
+                      <span className={`${profile.verified ? 'text-green-400' : 'text-yellow-400'}`}>
+                        {profile.verified ? '✅ Verified' : '❌ Not Verified'}
+                      </span>
+                      <span className={`${profile.protected ? 'text-red-400' : 'text-green-400'}`}>
+                        {profile.protected ? '🔒 Protected' : '🌐 Public'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bio - Conditional with max height */}
+              {profile.description && (
+                <div className="mb-3">
+                  <h4 className="text-gray-400 text-sm font-medium mb-1">Bio</h4>
+                  <p className="text-gray-300 text-sm bg-gray-800/50 rounded p-2 max-h-20 overflow-y-auto">
+                    {profile.description}
+                  </p>
+                </div>
+              )}
+
+              {/* Stats - Made more compact */}
+              <div className="flex justify-evenly gap-4 text-sm text-gray-300 mb-3 p-3 bg-gray-800/30 rounded-lg">
+                <div className="text-center">
+                  <strong className="text-white text-md block">{profile.followers?.toLocaleString() || 0}</strong>
+                  <span className="text-gray-400 text-xs">Followers</span>
+                </div>
+                <div className="text-center">
+                  <strong className="text-white text-md block">{profile.following?.toLocaleString() || 0}</strong>
+                  <span className="text-gray-400 text-xs">Following</span>
+                </div>
+                <div className="text-center">
+                  <strong className="text-white text-md block">{profile.tweets?.toLocaleString() || 0}</strong>
+                  <span className="text-gray-400 text-xs">Tweets</span>
+                </div>
+              </div>
+
+              {/* ✅ CONCISE: Twitter Reporting Steps */}
+              <div className="border-t border-gray-700 my-3 pt-3">
+                <h3 className="text-red-400 font-semibold mb-2 flex items-center gap-2 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  How to Report on Twitter
+                </h3>
+                
+                <div className="space-y-1 text-xs">
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">1</span>
+                    <span>Open profile → Click <strong>⋯</strong> → <strong>"Report @user"</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">2</span>
+                    <span>Choose <strong>"Pretending to be someone"</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
+                    <span>Complete Twitter's process</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-green-400 mt-1">
+                    <CheckCircle className="w-3 h-3" />
+                    <span className="font-medium">Then click "Reported" below</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* ✅ UPDATED: Action Buttons - Made more compact */}
+              <div className="flex justify-end space-x-2 mt-4">
                 <button
-                  onClick={() => openProfileWindow(profile.profileUrl)}
-                  className="inline-flex items-center space-x-1 bg-blue-900/30 hover:bg-blue-800/40 text-blue-400 px-3 py-1 rounded-lg text-sm border border-blue-700 transition-colors"
+                  onClick={(e) => openProfileWindow(profile.profileUrl, e)}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm"
                 >
-                  <ExternalLink className="w-3 h-3" />
-                  <span>Open Profile</span>
+                  Request Takedown
+                </button>
+                
+                {/* NEW: Reported Successfully Button */}
+                <button
+                  onClick={handleReportSuccessfully}
+                  disabled={isReporting}
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1 text-sm"
+                >
+                  {isReporting ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <CheckCircle className="w-3 h-3" />
+                  )}
+                  <span>{isReporting ? "Reporting..." : "Reported"}</span>
+                </button>
+                
+                <button
+                  onClick={handleReviewLater}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm"
+                >
+                  Review Later
+                </button>
+                <button
+                  onClick={onClose}
+                  className="bg-gray-700 hover:bg-gray-600 text-gray-200 px-4 py-2 rounded-lg font-medium transition text-sm"
+                >
+                  Ignore
                 </button>
               </div>
-              
-              <p><span className="text-gray-400">Verified:</span> <span className={`font-medium ${profile.verified ? 'text-green-400' : 'text-yellow-400'}`}>{profile.verified ? 'Yes' : 'No'}</span></p>
-              <p><span className="text-gray-400">Protected:</span> <span className={`font-medium ${profile.protected ? 'text-red-400' : 'text-green-400'}`}>{profile.protected ? 'Yes' : 'No'}</span></p>
-            </div>
-          </div>
-        </div>
-
-        {profile.description && (
-          <>
-            <div className="border-t border-gray-700 my-4"></div>
-            <div>
-              <h4 className="text-sm font-medium text-gray-400 mb-2">Bio</h4>
-              <p className="text-sm text-gray-300">{profile.description}</p>
-            </div>
-          </>
-        )}
-
-        <div className="border-t border-gray-700 my-4"></div>
-        <div className="grid grid-cols-3 gap-4 text-sm">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-white">{profile.followers?.toLocaleString() || 0}</p>
-            <p className="text-gray-400">Followers</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-white">{profile.following?.toLocaleString() || 0}</p>
-            <p className="text-gray-400">Following</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-white">{profile.tweets?.toLocaleString() || 0}</p>
-            <p className="text-gray-400">Tweets</p>
-          </div>
-        </div>
-
-        <div className="border-t border-gray-700 my-6"></div>
-        
-        {/* ✅ UPDATED: Action Buttons with Context API Integration */}
-        <div className="flex justify-end space-x-3">
-          <button
-            onClick={handleTakedown}
-            className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-medium transition"
-          >
-            Request Takedown
-          </button>
-          <button
-            onClick={handleReviewLater}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium transition"
-          >
-            Review Later
-          </button>
-          <button
-            onClick={onClose}
-            className="bg-gray-700 hover:bg-gray-600 text-gray-200 px-5 py-2.5 rounded-lg font-medium transition"
-          >
-            Ignore
-          </button>
+            </>
+          )}
         </div>
       </div>
     </div>
