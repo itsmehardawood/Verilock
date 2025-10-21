@@ -285,7 +285,7 @@ function ProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPe
                   </div>
                   <div className="flex items-center gap-2 text-gray-300">
                     <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
-                    <span>You're about to submit a report , just click on submit button now.</span>
+                    <span>click on submit button now.</span>
                   </div>
                   <div className="flex items-center gap-2 text-green-400 mt-1">
                     <CheckCircle className="w-3 h-3" />
@@ -393,7 +393,7 @@ export default function InstaProfile({
   const [totalFetched, setTotalFetched] = useState(0);
 
   // Use balance hook
-  const { balance, deductCredit, isLoading: balanceLoading, canAfford } = useBalance(250);
+  const { balance, deductCredit, isLoading: balanceLoading, canAfford } = useBalance();
 
   // ✅ NEW: Use Review Context to show count in UI (optional)
   const { reviewProfiles } = useReview();

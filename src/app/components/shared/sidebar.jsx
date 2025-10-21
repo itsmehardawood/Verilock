@@ -364,7 +364,7 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
   const router = useRouter();
   
   // Use balance hook to get current balance
-  const { balance, isLoading: balanceLoading } = useBalance(250);
+  const { balance, isLoading: balanceLoading } = useBalance();
 
   // Get user info from localStorage on component mount
   useEffect(() => {
@@ -504,7 +504,7 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
                   ) : (
                     <>
                       <span className="text-sm font-bold text-gray-200">
-                        ${balance} {balance !== 1 ? 's' : ''}
+                        ${balance} {balance !== 1 ? '' : ''}
                       </span>
                       {balance === 0 && (
                         <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" title="Low balance"></div>

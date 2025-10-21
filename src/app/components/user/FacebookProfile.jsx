@@ -6,6 +6,48 @@ import { useBalance } from "@/app/hooks/usebalance";
 import { useReview } from "@/app/contexts/ReviewContext"; // Import the context
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+// Loading Message Component
+function LoadingMessage() {
+  return (
+    <div className="bg-black rounded-xl shadow-sm border border-gray-700 p-8 text-center">
+      <div className="flex flex-col items-center justify-center space-y-4 py-8">
+        <div className="relative">
+          <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+          <div className="absolute inset-0 rounded-full border-2 border-blue-500/30 animate-ping"></div>
+        </div>
+        
+        <div className="space-y-3">
+          <h3 className="text-xl font-semibold text-gray-100">
+            Searching Facebook Profiles
+          </h3>
+          
+          <div className="space-y-2">
+            <p className="text-gray-300 text-lg">
+              We're gathering the best results for you
+            </p>
+            <p className="text-gray-400 text-sm max-w-md mx-auto">
+              This may take a moment as we carefully scan through Facebook profiles 
+              to find the most relevant matches for your search.
+            </p>
+          </div>
+          
+          <div className="pt-4">
+            <div className="flex items-center justify-center space-x-2 text-sm text-gray-400">
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
+              <span>Please stay with us</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Profile Details Modal
 function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPending, onIgnored }) {
   const { addToReviewLater } = useReview();
@@ -190,13 +232,13 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
           <>
             <div className="flex items-start space-x-4">
               <img
-                src={profile.profilePicUrl || "/images/facebook.png"}
+                src={profile.profilePicUrl}
                 alt={profile.fullName}
                 className="w-20 h-20 rounded-full border border-gray-600 object-cover flex-shrink-0"
-                onError={(e) => {
-                  e.target.src = "/images/facebook.png";
-                  e.target.onerror = null;
-                }}
+                // onError={(e) => {
+                //   e.target.src = "/images/facebook.png";
+                //   e.target.onerror = null;
+                // }}
               />
 
               <div className="flex-1">
@@ -228,19 +270,19 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
             {/* ✅ CONCISE: Facebook Reporting Steps */}
           <div className="border-t border-gray-700 my-4"></div>
           <div className="mb-4">
-            <h2 className="text-red-500 font-semibold mb-3 flex items-center gap-2">
+            <h2 className="text-red-500 font-semibold mb-3 flex items-center gap-2 ">
               <AlertCircle className="w-5 h-5" />
               Follow these instructions to Report on Facebook
             </h2>
             
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2 text-xs">
               <div className="flex items-center gap-2 text-gray-300">
                 <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">1</span>
                 <span>Open profile → Tap <strong>⋯</strong> in the top bar right corner <strong> Click Report from it</strong></span>
               </div>
               <div className="flex items-center gap-2 text-gray-300">
                 <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">2</span>
-                <span>Select Why are you reporting this profile?<strong>→ "Fake profile"</strong></span>
+                <span>Select Why are you reporting this profile?<strong>Select →  "Fake profile"</strong></span>
               </div>
               <div className="flex items-center gap-2 text-gray-300">
                 <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">3</span>
@@ -248,7 +290,7 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
               </div>
               <div className="flex items-center gap-2 text-gray-300">
                 <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
-                <span>You're about to submit a report , just click onn submit button.</span>
+                <span>You're about to submit a report , just click on submit button.</span>
               </div>
               <div className="flex items-center gap-2 text-green-400 mt-2">
                 <CheckCircle className="w-4 h-4" />
@@ -376,7 +418,7 @@ export default function FacebookProfile({
   const [totalFetched, setTotalFetched] = useState(0);
 
   // Use balance hook
-  const { balance, deductCredit, isLoading: balanceLoading, canAfford } = useBalance(250);
+  const { balance, deductCredit, isLoading: balanceLoading, canAfford } = useBalance();
 
   // ✅ NEW: Use Review Context to show count in UI (optional)
   const { reviewProfiles } = useReview();
@@ -538,11 +580,11 @@ export default function FacebookProfile({
     }
   };
 
-  const handleImageError = (e) => {
-    console.warn('Facebook image failed to load, using fallback');
-    e.target.src = "/images/facebook.png";
-    e.target.onerror = null;
-  };
+  // const handleImageError = (e) => {
+  //   console.warn('Facebook image failed to load, using fallback');
+  //   e.target.src = "/images/facebook.png";
+  //   e.target.onerror = null;
+  // };
 
   const getIconForType = (type) => {
     switch (type) {
@@ -630,6 +672,9 @@ export default function FacebookProfile({
         </form>
       </div>
 
+      {/* Loading State */}
+      {loading && <LoadingMessage/>}
+
       {/* Search Results */}
       {searchResults.length > 0 && (
         <div className="bg-black rounded-xl shadow-sm border border-gray-700 p-6">
@@ -656,7 +701,7 @@ export default function FacebookProfile({
                       src={profile.profilePicUrl}
                       alt={profile.fullName}
                       className="w-16 h-16 rounded-full border border-gray-600 object-cover"
-                      onError={handleImageError}
+                      // onError={handleImageError}
                     />
 
                     <div className="flex-1">

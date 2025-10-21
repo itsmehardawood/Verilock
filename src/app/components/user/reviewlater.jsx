@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Clock, Trash2, AlertCircle, Search, Filter, Calendar, ExternalLink, Eye, BarChart3, Bookmark, Users, MapPin, Briefcase, GraduationCap } from 'lucide-react';
 import { useReview } from '@/app/contexts/ReviewContext'; // Import the context
+import ReviewProfileDetailsModal from './ReviewlaterModal';
 
 const ReviewLaterProfiles = () => {
   const [selectedFilter, setSelectedFilter] = useState('all');
@@ -37,6 +38,11 @@ const ReviewLaterProfiles = () => {
     setIsModalOpen(true);
   };
 
+  // ✅ NEW: Handle close modal
+  const handleCloseModal = () => {
+    setSelectedProfile(null);
+  };
+
   // ✅ UPDATED: Use context functions
   const handleMoveToTakedown = (profile) => {
     moveToTakedown(profile);
@@ -47,6 +53,12 @@ const ReviewLaterProfiles = () => {
     removeFromReview(profile.id);
     console.log('Remove from review:', profile);
   };
+
+  // ✅ NEW: Handle remove from review after modal action
+  const handleRemoveFromReviewAfterAction = (profileId) => {
+    removeFromReview(profileId);
+  };
+
 
   const handlePriorityChange = (profileId, newPriority) => {
     updateProfilePriority(profileId, newPriority);
@@ -84,28 +96,87 @@ const ReviewLaterProfiles = () => {
   // };
 
   // ✅ NEW: Helper function to display profile-specific data
-  const renderPlatformSpecificData = (profile) => {
-    if (!profile.originalData) return null;
+  // const renderPlatformSpecificData = (profile) => {
+  //   if (!profile.originalData) return null;
 
-    const { originalData, platform } = profile;
+  //   const { originalData, platform } = profile;
     
-    switch (platform?.toLowerCase()) {
+  //   switch (platform?.toLowerCase()) {
+  //     case 'instagram':
+  //       return (
+  //         <div className="flex flex-wrap gap-4 text-xs text-gray-400 mt-2">
+  //           {originalData.followers && (
+  //             <span><strong className="text-white">{originalData.followers}</strong> followers</span>
+  //           )}
+  //           {originalData.following && (
+  //             <span><strong className="text-white">{originalData.following}</strong> following</span>
+  //           )}
+  //           {originalData.postsCount && (
+  //             <span><strong className="text-white">{originalData.postsCount}</strong> posts</span>
+  //           )}
+  //           {originalData.verified && (
+  //             <span className="text-green-400">✓ Verified</span>
+  //           )}
+  //           {originalData.private && (
+  //             <span className="text-yellow-400">🔒 Private</span>
+  //           )}
+  //         </div>
+  //       );
+      
+  //     case 'facebook':
+  //       return (
+  //         <div className="flex flex-wrap gap-4 text-xs text-gray-400 mt-2">
+  //           {originalData.verified && (
+  //             <span className="text-green-400">✓ Verified</span>
+  //           )}
+  //           {originalData.userData && originalData.userData.length > 0 && (
+  //             <span><strong className="text-white">{originalData.userData.length}</strong> profile details</span>
+  //           )}
+  //         </div>
+  //       );
+      
+  //     case 'linkedin':
+  //       return (
+  //         <div className="flex flex-wrap gap-4 text-xs text-gray-400 mt-2">
+  //           {originalData.headline && (
+  //             <span className="line-clamp-1">{originalData.headline}</span>
+  //           )}
+  //           {originalData.location && (
+  //             <span>📍 {originalData.location}</span>
+  //           )}
+  //           {originalData.connections && (
+  //             <span><strong className="text-white">{originalData.connections}</strong> connections</span>
+  //           )}
+  //         </div>
+  //       );
+      
+  //     default:
+  //       return null;
+  //   }
+  // };
+
+   // ✅ NEW: Helper function to display profile-specific data
+  const renderPlatformSpecificData = (profile) => {
+    // Use originalData if available, otherwise use profile data directly
+    const profileData = profile.originalData || profile;
+    
+    switch (profile.platform?.toLowerCase()) {
       case 'instagram':
         return (
           <div className="flex flex-wrap gap-4 text-xs text-gray-400 mt-2">
-            {originalData.followers && (
-              <span><strong className="text-white">{originalData.followers}</strong> followers</span>
+            {profileData.followers && (
+              <span><strong className="text-white">{profileData.followers.toLocaleString()}</strong> followers</span>
             )}
-            {originalData.following && (
-              <span><strong className="text-white">{originalData.following}</strong> following</span>
+            {profileData.following && (
+              <span><strong className="text-white">{profileData.following.toLocaleString()}</strong> following</span>
             )}
-            {originalData.postsCount && (
-              <span><strong className="text-white">{originalData.postsCount}</strong> posts</span>
+            {profileData.postsCount && (
+              <span><strong className="text-white">{profileData.postsCount}</strong> posts</span>
             )}
-            {originalData.verified && (
+            {profileData.verified && (
               <span className="text-green-400">✓ Verified</span>
             )}
-            {originalData.private && (
+            {profileData.privateAccount && (
               <span className="text-yellow-400">🔒 Private</span>
             )}
           </div>
@@ -114,26 +185,50 @@ const ReviewLaterProfiles = () => {
       case 'facebook':
         return (
           <div className="flex flex-wrap gap-4 text-xs text-gray-400 mt-2">
-            {originalData.verified && (
+            {profileData.verified && (
               <span className="text-green-400">✓ Verified</span>
             )}
-            {originalData.userData && originalData.userData.length > 0 && (
-              <span><strong className="text-white">{originalData.userData.length}</strong> profile details</span>
+            {profileData.userData && profileData.userData.length > 0 && (
+              <span><strong className="text-white">{profileData.userData.length}</strong> profile details</span>
             )}
           </div>
         );
       
-      case 'linkedin':
+      case 'tiktok':
         return (
           <div className="flex flex-wrap gap-4 text-xs text-gray-400 mt-2">
-            {originalData.headline && (
-              <span className="line-clamp-1">{originalData.headline}</span>
+            {profileData.followers && (
+              <span><strong className="text-white">{profileData.followers.toLocaleString()}</strong> followers</span>
             )}
-            {originalData.location && (
-              <span>📍 {originalData.location}</span>
+            {profileData.following && (
+              <span><strong className="text-white">{profileData.following.toLocaleString()}</strong> following</span>
             )}
-            {originalData.connections && (
-              <span><strong className="text-white">{originalData.connections}</strong> connections</span>
+            {profileData.videos && (
+              <span><strong className="text-white">{profileData.videos.toLocaleString()}</strong> videos</span>
+            )}
+            {profileData.verified && (
+              <span className="text-green-400">✓ Verified</span>
+            )}
+            {profileData.privateAccount && (
+              <span className="text-yellow-400">🔒 Private</span>
+            )}
+          </div>
+        );
+      
+      case 'twitter':
+        return (
+          <div className="flex flex-wrap gap-4 text-xs text-gray-400 mt-2">
+            {profileData.followers && (
+              <span><strong className="text-white">{profileData.followers.toLocaleString()}</strong> followers</span>
+            )}
+            {profileData.following && (
+              <span><strong className="text-white">{profileData.following.toLocaleString()}</strong> following</span>
+            )}
+            {profileData.tweets && (
+              <span><strong className="text-white">{profileData.tweets.toLocaleString()}</strong> tweets</span>
+            )}
+            {profileData.verified && (
+              <span className="text-green-400">✓ Verified</span>
             )}
           </div>
         );
@@ -142,6 +237,7 @@ const ReviewLaterProfiles = () => {
         return null;
     }
   };
+
 
   const openProfileWindow = (url) => {
     const width = 450;
@@ -176,6 +272,17 @@ const ReviewLaterProfiles = () => {
       return reviewDate <= oneWeekFromNow && reviewDate >= today;
     }).length;
   };
+
+  // ✅ NEW: Get display name for profile
+  const getDisplayName = (profile) => {
+    return profile.fullName || profile.nickName || profile.name || profile.profileName || 'Unknown Profile';
+  };
+
+  // ✅ NEW: Get username for display
+  const getUsername = (profile) => {
+    return profile.username || profile.userId || 'N/A';
+  };
+
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-black min-h-screen">
@@ -281,7 +388,7 @@ const ReviewLaterProfiles = () => {
         {/* Profile Cards - UPDATED: Use real data from context */}
         <div className="space-y-4">
           {filteredProfiles.map((profile) => {
-            const priorityInfo = getPriorityBadge(profile.priority);
+            // const priorityInfo = getPriorityBadge(profile.priority);
             
             return (
               <div key={profile.id} className="border border-gray-800 bg-gray-900/20 rounded-lg p-5 hover:shadow-md transition-shadow">
@@ -378,26 +485,26 @@ const ReviewLaterProfiles = () => {
                   </div>
 
                   <div className="flex lg:flex-col gap-2">
-                    {/* <button 
+                    <button 
                       onClick={() => handleViewDetails(profile)}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium whitespace-nowrap flex items-center gap-2"
                     >
                       <Eye className="w-4 h-4" />
-                      Review Now
-                    </button> */}
+                      view Details
+                    </button>
                     <button 
                       // onClick={() => handleMoveToTakedown(profile)}
                       onClick={(e) => openProfileWindow(profile.profileUrl, e)}
                       className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium whitespace-nowrap"
                     >
-                      Takedown
+                      Takedown Request
                     </button>
                     <button 
                       onClick={() => handleRemoveFromReview(profile)}
                       className="px-4 py-2 border border-gray-600 text-gray-400 rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium whitespace-nowrap flex items-center gap-2"
                     >
                       <Trash2 className="w-4 h-4" />
-                      Remove
+                      Remove from list
                     </button>
                   </div>
                 </div>
@@ -436,11 +543,14 @@ const ReviewLaterProfiles = () => {
         </div>
       </div>
 
-      {/* <ProfileDetailModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+      {/* ✅ NEW: Profile Details Modal */}
+      <ReviewProfileDetailsModal
+        isOpen={!!selectedProfile}
         profile={selectedProfile}
-      /> */}
+        platform={selectedProfile?.platform}
+        onClose={handleCloseModal}
+        onRemoveFromReview={handleRemoveFromReviewAfterAction}
+      />
     </div>
   );
 };

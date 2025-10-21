@@ -356,7 +356,7 @@ export default function TikTokProfile({
   const [totalFetched, setTotalFetched] = useState(0);
 
   // Use balance hook
-  const { balance, deductCredit, isLoading: balanceLoading, canAfford } = useBalance(250);
+  const { balance, deductCredit, isLoading: balanceLoading, canAfford } = useBalance();
 
   // ✅ NEW: Use Review Context to show count in UI (optional)
   const { reviewProfiles } = useReview();
