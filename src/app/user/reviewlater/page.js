@@ -3,7 +3,7 @@ import React from 'react'
 
 export default function reviewLater () {
   return (
-    <div>
+    <div className='bg-black'>
       <ReviewLaterProfiles />
     </div>
   )

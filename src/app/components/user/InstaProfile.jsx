@@ -8,10 +8,12 @@ import { useReview } from "@/app/contexts/ReviewContext"; // Import the context
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 // Profile Details Modal
-function ProfileDetailsModal({ isOpen, profile, onClose }) {
+function ProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPending, onIgnored }) {
   const { addToReviewLater } = useReview();
   const [isReporting, setIsReporting] = useState(false);
   const [reportSuccess, setReportSuccess] = useState(false);
+  const [takedownClicked, setTakedownClicked] = useState(false); // NEW: Track if takedown was clicked
+  const [reviewLaterSuccess, setReviewLaterSuccess] = useState(false); // NEW: Track review later success
 
   if (!isOpen || !profile) return null;
 
@@ -43,6 +45,18 @@ function ProfileDetailsModal({ isOpen, profile, onClose }) {
     `.replace(/\s+/g, "");
 
     window.open(url, "_blank", features);
+  };
+
+  // ✅ NEW: Combined takedown handler
+  const handleTakedownAction = () => {
+    if (!takedownClicked) {
+      // First click: Open profile in new tab
+      openProfileWindow(profile.profileUrl);
+      setTakedownClicked(true);
+    } else {
+      // Second click: Report as successful
+      handleReportSuccessfully();
+    }
   };
 
   // ✅ NEW: Handle Reported Successfully
@@ -85,11 +99,17 @@ function ProfileDetailsModal({ isOpen, profile, onClose }) {
         const result = await response.json();
         console.log('✅ Instagram profile reported successfully:', result);
         setReportSuccess(true);
+
+        // ✅ CALLBACK: Increment takedown requests count
+        if (onTakedownRequest) {
+          onTakedownRequest();
+        }
         
         // Close modal after success
         setTimeout(() => {
           onClose();
           setReportSuccess(false);
+          setTakedownClicked(false); // Reset for next time
         }, 2000);
       } else {
         const errorData = await response.json();
@@ -106,19 +126,45 @@ function ProfileDetailsModal({ isOpen, profile, onClose }) {
   // ✅ Handle Review Later with Context API
   const handleReviewLater = () => {
     addToReviewLater(profile, 'Instagram');
-    onClose();
+    setReviewLaterSuccess(true); // Show success message
+
+    // ✅ CALLBACK: Increment pending count
+    if (onPending) {
+      onPending();
+    }
+    
+    // Close modal after success
+    setTimeout(() => {
+      onClose();
+      setReviewLaterSuccess(false);
+    }, 2000);
+
     console.log('📝 Instagram profile added to review later:', profile);
   };
+
+  // ✅ Handle Ignore
+  const handleIgnore = () => {
+    // ✅ CALLBACK: Increment ignored count
+    if (onIgnored) {
+      onIgnored();
+    }
+    
+    onClose();
+    // console.log('❌ Insta profile ignored:', profile);
+  };
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-start bg-white/15 backdrop-blur-xs pt-8 pl-8">
       {/* Modal Container - Made scrollable */}
       <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
         <div className="p-6">
+          
+          
           {/* Header */}
           <div className="mb-4 border-b border-gray-700 pb-3">
             <h2 className="text-2xl font-semibold text-white">
-              {reportSuccess ? "Reported Successfully! ✅" : "Profile Details"}
+              {reportSuccess ? "Reported Successfully! ✅" : reviewLaterSuccess ? "Added to Review Later! 📝" : "Profile Details"}
             </h2>
           </div>
 
@@ -128,7 +174,14 @@ function ProfileDetailsModal({ isOpen, profile, onClose }) {
               <p className="text-gray-300 text-lg">Instagram profile has been reported successfully.</p>
               <p className="text-gray-400 text-sm mt-2">Redirecting...</p>
             </div>
-          ) : (
+          ) : reviewLaterSuccess ? ( // NEW: Review Later success message
+          <div className="text-center py-8">
+            <CheckCircle className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+            <p className="text-gray-300 text-lg">Profile added to Review Later successfully.</p>
+            <p className="text-gray-400 text-sm mt-2">You can review it later from the Review section.</p>
+            <p className="text-gray-400 text-sm mt-2">Redirecting...</p>
+          </div>
+        ) : (
             <>
               {/* Profile Info - Made more compact */}
               <div className="flex items-start space-x-4 mb-4">
@@ -212,53 +265,62 @@ function ProfileDetailsModal({ isOpen, profile, onClose }) {
 
               {/* ✅ CONCISE: Instagram Reporting Steps */}
               <div className="border-t border-gray-700 my-3 pt-3">
-                <h3 className="text-red-400 font-semibold mb-2 flex items-center gap-2 text-sm">
+                <h2 className="text-red-500 font-semibold mb-2 flex items-center gap-2 text-sm">
                   <AlertCircle className="w-4 h-4" />
-                  How to Report on Instagram
-                </h3>
+                  Follow these instructions to Report on Instagram
+                </h2>
                 
                 <div className="space-y-1 text-xs">
                   <div className="flex items-center gap-2 text-gray-300">
                     <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">1</span>
-                    <span>Open profile → Tap <strong>⋯</strong> → <strong>Report</strong></span>
+                    <span>Open profile → Tap <strong>⋯</strong> in the top beside username <strong> Click Report from it</strong></span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-300">
                     <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">2</span>
-                    <span>Select <strong>"Pretending to be someone"</strong></span>
+                    <span>Select Why are you reporting this profile?<strong>→ "Report Account"</strong>(e.g) Its pretending to be someone else</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-300">
                     <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
-                    <span>Follow Instagram's steps</span>
+                    <span>Choose Who or what is it pretending to be?<strong>(e.g) → "Me"</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
+                    <span>You're about to submit a report , just click on submit button now.</span>
                   </div>
                   <div className="flex items-center gap-2 text-green-400 mt-1">
                     <CheckCircle className="w-3 h-3" />
-                    <span className="font-medium">Then click "Reported Successfully" below</span>
+                    <span className="font-medium">Then After request submision also click on "Takedown Submitted" below as well. Thanks!</span>
                   </div>
                 </div>
               </div>
 
               {/* ✅ UPDATED: Action Buttons - Made more compact */}
               <div className="flex justify-end space-x-2 mt-4">
-                <button
-                  onClick={(e) => openProfileWindow(profile.profileUrl, e)}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm"
-                >
-                  Request Takedown
-                </button>
+                {/* UPDATED: Single button that changes behavior */}
+                                <button
+                                  onClick={handleTakedownAction}
+                                  disabled={isReporting}
+                                  className={`${
+                                    takedownClicked 
+                                      ? 'bg-green-600 hover:bg-green-700' 
+                                      : 'bg-red-600 hover:bg-red-700'
+                                  } text-white px-4 py-2 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1 text-sm`}
+                                >
+                                  {isReporting ? (
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                  ) : (
+                                    <CheckCircle className="w-3 h-3" />
+                                  )}
+                                  <span>
+                                    {isReporting 
+                                      ? "Reporting..." 
+                                      : takedownClicked 
+                                        ? "Takedown Submitted" 
+                                        : "Request Takedown"
+                                    }
+                                  </span>
+                                </button>
                 
-                {/* NEW: Reported Successfully Button */}
-                <button
-                  onClick={handleReportSuccessfully}
-                  disabled={isReporting}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1 text-sm"
-                >
-                  {isReporting ? (
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                  ) : (
-                    <CheckCircle className="w-3 h-3" />
-                  )}
-                  <span>{isReporting ? "Reporting..." : "Reported"}</span>
-                </button>
                 
                 <button
                   onClick={handleReviewLater}
@@ -267,7 +329,7 @@ function ProfileDetailsModal({ isOpen, profile, onClose }) {
                   Review Later
                 </button>
                 <button
-                  onClick={onClose}
+                  onClick={handleIgnore}
                   className="bg-gray-700 hover:bg-gray-600 text-gray-200 px-4 py-2 rounded-lg font-medium transition text-sm"
                 >
                   Ignore
@@ -312,7 +374,12 @@ const openProfileWindow = (url) => {
   window.open(url, "_blank", features);
 };
 
-export default function InstaProfile() {
+export default function InstaProfile({ 
+  onProfilesDetected, 
+  onTakedownRequest, 
+  onPending, 
+  onIgnored 
+}) {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -404,6 +471,11 @@ export default function InstaProfile() {
       console.log("✅ [Formatted Profiles]:", formattedProfiles);
       setSearchResults(formattedProfiles);
       setTotalFetched(formattedProfiles.length);
+
+      // ✅ CALLBACK: Update profiles detected count
+      if (onProfilesDetected) {
+        onProfilesDetected(formattedProfiles.length);
+      }
       
       // Check if we can load more (total fetched < 30)
       if (formattedProfiles.length === 10 && formattedProfiles.length < 30) {
@@ -476,6 +548,11 @@ export default function InstaProfile() {
       setSearchResults(formattedProfiles);
       setTotalFetched(formattedProfiles.length);
       setCurrentLimit(totalAfterFetch);
+
+      // ✅ CALLBACK: Update profiles detected count
+      if (onProfilesDetected) {
+        onProfilesDetected(formattedProfiles.length);
+      }
       
       // Check if we can load more (max 30 profiles)
       if (formattedProfiles.length >= 30 || formattedProfiles.length < totalAfterFetch) {
@@ -701,6 +778,9 @@ export default function InstaProfile() {
         isOpen={!!selectedProfile}
         profile={selectedProfile}
         onClose={() => setSelectedProfile(null)}
+        onTakedownRequest={onTakedownRequest}
+        onPending={onPending}
+        onIgnored={onIgnored}
       />
     </div>
   );

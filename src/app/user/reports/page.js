@@ -3,5 +3,9 @@
 import Reports from "@/app/components/user/Reports";
 
 export default function ReportsPage() {
-  return <Reports />;
+  return (
+    <div className='bg-black'>
+     <Reports />;
+    </div>
+  )
 }

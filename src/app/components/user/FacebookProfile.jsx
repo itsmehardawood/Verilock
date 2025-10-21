@@ -7,11 +7,13 @@ import { useReview } from "@/app/contexts/ReviewContext"; // Import the context
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 // Profile Details Modal
-function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
+function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPending, onIgnored }) {
   const { addToReviewLater } = useReview();
   const [isReporting, setIsReporting] = useState(false);
   const [reportSuccess, setReportSuccess] = useState(false);
-
+  const [takedownClicked, setTakedownClicked] = useState(false); // NEW: Track if takedown was clicked
+  const [reviewLaterSuccess, setReviewLaterSuccess] = useState(false); // NEW: Track review later success
+  
   if (!isOpen || !profile) return null;
 
   const openProfileWindow = (url) => {
@@ -37,7 +39,19 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
     window.open(url, "_blank", features);
   };
 
-  // ✅ NEW: Handle Reported Successfully
+  // ✅ NEW: Combined takedown handler
+  const handleTakedownAction = () => {
+    if (!takedownClicked) {
+      // First click: Open profile in new tab
+      openProfileWindow(profile.profileUrl);
+      setTakedownClicked(true);
+    } else {
+      // Second click: Report as successful
+      handleReportSuccessfully();
+    }
+  };
+
+  // ✅ Handle Reported Successfully
   const handleReportSuccessfully = async () => {
     setIsReporting(true);
     try {
@@ -78,11 +92,17 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
         const result = await response.json();
         console.log('✅ Profile reported successfully:', result);
         setReportSuccess(true);
+
+        // ✅ CALLBACK: Increment takedown requests count
+        if (onTakedownRequest) {
+          onTakedownRequest();
+        }
         
         // Close modal after success
         setTimeout(() => {
           onClose();
           setReportSuccess(false);
+          setTakedownClicked(false); // Reset for next time
         }, 2000);
       } else {
         const errorData = await response.json();
@@ -98,8 +118,30 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
 
   const handleReviewLater = () => {
     addToReviewLater(profile, 'Facebook');
-    onClose();
+    setReviewLaterSuccess(true); // Show success message
+
+    // ✅ CALLBACK: Increment pending count
+    if (onPending) {
+      onPending();
+    }
+    
+    // Close modal after success
+    setTimeout(() => {
+      onClose();
+      setReviewLaterSuccess(false);
+    }, 2000);
     console.log('📝 Facebook profile added to review later:', profile);
+  };
+
+  // ✅ Handle Ignore
+  const handleIgnore = () => {
+    // ✅ CALLBACK: Increment ignored count
+    if (onIgnored) {
+      onIgnored();
+    }
+    
+    onClose();
+    // console.log('❌ Facebook profile ignored:', profile);
   };
 
   const getIconForType = (type) => {
@@ -127,7 +169,7 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
 
         <div className="mb-4 border-b border-gray-700 pb-3">
           <h2 className="text-2xl font-semibold text-white">
-            {reportSuccess ? "Reported Successfully! ✅" : "Profile Details"}
+            {reportSuccess ? "Reported Successfully! ✅" : reviewLaterSuccess ? "Added to Review Later! 📝" : "Profile Details"}
           </h2>
         </div>
 
@@ -135,6 +177,13 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
           <div className="text-center py-8">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
             <p className="text-gray-300 text-lg">Facebook profile has been reported successfully.</p>
+            <p className="text-gray-400 text-sm mt-2">Redirecting...</p>
+          </div>
+        ) : reviewLaterSuccess ? ( // NEW: Review Later success message
+          <div className="text-center py-8">
+            <CheckCircle className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+            <p className="text-gray-300 text-lg">Profile added to Review Later successfully.</p>
+            <p className="text-gray-400 text-sm mt-2">You can review it later from the Review section.</p>
             <p className="text-gray-400 text-sm mt-2">Redirecting...</p>
           </div>
         ) : (
@@ -177,32 +226,36 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
             </div>
 
             {/* ✅ CONCISE: Facebook Reporting Steps */}
-<div className="border-t border-gray-700 my-4"></div>
-<div className="mb-4">
-  <h3 className="text-red-400 font-semibold mb-3 flex items-center gap-2">
-    <AlertCircle className="w-5 h-5" />
-    How to Report on Facebook
-  </h3>
-  
-  <div className="space-y-2 text-sm">
-    <div className="flex items-center gap-2 text-gray-300">
-      <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">1</span>
-      <span>Open profile → Click <strong>⋯</strong> → <strong>"Find support or report"</strong></span>
-    </div>
-    <div className="flex items-center gap-2 text-gray-300">
-      <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">2</span>
-      <span>Choose <strong>"Pretending to be someone"</strong></span>
-    </div>
-    <div className="flex items-center gap-2 text-gray-300">
-      <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">3</span>
-      <span>Complete Facebook's process</span>
-    </div>
-    <div className="flex items-center gap-2 text-green-400 mt-2">
-      <CheckCircle className="w-4 h-4" />
-      <span className="font-medium">Then click "Reported Successfully" below</span>
-    </div>
-  </div>
-</div>
+          <div className="border-t border-gray-700 my-4"></div>
+          <div className="mb-4">
+            <h2 className="text-red-500 font-semibold mb-3 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              Follow these instructions to Report on Facebook
+            </h2>
+            
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-2 text-gray-300">
+                <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">1</span>
+                <span>Open profile → Tap <strong>⋯</strong> in the top bar right corner <strong> Click Report from it</strong></span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-300">
+                <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">2</span>
+                <span>Select Why are you reporting this profile?<strong>→ "Fake profile"</strong></span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-300">
+                <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">3</span>
+                <span>Choose Who or what is it pretending to be?</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-300">
+                <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
+                <span>You're about to submit a report , just click onn submit button.</span>
+              </div>
+              <div className="flex items-center gap-2 text-green-400 mt-2">
+                <CheckCircle className="w-4 h-4" />
+                <span className="font-medium">Then After request submision also click on "Takedown Submitted" below as well. Thanks!</span>
+              </div>
+            </div>
+          </div>
 
             {profile.userData && profile.userData.length > 0 && (
               <>
@@ -236,26 +289,30 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
             
             {/* ✅ UPDATED: Action Buttons with Reported Successfully */}
             <div className="flex justify-end space-x-3">
-              <button
-                onClick={(e) => openProfileWindow(profile.profileUrl, e)}
-                className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-medium transition"
-              >
-                Request Takedown
-              </button>
-              
-              {/* NEW: Reported Successfully Button */}
-              <button
-                onClick={handleReportSuccessfully}
-                disabled={isReporting}
-                className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-              >
+              {/* UPDATED: Single button that changes behavior */}
+                              <button
+                                onClick={handleTakedownAction}
+                                disabled={isReporting}
+                                className={`${
+                      takedownClicked 
+                          ? 'bg-green-600 hover:bg-green-700' 
+                          : 'bg-red-600 hover:bg-red-700'
+                          } text-white px-4 py-2 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1 text-sm`}
+                >
                 {isReporting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3 h-3 animate-spin" />
                 ) : (
-                  <CheckCircle className="w-4 h-4" />
+                <CheckCircle className="w-3 h-3" />
                 )}
-                <span>{isReporting ? "Reporting..." : "Reported Successfully"}</span>
-              </button>
+                  <span>
+                    {isReporting 
+                      ? "Reporting..." 
+                      : takedownClicked 
+                      ? "Takedown Submitted" 
+                      : "Request Takedown"
+                    }
+                 </span>
+               </button>
               
               <button
                 onClick={handleReviewLater}
@@ -264,7 +321,7 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose }) {
                 Review Later
               </button>
               <button
-                onClick={onClose}
+                onClick={handleIgnore}
                 className="bg-gray-700 hover:bg-gray-600 text-gray-200 px-5 py-2.5 rounded-lg font-medium transition"
               >
                 Ignore
@@ -300,7 +357,12 @@ const openProfileWindow = (url) => {
     window.open(url, "_blank", features);
   };
 
-export default function FacebookProfile() {
+export default function FacebookProfile({ 
+  onProfilesDetected, 
+  onTakedownRequest, 
+  onPending, 
+  onIgnored 
+}) {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -385,6 +447,11 @@ export default function FacebookProfile() {
       console.log("✅ [Formatted Profiles]:", formattedProfiles);
       setSearchResults(formattedProfiles);
       setTotalFetched(formattedProfiles.length);
+
+      // ✅ CALLBACK: Update profiles detected count
+      if (onProfilesDetected) {
+        onProfilesDetected(formattedProfiles.length);
+      }
       
       // Check if we can load more (total fetched < 30)
       if (formattedProfiles.length === 10 && formattedProfiles.length < 30) {
@@ -450,6 +517,11 @@ export default function FacebookProfile() {
       setSearchResults(formattedProfiles);
       setTotalFetched(formattedProfiles.length);
       setCurrentLimit(totalAfterFetch);
+
+      // ✅ CALLBACK: Update profiles detected count
+      if (onProfilesDetected) {
+        onProfilesDetected(formattedProfiles.length);
+      }
       
       // Check if we can load more (max 30 profiles)
       if (formattedProfiles.length >= 30 || formattedProfiles.length < totalAfterFetch) {
@@ -597,6 +669,9 @@ export default function FacebookProfile() {
                         )}
                       </div>
 
+                      <p className="text-sm text-gray-400 mb-2">User ID: {profile.id}</p>
+
+
                       {/* User Data Preview */}
                       {profile.userData && profile.userData.length > 0 && (
                         <div className="space-y-1 mb-2">
@@ -630,7 +705,14 @@ export default function FacebookProfile() {
                           <span className="text-gray-400">Platform:</span>
                           <span className="text-gray-200 ml-2">Facebook</span>
                         </div>
+                        <div>
+                        <span className="text-gray-400">Info:</span>
+                          <span className="text-gray-200 ml-2">
+                            {profile.userData?.length || 0} details
+                        </span>
                       </div>
+                      </div>
+                      
 
                       <a
                         onClick={(e) => openProfileWindow(profile.profileUrl, e)}
@@ -688,6 +770,9 @@ export default function FacebookProfile() {
         isOpen={!!selectedProfile}
         profile={selectedProfile}
         onClose={() => setSelectedProfile(null)}
+        onTakedownRequest={onTakedownRequest}
+        onPending={onPending}
+        onIgnored={onIgnored}
       />
     </div>
   );

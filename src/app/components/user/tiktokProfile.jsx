@@ -8,11 +8,13 @@ import { useReview } from "@/app/contexts/ReviewContext"; // Import the context
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 // Profile Details Modal
-function TikTokProfileDetailsModal({ isOpen, profile, onClose }) {
+function TikTokProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPending, onIgnored }) {
   const { addToReviewLater } = useReview();
   const [isReporting, setIsReporting] = useState(false);
   const [reportSuccess, setReportSuccess] = useState(false);
-
+  const [takedownClicked, setTakedownClicked] = useState(false); // NEW: Track if takedown was clicked
+  const [reviewLaterSuccess, setReviewLaterSuccess] = useState(false); // NEW: Track review later success
+  
   if (!isOpen || !profile) return null;
 
   const openProfileWindow = (url) => {
@@ -38,7 +40,19 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose }) {
     window.open(url, "_blank", features);
   };
 
-  // ✅ NEW: Handle Reported Successfully
+  // ✅ NEW: Combined takedown handler
+  const handleTakedownAction = () => {
+    if (!takedownClicked) {
+      // First click: Open profile in new tab
+      openProfileWindow(profile.profileUrl);
+      setTakedownClicked(true);
+    } else {
+      // Second click: Report as successful
+      handleReportSuccessfully();
+    }
+  };
+
+  // ✅ Handle Reported Successfully
   const handleReportSuccessfully = async () => {
     setIsReporting(true);
     try {
@@ -79,10 +93,16 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose }) {
         console.log('✅ TikTok profile reported successfully:', result);
         setReportSuccess(true);
         
+        // ✅ CALLBACK: Increment takedown requests count
+        if (onTakedownRequest) {
+          onTakedownRequest();
+        }
+        
         // Close modal after success
         setTimeout(() => {
           onClose();
           setReportSuccess(false);
+          setTakedownClicked(false); // Reset for next time
         }, 2000);
       } else {
         const errorData = await response.json();
@@ -99,19 +119,50 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose }) {
   // ✅ Handle Review Later with Context API
   const handleReviewLater = () => {
     addToReviewLater(profile, 'TikTok');
-    onClose();
+    
+    // ✅ CALLBACK: Increment pending count
+    if (onPending) {
+      onPending();
+    }
+    
+    setReviewLaterSuccess(true); // Show success message
+    
+    // Close modal after success
+    setTimeout(() => {
+      onClose();
+      setReviewLaterSuccess(false);
+    }, 2000);
     console.log('📝 TikTok profile added to review later:', profile);
   };
 
+  // ✅ Handle Ignore
+  const handleIgnore = () => {
+    // ✅ CALLBACK: Increment ignored count
+    if (onIgnored) {
+      onIgnored();
+      setTakedownClicked(false);
+    }
+    
+    onClose();
+    console.log('❌ TikTok profile ignored:', profile);
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-start bg-white/15 backdrop-blur-xs pt-8 pl-8">
+    <div className="fixed inset-0 z-50 flex items-start justify-start bg-white/15 backdrop-blur-xs pt-8 pl-8 xl:pl-16 xl:pt-16">
       {/* Modal Container - Made scrollable */}
       <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
         <div className="p-6">
+          <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition"
+        >
+          <X className="w-6 h-6" />
+        </button>
+        
           {/* Header */}
           <div className="mb-4 border-b border-gray-700 pb-3">
             <h2 className="text-2xl font-semibold text-white">
-              {reportSuccess ? "Reported Successfully! ✅" : "Profile Details"}
+              {reportSuccess ? "Reported Successfully! ✅" : reviewLaterSuccess ? "Added to Review Later! 📝" : "Profile Details"}
             </h2>
           </div>
 
@@ -121,8 +172,17 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose }) {
               <p className="text-gray-300 text-lg">TikTok profile has been reported successfully.</p>
               <p className="text-gray-400 text-sm mt-2">Redirecting...</p>
             </div>
-          ) : (
+          ) : reviewLaterSuccess ? ( // NEW: Review Later success message
+          <div className="text-center py-8">
+            <CheckCircle className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+            <p className="text-gray-300 text-lg">Profile added to Review Later successfully.</p>
+            <p className="text-gray-400 text-sm mt-2">You can review it later from the Review section.</p>
+            <p className="text-gray-400 text-sm mt-2">Redirecting...</p>
+          </div>
+        ) : (
             <>
+
+        
               {/* Profile Info - Made more compact */}
               <div className="flex items-start space-x-4 mb-4">
                 <img
@@ -200,52 +260,60 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose }) {
 
               {/* ✅ CONCISE: TikTok Reporting Steps */}
               <div className="border-t border-gray-700 my-3 pt-3">
-                <h3 className="text-red-400 font-semibold mb-2 flex items-center gap-2 text-sm">
+                <h2 className="text-red-500 font-semibold mb-2 flex items-center gap-2 text-sm">
                   <AlertCircle className="w-4 h-4" />
-                  How to Report on TikTok
-                </h3>
+                  Follow these instructions to Report on TikTok
+                </h2>
                 
                 <div className="space-y-1 text-xs">
                   <div className="flex items-center gap-2 text-gray-300">
-                    <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">1</span>
-                    <span>Open profile → Tap <strong>Share</strong> or <strong>⋯</strong> → <strong>Report</strong></span>
+                    <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-sm">1</span>
+                    <span>Open profile → Tap <strong>⋯</strong> beside Share <strong></strong> → then click <strong>Report</strong></span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-300">
                     <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">2</span>
-                    <span>Select <strong>"Report account"</strong> → <strong>"Impersonation"</strong></span>
+                    <span>Select <strong>"Report account"</strong> then select a scenario <strong>"Impersonation/ Pretending to be someone"</strong></span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-300">
                     <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
-                    <span>Follow TikTok's instructions</span>
+                    <span>Select who he/she is Pretending to be (Me or celebrity)</span>
                   </div>
-                  <div className="flex items-center gap-2 text-green-400 mt-1">
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
+                    <span>click on submit button. After clicking it you have successfully reported this profile.</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-yellow-400 mt-1">
                     <CheckCircle className="w-3 h-3" />
-                    <span className="font-medium">Then click "Reported" below</span>
+                    <span className="font-medium">After request submission please click on "Takedown Submitted" below as well. Thanks!</span>
                   </div>
                 </div>
               </div>
 
               {/* ✅ UPDATED: Action Buttons - Made more compact */}
               <div className="flex justify-end space-x-2 mt-4">
+                {/* UPDATED: Single button that changes behavior */}
                 <button
-                  onClick={(e) => openProfileWindow(profile.profileUrl, e)}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm"
-                >
-                  Request Takedown
-                </button>
-                
-                {/* NEW: Reported Successfully Button */}
-                <button
-                  onClick={handleReportSuccessfully}
+                  onClick={handleTakedownAction}
                   disabled={isReporting}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1 text-sm"
+                  className={`${
+                    takedownClicked 
+                      ? 'bg-green-600 hover:bg-green-700' 
+                      : 'bg-red-600 hover:bg-red-700'
+                  } text-white px-4 py-2 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1 text-sm`}
                 >
                   {isReporting ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
                   ) : (
                     <CheckCircle className="w-3 h-3" />
                   )}
-                  <span>{isReporting ? "Reporting..." : "Reported"}</span>
+                  <span>
+                    {isReporting 
+                      ? "Reporting..." 
+                      : takedownClicked 
+                        ? "Takedown Submitted" 
+                        : "Request Takedown"
+                    }
+                  </span>
                 </button>
                 
                 <button
@@ -255,7 +323,7 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose }) {
                   Review Later
                 </button>
                 <button
-                  onClick={onClose}
+                  onClick={handleIgnore}
                   className="bg-gray-700 hover:bg-gray-600 text-gray-200 px-4 py-2 rounded-lg font-medium transition text-sm"
                 >
                   Ignore
@@ -269,7 +337,12 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose }) {
   );
 }
 
-export default function TikTokProfile() {
+export default function TikTokProfile({ 
+  onProfilesDetected, 
+  onTakedownRequest, 
+  onPending, 
+  onIgnored 
+}) {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -329,7 +402,7 @@ export default function TikTokProfile() {
           : [];
 
       console.log("✅ [Extracted Results Array]:", resultsArray);
-
+      
       if (!resultsArray.length) {
         console.warn("⚠️ No profiles found");
         setError("No profiles found for this username");
@@ -361,6 +434,11 @@ export default function TikTokProfile() {
       setSearchResults(formattedProfiles);
       setTotalFetched(formattedProfiles.length);
       
+      // ✅ CALLBACK: Update profiles detected count
+      if (onProfilesDetected) {
+        onProfilesDetected(formattedProfiles.length);
+      }
+    
       // Check if we can load more (total fetched < 30)
       if (formattedProfiles.length === 10 && formattedProfiles.length < 30) {
         setHasMore(true);
@@ -431,6 +509,11 @@ export default function TikTokProfile() {
       setSearchResults(formattedProfiles);
       setTotalFetched(formattedProfiles.length);
       setCurrentLimit(totalAfterFetch);
+      
+      // ✅ CALLBACK: Update profiles detected count after loading more
+      if (onProfilesDetected) {
+        onProfilesDetected(formattedProfiles.length);
+      }
       
       // Check if we can load more (max 30 profiles)
       if (formattedProfiles.length >= 30 || formattedProfiles.length < totalAfterFetch) {
@@ -586,11 +669,11 @@ export default function TikTokProfile() {
 
                       <p className="text-sm text-gray-400 mb-2">@{profile.username}</p>
 
-                      {profile.signature && (
+                      {/* {profile.signature && (
                         <p className="text-sm text-gray-300 mb-2 line-clamp-2">
                           {profile.signature}
                         </p>
-                      )}
+                      )} */}
 
                       <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
                         <div>
@@ -673,6 +756,9 @@ export default function TikTokProfile() {
         isOpen={!!selectedProfile}
         profile={selectedProfile}
         onClose={() => setSelectedProfile(null)}
+        onTakedownRequest={onTakedownRequest}
+        onPending={onPending}
+        onIgnored={onIgnored}
       />
     </div>
   );

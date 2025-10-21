@@ -54,7 +54,7 @@ const Billing = () => {
     <div className="min-h-screen max-w-7xl mx-auto p-6 bg-black text-white">
       {/* Page Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white">Add Credit</h1>
+        <h1 className="text-3xl font-bold text-white">Add Card</h1>
         <p className="text-gray-300 mt-1">Manage your debit cards, add credit to your balance, and view your funds</p>
       </div>
 

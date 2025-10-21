@@ -93,10 +93,10 @@ const Analytics = () => {
             <option value="90days">Last 90 Days</option>
             <option value="year">This Year</option>
           </select>
-          <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2">
+          {/* <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2">
             <Download className="w-4 h-4" />
             Export
-          </button>
+          </button> */}
         </div>
       </div>
 

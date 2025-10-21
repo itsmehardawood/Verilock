@@ -1,13 +1,21 @@
 'use client';
+import StatsCard from '@/app/components/shared/StatsCard';
 // import Facebook from '@/app/components/customer/search_Profile'
 import InstaProfile from '@/app/components/user/InstaProfile';
-import { AlertCircle, CreditCard, Menu, Search } from 'lucide-react'
+import { useStats } from '@/app/hooks/useStats';
+import { AlertCircle, CreditCard, EyeOffIcon, Menu, Search } from 'lucide-react'
 import React, { useState } from 'react'
 
 export default function InstagramPage  () {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { stats, incrementStat, updateStat } = useStats('instagram');
   
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+    // Function to update when profiles are detected (call this when search returns results)
+  const updateProfilesDetected = (count) => {
+    updateStat('profilesDetected', count);
+  };
   
   return (
     
@@ -22,7 +30,7 @@ export default function InstagramPage  () {
           <div className="max-w-6xl mx-auto">
            {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-              <div className="bg-black rounded-xl shadow-sm border border-gray-600 p-6">
+              {/* <div className="bg-black rounded-xl shadow-sm border border-gray-600 p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-300">Total Profiles detected</p>
@@ -68,10 +76,47 @@ export default function InstagramPage  () {
                     <CreditCard className="w-6 h-6 text-gray-600" />
                   </div>
                 </div>
-              </div>
+              </div> */}
+
+              <StatsCard
+                title="Total Profiles detected"
+                value={stats.profilesDetected}
+                icon={Search}
+                iconBgColor="bg-blue-400/20"
+                iconColor="text-blue-600"
+              />
+              
+              <StatsCard
+                title="Total Takedown requests"
+                value={stats.takedownRequests}
+                icon={AlertCircle}
+                iconBgColor="bg-red-100/10"
+                iconColor="text-red-600"
+              />
+              
+              <StatsCard
+                title="Total pending"
+                value={stats.pending}
+                icon={CreditCard}
+                iconBgColor="bg-green-200/15"
+                iconColor="text-yellow-600"
+              />
+
+              <StatsCard
+                title="Total Ignored"
+                value={stats.ignored}
+                icon={EyeOffIcon}
+                iconBgColor="bg-green-200/15"
+                iconColor="text-gray-600"
+              />
             </div>
           <div >
-          <InstaProfile />
+          <InstaProfile 
+                onProfilesDetected={updateProfilesDetected}
+                onTakedownRequest={() => incrementStat('takedownRequests')}
+                onPending={() => incrementStat('pending')}
+                onIgnored={() => incrementStat('ignored')}
+          />
         </div>
       </div>
       </main> 

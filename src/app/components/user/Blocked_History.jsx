@@ -320,12 +320,16 @@ const BlockedHistory = () => {
                         <div className="bg-red-900/20 rounded-lg p-3 border border-red-800">
                           <p className="text-xs text-gray-400 mb-1">Reported Profile</p>
                           <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium text-white">{profile.fakeProfileUrl}</p>
+                            {/* <p className="text-sm font-medium text-white">{profile.fakeProfileUrl}</p> */}
                             <button 
-                              onClick={(e) => openProfileWindow(profile.profileUrl, e)}
-                              className="text-blue-400 hover:text-blue-300">
-                              <ExternalLink className="w-4 h-4" />
-                            </button>
+      
+                                                        onClick={(e) => openProfileWindow(profile.fakeProfileUrl, e)}
+                                                        className="inline-flex text-white hover:text-blue-300 flex-shrink-0 ml-2 gap-4"
+                                                      >
+                                                        
+                                                        <span>Open Profile Details</span>
+                                                        <ExternalLink className="w-4 h-4" />
+                                                      </button>
                           </div>
                         </div>
                       </div>

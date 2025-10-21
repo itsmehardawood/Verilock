@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 // firebase code logic
 
 "use client";
@@ -382,7 +383,7 @@ const handleOtpSubmit = async (e) => {
       <nav className="relative z-20 bg-white">
         <div className="max-w-6xl mx-auto px-3 sm:px-5 lg:px-3">
           <div className="flex justify-between items-center h-22">
-            <div className="flex items-center">
+            {/* <div className="flex items-center">
               <Link
                 href="/"
                 className="text-2xl pl-8 font-bold text-gray-900 hover:text-blue-600 transition-colors"
@@ -395,7 +396,7 @@ const handleOtpSubmit = async (e) => {
                   Your browser does not support the video tag.
                 </video>
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
       </nav>
@@ -404,43 +405,40 @@ const handleOtpSubmit = async (e) => {
       <div className="flex max-w-7xl mx-auto justify-center my-2 px-4 sm:px-6 lg:px-8 relative z-10 mb-16">
         <div className="max-w-7xl w-full flex flex-col md:flex-row rounded-lg overflow-hidden relative z-10">
           {/* Left Section: Descriptive text */}
-          <div className="hidden md:block md:w-1/2 p-8 md:p-16 flex-col">
-            <div className="text-black space-y-5 md:space-y-12">
-              <div>
-                <h3 className="text-sm font-semibold mb-2 drop-shadow-lg">
-                  Get Secured Fast
-                </h3>
-                <p className="leading-relaxed text-[10px] md:text-[13px] w-[80%] drop-shadow-md">
-                  Quickly deploy fraud protection solution with
-                  developer-friendly APIs for rapid implementation—no complex
-                  setup required and fewer API integration calls.
-                </p>
-              </div>
+<div className="hidden md:block md:w-1/2 p-8 md:p-16 flex-col">
+  <div className="text-black space-y-5 md:space-y-12">
+    <div>
+      <h3 className="text-sm font-semibold mb-2 drop-shadow-lg">
+        Protect Your Digital Identity
+      </h3>
+      <p className="leading-relaxed text-[10px] md:text-[13px] w-[80%] drop-shadow-md">
+        Quickly scan multiple social media platforms to detect impersonated profiles 
+        and fake accounts using your identity. Get comprehensive results in minutes, 
+        not hours.
+      </p>
+    </div>
 
-              <div>
-                <h3 className="text-sm font-semibold mb-2 drop-shadow-lg">
-                  Protect Any Business Model
-                </h3>
-                <p className="leading-relaxed text-[10px] md:text-[13px] w-[80%] drop-shadow-md">
-                  Whether you are running eCommerce, subscriptions, remittance
-                  services, SaaS platforms, or digital marketplaces, Bank
-                  CardNest provides a unified fraud prevention engine built to
-                  adapt to your business.
-                </p>
-              </div>
+    <div>
+      <h3 className="text-sm font-semibold mb-2 drop-shadow-lg">
+        Multi-Platform Coverage
+      </h3>
+      <p className="leading-relaxed text-[10px] md:text-[13px] w-[80%] drop-shadow-md">
+        Our advanced scraping technology monitors Facebook, Instagram, Twitter, and TikTok 
+        simultaneously. Find impersonators across all major social networks with a single search.
+      </p>
+    </div>
 
-              <div>
-                <h3 className="text-sm font-semibold mb-2 drop-shadow-lg">
-                  Trusted by Growing Businesses Worldwide
-                </h3>
-                <p className="leading-relaxed text-[10px] md:text-[13px] w-[80%] drop-shadow-md">
-                  From fast-scaling startups to established enterprises,
-                  CardNest is trusted by businesses around the globe to protect
-                  online payments, prevent chargebacks, and safeguard customer
-                  trust.
-                </p>
-              </div>
-            </div>
+    <div>
+      <h3 className="text-sm font-semibold mb-2 drop-shadow-lg">
+        Take Action Against Impersonation
+      </h3>
+      <p className="leading-relaxed text-[10px] md:text-[13px] w-[80%] drop-shadow-md">
+        Don't just find fake profiles—take them down. Our platform helps you report 
+        impersonators directly to platform authorities.
+      </p>
+    </div>
+  </div>
+
           </div>
 
           {/* Right Section: Forms */}
@@ -686,7 +684,7 @@ const handleOtpSubmit = async (e) => {
       <footer className="fixed bottom-4 left-0 right-0 z-30">
         <div className="text-center">
           <p className="text-xs text-white/80 drop-shadow-lg">
-            © 2025 CardNest. All rights reserved.
+            © 2025 VeriLock. All rights reserved.
           </p>
         </div>
       </footer>
