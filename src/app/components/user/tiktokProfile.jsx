@@ -152,12 +152,12 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest
       {/* Modal Container - Made scrollable */}
       <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
         <div className="p-6">
-          <button
+          {/* <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition"
         >
           <X className="w-6 h-6" />
-        </button>
+        </button> */}
         
           {/* Header */}
           <div className="mb-4 border-b border-gray-700 pb-3">

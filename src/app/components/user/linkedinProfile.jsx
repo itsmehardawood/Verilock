@@ -61,12 +61,12 @@ function LinkedInProfileDetailsModal({ isOpen, profile, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/15 backdrop-blur-xs">
       <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl w-full max-w-2xl p-6 relative">
-        <button
+        {/* <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition"
         >
           <X className="w-6 h-6" />
-        </button>
+        </button> */}
 
         <div className="mb-4 border-b border-gray-700 pb-3">
           <h2 className="text-2xl font-semibold text-white">
