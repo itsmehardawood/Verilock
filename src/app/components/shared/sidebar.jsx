@@ -529,8 +529,8 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center justify-between py-5 px-4 border-b border-gray-700">
-            <span className="text-lg font-bold text-gray-200 pl-2">
+          <div className="flex items-center justify-between py-4 px-4 border-b border-gray-700">
+            <span className="text-2xl font-bold text-gray-200 pl-2">
               Verilock
             </span>
             <button onClick={toggleSidebar} className="lg:hidden">
