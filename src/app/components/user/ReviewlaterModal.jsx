@@ -8,7 +8,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 // Platform-specific reporting instructions
 const PLATFORM_INSTRUCTIONS = {
   tiktok: [
-    "Open profile → Tap ⋯  beside Share button → Click Report",
+    "Open profile → Tap   ⋯  beside Share button → Click Report",
     'Select "Report account" → "Impersonation"',
     'Choose Who or what is it pretending to be? (e.g) → "Me" ',
     'Click on submit button now.'

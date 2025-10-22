@@ -4,8 +4,49 @@ import React, { useState } from "react";
 import { fetchTikTokProfiles } from "@/app/lib/api/customer";
 import { useBalance } from "@/app/hooks/usebalance";
 import { useReview } from "@/app/contexts/ReviewContext"; // Import the context
+import InstructionsModal from "./InstructionsModal";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+// Loading Message Component
+function LoadingMessage() {
+  return (
+    <div className="bg-black rounded-xl shadow-sm border border-gray-700 p-8 text-center">
+      <div className="flex flex-col items-center justify-center space-y-4 py-8">
+        <div className="relative">
+          <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+          <div className="absolute inset-0 rounded-full border-2 border-blue-500/30 animate-ping"></div>
+        </div>
+        
+        <div className="space-y-3">
+          <h3 className="text-xl font-semibold text-gray-100">
+            Searching Tiktok Profiles
+          </h3>
+          
+          <div className="space-y-2">
+            <p className="text-gray-300 text-lg">
+              We're gathering the best results for you
+            </p>
+            <p className="text-gray-400 text-sm max-w-md mx-auto">
+              This may take a moment as we carefully scan through tiktok profiles 
+              to find the most relevant matches for your search.
+            </p>
+          </div>
+          
+          <div className="pt-4">
+            <div className="flex items-center justify-center space-x-2 text-sm text-gray-400">
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
+              <span>Please stay with us</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // Profile Details Modal
 function TikTokProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPending, onIgnored }) {
@@ -14,7 +55,8 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest
   const [reportSuccess, setReportSuccess] = useState(false);
   const [takedownClicked, setTakedownClicked] = useState(false); // NEW: Track if takedown was clicked
   const [reviewLaterSuccess, setReviewLaterSuccess] = useState(false); // NEW: Track review later success
-  
+  const [showInstructions, setShowInstructions] = useState(false);
+
   if (!isOpen || !profile) return null;
 
   const openProfileWindow = (url) => {
@@ -41,80 +83,86 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest
   };
 
   // ✅ NEW: Combined takedown handler
+  // ✅ SIMPLIFIED: Takedown handler 
   const handleTakedownAction = () => {
-    if (!takedownClicked) {
-      // First click: Open profile in new tab
-      openProfileWindow(profile.profileUrl);
-      setTakedownClicked(true);
-    } else {
-      // Second click: Report as successful
-      handleReportSuccessfully();
-    }
+    // Open profile in new tab
+    openProfileWindow(profile.profileUrl);
+    // Show instructions modal
+    setShowInstructions(true);
   };
+
+  // Close instructions and mark takedown as clicked
+  const handleInstructionsClose = () => {
+    setShowInstructions(false);
+    setTakedownClicked(true);
+    // Open profile in new tab after instructions
+    // openProfileWindow(profile.profileUrl);
+  };
+
 
   // ✅ Handle Reported Successfully
-  const handleReportSuccessfully = async () => {
-    setIsReporting(true);
-    try {
-      // Get user_id from localStorage (logged in user)
-      const user_id = localStorage.getItem('user_id') || localStorage.getItem('userId');
+  // const handleReportSuccessfully = async () => {
+  //   setIsReporting(true);
+  //   try {
+  //     // Get user_id from localStorage (logged in user)
+  //     const user_id = localStorage.getItem('user_id') || localStorage.getItem('userId');
       
-      if (!user_id) {
-        throw new Error('User not found. Please login again.');
-      }
+  //     if (!user_id) {
+  //       throw new Error('User not found. Please login again.');
+  //     }
 
-      // Prepare report data according to API requirements
-      const reportData = {
-        reportedProfile: {
-          id: profile.id.toString(), // Convert to string as required
-          platform: "TikTok",
-          username: profile.username,
-          fullName: profile.nickName || profile.username, // Use nickName as fullName for TikTok
-          profileUrl: profile.profileUrl,
-          profilePicUrl: profile.profilePicUrl,
-          followers: profile.followers || 0
-        },
-        reason: "Impersonation",
-        status: "takedown_complete"
-      };
+  //     // Prepare report data according to API requirements
+  //     const reportData = {
+  //       reportedProfile: {
+  //         id: profile.id.toString(), // Convert to string as required
+  //         platform: "TikTok",
+  //         username: profile.username,
+  //         fullName: profile.nickName || profile.username, // Use nickName as fullName for TikTok
+  //         profileUrl: profile.profileUrl,
+  //         profilePicUrl: profile.profilePicUrl,
+  //         followers: profile.followers || 0
+  //       },
+  //       reason: "Impersonation",
+  //       status: "takedown_complete"
+  //     };
 
-      console.log('📤 Sending TikTok report data:', reportData);
+  //     console.log('📤 Sending TikTok report data:', reportData);
 
-      const response = await fetch(`${BASE_URL}/api/takedown?user_id=${user_id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(reportData),
-      });
+  //     const response = await fetch(`${BASE_URL}/api/takedown?user_id=${user_id}`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(reportData),
+  //     });
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log('✅ TikTok profile reported successfully:', result);
-        setReportSuccess(true);
+  //     if (response.ok) {
+  //       const result = await response.json();
+  //       console.log('✅ TikTok profile reported successfully:', result);
+  //       setReportSuccess(true);
         
-        // ✅ CALLBACK: Increment takedown requests count
-        if (onTakedownRequest) {
-          onTakedownRequest();
-        }
+  //       // ✅ CALLBACK: Increment takedown requests count
+  //       if (onTakedownRequest) {
+  //         onTakedownRequest();
+  //       }
         
-        // Close modal after success
-        setTimeout(() => {
-          onClose();
-          setReportSuccess(false);
-          setTakedownClicked(false); // Reset for next time
-        }, 2000);
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to report profile');
-      }
-    } catch (error) {
-      console.error('❌ Error reporting TikTok profile:', error);
-      alert(error.message || 'Failed to report profile. Please try again.');
-    } finally {
-      setIsReporting(false);
-    }
-  };
+  //       // Close modal after success
+  //       setTimeout(() => {
+  //         onClose();
+  //         setReportSuccess(false);
+  //         setTakedownClicked(false); // Reset for next time
+  //       }, 2000);
+  //     } else {
+  //       const errorData = await response.json();
+  //       throw new Error(errorData.error || 'Failed to report profile');
+  //     }
+  //   } catch (error) {
+  //     console.error('❌ Error reporting TikTok profile:', error);
+  //     alert(error.message || 'Failed to report profile. Please try again.');
+  //   } finally {
+  //     setIsReporting(false);
+  //   }
+  // };
 
   // ✅ Handle Review Later with Context API
   const handleReviewLater = () => {
@@ -148,16 +196,18 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-start bg-white/15 backdrop-blur-xs pt-8 pl-8 xl:pl-16 xl:pt-16">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/15 backdrop-blur-xs">
       {/* Modal Container - Made scrollable */}
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
-        <div className="p-6">
-          {/* <button
+      <div className="relative bg-gray-900 border border-gray-700 rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition"
         >
           <X className="w-6 h-6" />
-        </button> */}
+        </button>
+        
+        <div className="p-6">
+          
         
           {/* Header */}
           <div className="mb-4 border-b border-gray-700 pb-3">
@@ -259,7 +309,7 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest
               </div>
 
               {/* ✅ CONCISE: TikTok Reporting Steps */}
-              <div className="border-t border-gray-700 my-3 pt-3">
+              {/* <div className="border-t border-gray-700 my-3 pt-3">
                 <h2 className="text-red-500 font-semibold mb-2 flex items-center gap-2 text-sm">
                   <AlertCircle className="w-4 h-4" />
                   Follow these instructions to Report on TikTok
@@ -287,12 +337,12 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest
                     <span className="font-medium">After request submission please click on "Takedown Submitted" below as well. Thanks!</span>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* ✅ UPDATED: Action Buttons - Made more compact */}
               <div className="flex justify-end space-x-2 mt-4">
                 {/* UPDATED: Single button that changes behavior */}
-                <button
+                {/* <button
                   onClick={handleTakedownAction}
                   disabled={isReporting}
                   className={`${
@@ -314,7 +364,15 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest
                         : "Request Takedown"
                     }
                   </span>
-                </button>
+                </button> */}
+
+                <button
+                                onClick={handleTakedownAction}
+                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center space-x-1 text-sm"
+                              >
+                                <CheckCircle className="w-3 h-3" />
+                                <span>Request Takedown</span>
+                              </button>
                 
                 <button
                   onClick={handleReviewLater}
@@ -329,6 +387,14 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest
                   Ignore
                 </button>
               </div>
+               {/* Instructions Modal */}
+                    <InstructionsModal
+                      isOpen={showInstructions}
+                      onClose={handleInstructionsClose}
+                      platform="tiktok" // Change this for different platforms
+                       profile={profile} 
+                      onTakedownRequest={onTakedownRequest}
+                    />
             </>
           )}
         </div>
@@ -625,6 +691,10 @@ export default function TikTokProfile({
           )}
         </form>
       </div>
+
+       {/* Loading State */}
+      {loading && <LoadingMessage/>}
+
 
       {/* Search Results */}
       {searchResults.length > 0 && (

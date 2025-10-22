@@ -409,7 +409,7 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
         { id: 'facebook', icon: <FaFacebook className="text-white font-medium" />, label: 'Facebook Channel', href: '/user/profiles/facebook' },
         { id: 'instagram', icon: <FaInstagram className="text-white font-semibold" />, label: 'Instagram Channel', href: '/user/profiles/instagram' },
         { id: 'x', icon: <FaTwitter className="text-white" />, label: 'Twitter(X) Channel', href: '/user/profiles/Twitter' },
-        // { id: 'linkedin', icon: <FaLinkedin className="text-white" />, label: 'LinkedIn Channel', href: '/user/profiles/linkedIn' },
+        { id: 'linkedin', icon: <FaLinkedin className="text-white" />, label: 'LinkedIn Channel', href: '/user/profiles/linkedIn' },
         { id: 'tiktok', icon: <FaTiktok className="text-white" />, label: 'Tiktok Channel', href: '/user/profiles/Tiktok' },
       ]
     },

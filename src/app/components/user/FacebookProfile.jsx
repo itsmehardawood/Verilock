@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { fetchFacebookProfiles } from "@/app/lib/api/customer";
 import { useBalance } from "@/app/hooks/usebalance";
 import { useReview } from "@/app/contexts/ReviewContext"; // Import the context
+import InstructionsModal from "./InstructionsModal";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -55,7 +56,8 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
   const [reportSuccess, setReportSuccess] = useState(false);
   const [takedownClicked, setTakedownClicked] = useState(false); // NEW: Track if takedown was clicked
   const [reviewLaterSuccess, setReviewLaterSuccess] = useState(false); // NEW: Track review later success
-  
+  const [showInstructions, setShowInstructions] = useState(false);
+
   if (!isOpen || !profile) return null;
 
   const openProfileWindow = (url) => {
@@ -81,82 +83,85 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
     window.open(url, "_blank", features);
   };
 
-  // ✅ NEW: Combined takedown handler
+  // ✅ SIMPLIFIED: Takedown handler 
   const handleTakedownAction = () => {
-    if (!takedownClicked) {
-      // First click: Open profile in new tab
-      openProfileWindow(profile.profileUrl);
-      setTakedownClicked(true);
-    } else {
-      // Second click: Report as successful
-      handleReportSuccessfully();
-    }
+    // Open profile in new tab
+    openProfileWindow(profile.profileUrl);
+    // Show instructions modal
+    setShowInstructions(true);
+  };
+
+  // Close instructions and mark takedown as clicked
+  const handleInstructionsClose = () => {
+    setShowInstructions(false);
+    // Open profile in new tab after instructions
+    // openProfileWindow(profile.profileUrl);
   };
 
   // ✅ Handle Reported Successfully
-  const handleReportSuccessfully = async () => {
-    setIsReporting(true);
-    try {
-      // Get user_id from localStorage (logged in user)
-      const user_id = localStorage.getItem('user_id') || localStorage.getItem('userId');
+  // const handleReportSuccessfully = async () => {
+  //   setIsReporting(true);
+  //   try {
+  //     // Get user_id from localStorage (logged in user)
+  //     const user_id = localStorage.getItem('user_id') || localStorage.getItem('userId');
       
-      if (!user_id) {
-        throw new Error('User not found. Please login again.');
-      }
+  //     if (!user_id) {
+  //       throw new Error('User not found. Please login again.');
+  //     }
 
-      // Prepare report data according to API requirements
-      const reportData = {
-        reportedProfile: {
-          id: profile.id.toString(), // Convert to string as required
-          platform: "Facebook",
-          username: profile.username,
-          fullName: profile.fullName,
-          profileUrl: profile.profileUrl,
-          profilePicUrl: profile.profilePicUrl,
-          followers: 0 // Facebook doesn't provide followers in current data
-        },
-        reason: "Impersonation",
-        status: "takedown_complete"
-      };
+  //     // Prepare report data according to API requirements
+  //     const reportData = {
+  //       reportedProfile: {
+  //         id: profile.id.toString(), // Convert to string as required
+  //         platform: "Facebook",
+  //         username: profile.username,
+  //         fullName: profile.fullName,
+  //         profileUrl: profile.profileUrl,
+  //         profilePicUrl: profile.profilePicUrl,
+  //         followers: 0 // Facebook doesn't provide followers in current data
+  //       },
+  //       reason: "Impersonation",
+  //       status: "takedown_complete"
+  //     };
 
-      console.log('📤 Sending report data:', reportData);
+  //     console.log('📤 Sending report data:', reportData);
       
 
-      const response = await fetch(`${BASE_URL}/api/takedown?user_id=${user_id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(reportData),
-      });
+  //     const response = await fetch(`${BASE_URL}/api/takedown?user_id=${user_id}`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(reportData),
+  //     });
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log('✅ Profile reported successfully:', result);
-        setReportSuccess(true);
+  //     if (response.ok) {
+  //       const result = await response.json();
+  //       console.log('✅ Profile reported successfully:', result);
+  //       setReportSuccess(true);
 
-        // ✅ CALLBACK: Increment takedown requests count
-        if (onTakedownRequest) {
-          onTakedownRequest();
-        }
+  //       // ✅ CALLBACK: Increment takedown requests count
+  //       if (onTakedownRequest) {
+  //         onTakedownRequest();
+  //       }
         
-        // Close modal after success
-        setTimeout(() => {
-          onClose();
-          setReportSuccess(false);
-          setTakedownClicked(false); // Reset for next time
-        }, 2000);
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to report profile');
-      }
-    } catch (error) {
-      console.error('❌ Error reporting profile:', error);
-      alert(error.message || 'Failed to report profile. Please try again.');
-    } finally {
-      setIsReporting(false);
-    }
-  };
+  //       // Close modal after success
+  //       setTimeout(() => {
+  //         onClose();
+  //         setReportSuccess(false);
+  //         setTakedownClicked(false); // Reset for next time
+  //       }, 2000);
+  //     } else {
+  //       const errorData = await response.json();
+  //       throw new Error(errorData.error || 'Failed to report profile');
+  //     }
+  //   } catch (error) {
+  //     console.error('❌ Error reporting profile:', error);
+  //     alert(error.message || 'Failed to report profile. Please try again.');
+  //   } finally {
+  //     setIsReporting(false);
+  //   }
+  // };
 
   const handleReviewLater = () => {
     addToReviewLater(profile, 'Facebook');
@@ -200,14 +205,14 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-start bg-white/15 backdrop-blur-xs pt-16 pl-16">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/15 backdrop-blur-xs">
       <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl w-full max-w-3xl p-6 relative">
-        {/* <button
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition"
         >
           <X className="w-6 h-6" />
-        </button> */}
+        </button>
 
         <div className="mb-4 border-b border-gray-700 pb-3">
           <h2 className="text-2xl font-semibold text-white">
@@ -269,15 +274,15 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
 
             {/* ✅ CONCISE: Facebook Reporting Steps */}
           <div className="border-t border-gray-700 my-4"></div>
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <h2 className="text-red-500 font-semibold mb-3 flex items-center gap-2 ">
               <AlertCircle className="w-5 h-5" />
               Follow these instructions to Report on Facebook
             </h2>
             
-            <div className="space-y-2 text-xs">
+            <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2 text-gray-300">
-                <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">1</span>
+                <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center">1</span>
                 <span>Open profile → Tap <strong>⋯</strong> in the top bar right corner <strong> Click Report from it</strong></span>
               </div>
               <div className="flex items-center gap-2 text-gray-300">
@@ -297,7 +302,7 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
                 <span className="font-medium">Then After request submision also click on "Takedown Submitted" below as well. Thanks!</span>
               </div>
             </div>
-          </div>
+          </div> */}
 
             {profile.userData && profile.userData.length > 0 && (
               <>
@@ -320,19 +325,26 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
                           getIconForType(data.type)
                         )}
                         <span className="text-left">{data.text}</span>
+                        
                       </div>
                     ))}
+                    
                   </div>
                 </div>
+                
               </>
             )}
-
-            <div className="border-t border-gray-700 my-6"></div>
+        
+            <span className="text-gray-400">Info:</span>
+              <span className="text-gray-300 ml-2">
+              {profile.userData?.length ||"Sorry! this profile don't have any"} details
+            </span>      
+            
             
             {/* ✅ UPDATED: Action Buttons with Reported Successfully */}
             <div className="flex justify-end space-x-3">
               {/* UPDATED: Single button that changes behavior */}
-                              <button
+                              {/* <button
                                 onClick={handleTakedownAction}
                                 disabled={isReporting}
                                 className={`${
@@ -354,7 +366,14 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
                       : "Request Takedown"
                     }
                  </span>
-               </button>
+               </button> */}
+               <button
+                onClick={handleTakedownAction}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center space-x-1 text-sm"
+              >
+                <CheckCircle className="w-3 h-3" />
+                <span>Request Takedown</span>
+              </button>
               
               <button
                 onClick={handleReviewLater}
@@ -369,6 +388,15 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
                 Ignore
               </button>
             </div>
+
+            {/* Instructions Modal */}
+      <InstructionsModal
+        isOpen={showInstructions}
+        onClose={handleInstructionsClose}
+        platform="facebook" // Change this for different platforms
+        profile={profile} 
+        onTakedownRequest={onTakedownRequest}
+      />
           </>
         )}
       </div>
@@ -714,7 +742,7 @@ export default function FacebookProfile({
                         )}
                       </div>
 
-                      <p className="text-sm text-gray-400 mb-2">User ID: {profile.id}</p>
+                      <p className="text-sm text-gray-400 mb-2">Profile ID: {profile.id}</p>
 
 
                       {/* User Data Preview */}

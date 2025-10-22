@@ -4,9 +4,52 @@ import React, { useState } from "react";
 import { fetchInstagramProfiles } from "@/app/lib/api/customer";
 import { useBalance } from "@/app/hooks/usebalance";
 import { useReview } from "@/app/contexts/ReviewContext"; // Import the context
+import InstructionsModal from "./InstructionsModal";
 
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+// Loading Message Component
+function LoadingMessage() {
+  return (
+    <div className="bg-black rounded-xl shadow-sm border border-gray-700 p-8 text-center">
+      <div className="flex flex-col items-center justify-center space-y-4 py-8">
+        <div className="relative">
+          <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+          <div className="absolute inset-0 rounded-full border-2 border-blue-500/30 animate-ping"></div>
+        </div>
+        
+        <div className="space-y-3">
+          <h3 className="text-xl font-semibold text-gray-100">
+            Searching Instagram Profiles
+          </h3>
+          
+          <div className="space-y-2">
+            <p className="text-gray-300 text-lg">
+              We're gathering the best results for you
+            </p>
+            <p className="text-gray-400 text-sm max-w-md mx-auto">
+              This may take a moment as we carefully scan through Facebook profiles 
+              to find the most relevant matches for your search.
+            </p>
+          </div>
+          
+          <div className="pt-4">
+            <div className="flex items-center justify-center space-x-2 text-sm text-gray-400">
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
+              <span>Please stay with us</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Profile Details Modal
 function ProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPending, onIgnored }) {
   const { addToReviewLater } = useReview();
@@ -14,7 +57,8 @@ function ProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPe
   const [reportSuccess, setReportSuccess] = useState(false);
   const [takedownClicked, setTakedownClicked] = useState(false); // NEW: Track if takedown was clicked
   const [reviewLaterSuccess, setReviewLaterSuccess] = useState(false); // NEW: Track review later success
-
+  const [showInstructions, setShowInstructions] = useState(false);
+  
   if (!isOpen || !profile) return null;
 
   const getProxiedImageUrl = (url) => {
@@ -47,16 +91,17 @@ function ProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPe
     window.open(url, "_blank", features);
   };
 
-  // ✅ NEW: Combined takedown handler
+  // ✅ SIMPLIFIED: Takedown handler 
   const handleTakedownAction = () => {
-    if (!takedownClicked) {
-      // First click: Open profile in new tab
-      openProfileWindow(profile.profileUrl);
-      setTakedownClicked(true);
-    } else {
-      // Second click: Report as successful
-      handleReportSuccessfully();
-    }
+    // Open profile in new tab
+    openProfileWindow(profile.profileUrl);
+    // Show instructions modal
+    setShowInstructions(true);
+  };
+
+  // Close instructions and mark takedown as clicked
+  const handleInstructionsClose = () => {
+    setShowInstructions(false);
   };
 
   // ✅ NEW: Handle Reported Successfully
@@ -155,9 +200,15 @@ function ProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPe
 
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-start bg-white/15 backdrop-blur-xs pt-8 pl-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/15 backdrop-blur-xs ">
       {/* Modal Container - Made scrollable */}
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+      <div className="relative bg-gray-900 border border-gray-700 rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition"
+        >
+          <X className="w-6 h-6" />
+        </button>
         <div className="p-6">
           
           
@@ -264,7 +315,7 @@ function ProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPe
               )}
 
               {/* ✅ CONCISE: Instagram Reporting Steps */}
-              <div className="border-t border-gray-700 my-3 pt-3">
+              {/* <div className="border-t border-gray-700 my-3 pt-3">
                 <h2 className="text-red-500 font-semibold mb-2 flex items-center gap-2 text-sm">
                   <AlertCircle className="w-4 h-4" />
                   Follow these instructions to Report on Instagram
@@ -292,7 +343,7 @@ function ProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPe
                     <span className="font-medium">Then After request submision also click on "Takedown Submitted" below as well. Thanks!</span>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* ✅ UPDATED: Action Buttons - Made more compact */}
               <div className="flex justify-end space-x-2 mt-4">
@@ -335,6 +386,14 @@ function ProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPe
                   Ignore
                 </button>
               </div>
+               {/* Instructions Modal */}
+      <InstructionsModal
+        isOpen={showInstructions}
+        onClose={handleInstructionsClose}
+        platform="instagram" // Change this for different platforms
+        profile={profile} 
+        onTakedownRequest={onTakedownRequest}
+      />
             </>
           )}
         </div>
@@ -646,6 +705,10 @@ export default function InstaProfile({
           )}
         </form>
       </div>
+
+       {/* Loading State */}
+      {loading && <LoadingMessage/>}
+
 
       {/* Search Results */}
       {searchResults.length > 0 && (
