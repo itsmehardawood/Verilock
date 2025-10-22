@@ -153,8 +153,19 @@ function LinkedInProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
             <>
               {/* Profile Info */}
               <div className="flex items-start space-x-4 mb-4">
-                <div className="w-16 h-16 rounded-full border border-gray-600 bg-gray-700 flex items-center justify-center flex-shrink-0">
-                  <Users className="w-8 h-8 text-gray-400" />
+                <div className="w-16 h-16 rounded-full border border-gray-600 bg-gray-700 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  {profile.profilePicUrl ? (
+                    <img 
+                      src={profile.profilePicUrl} 
+                      alt={`${profile.fullName}'s profile`}
+                      className="w-full h-full object-cover rounded-full"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <Users className={`w-8 h-8 text-gray-400 ${profile.profilePicUrl ? 'hidden' : 'block'}`} />
                 </div>
 
                 <div className="flex-1">
@@ -614,9 +625,20 @@ const formattedProfiles = resultsArray.map((profile, index) => {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-4 flex-1">
-                    {/* LinkedIn profile picture placeholder */}
-                    <div className="w-16 h-16 rounded-full border border-gray-600 bg-gray-700 flex items-center justify-center flex-shrink-0">
-                      <Users className="w-8 h-8 text-gray-400" />
+                    {/* LinkedIn profile picture */}
+                    <div className="w-16 h-16 rounded-full border border-gray-600 bg-gray-700 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      {profile.profilePicUrl ? (
+                        <img 
+                          src={profile.profilePicUrl} 
+                          alt={`${profile.fullName}'s profile`}
+                          className="w-full h-full object-cover rounded-full"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <Users className={`w-8 h-8 text-gray-400 ${profile.profilePicUrl ? 'hidden' : 'block'}`} />
                     </div>
 
                     <div className="flex-1">

@@ -7,21 +7,21 @@ export const PLATFORM_INSTRUCTIONS = {
       {
         number: 1,
         title: "Open Profile & Find Menu",
-        description: 'Tap the ⋯ three-dot menu in the top right corner, then select "Report"',
+        description: 'Tap the ⋯ three-dot menu in the top right corner, then select "Report Profile"',
         icon: "⋯",
         color: "blue"
       },
       {
         number: 2,
         title: "Select Reporting Reason",
-        description: 'Choose "Fake profile" when asked why you\'re reporting this profile',
+        description: 'Select "Something about this profile" and then click "Fake Profile"',
         important: "This is the most important step!",
         color: "purple"
       },
       {
         number: 3,
         title: "Identify Impersonation",
-        description: 'Select "Someone else" or specify who the profile is pretending to be',
+        description: 'Choose Me, a friend, or public figure',
         color: "pink"
       },
       {
@@ -42,21 +42,21 @@ export const PLATFORM_INSTRUCTIONS = {
       {
         number: 1,
         title: "Open Profile & Find Menu",
-        description: 'Click the "More..." button below the profile header, then select "Report/Block"',
+        description: 'Click on three dots "..." button below the profile header, then select "Report / Block"',
         icon: "⋯",
         color: "blue"
       },
       {
         number: 2,
-        title: "Select Reporting Reason",
-        description: 'Choose "Report this profile" → "Fake profile or impersonation"',
+        title: "Select Reporting",
+        description: 'Choose "Report @username or entire account"',
         important: "This is the most important step!",
         color: "purple"
       },
       {
         number: 3,
         title: "Identify Impersonation",
-        description: 'Select "Someone I know" or "Someone else" and provide details',
+        description: 'Select "not a real person" or "impersonation someone"',
         color: "pink"
       },
       {
@@ -77,27 +77,27 @@ export const PLATFORM_INSTRUCTIONS = {
       {
         number: 1,
         title: "Open Profile & Find Menu",
-        description: 'Tap the ⋯ three-dot menu beside Share button, then select "Report"',
+        description: 'Tap the ⋯ three-dot menu or arrow button on top of profile, then select "Report"',
         icon: "⋯",
         color: "blue"
       },
       {
         number: 2,
         title: "Select Reporting Reason",
-        description: 'Choose "Report account" → "Impersonation"',
+        description: 'Choose "Report account" or "Report content" → "Pretending to be someone"',
         important: "This is the most important step!",
         color: "purple"
       },
       {
         number: 3,
         title: "Identify Impersonation",
-        description: 'Choose "Me" or specify who the profile is pretending to be',
+        description: 'Choose "Me" or "Celebrity"',
         color: "pink"
       },
       {
         number: 4,
         title: "Submit Your Report",
-        description: 'Click "Submit" to complete the reporting process on TikTok',
+        description: 'Click "Me" and then "Submit" to complete the reporting process on TikTok',
         color: "orange"
       }
     ],
@@ -119,22 +119,23 @@ export const PLATFORM_INSTRUCTIONS = {
       {
         number: 2,
         title: "Select Reporting Reason",
-        description: 'Choose "Report account" → "Impersonation"',
+        description: 'Choose "Report account" → "They are pretending to be someone else"',
         important: "This is the most important step!",
         color: "purple"
       },
       {
         number: 3,
         title: "Identify Impersonation",
-        description: 'Choose "Me" or specify who the profile is pretending to be',
+        description: 'Choose "Me" or "Someone else"',
         color: "pink"
       },
       {
         number: 4,
-        title: "Submit Your Report",
-        description: 'Click "Submit" to complete the reporting process on Instagram',
+        title: "Choose Problem & Submit",
+        description: 'Select Bullying or Harassment , Scam or Fraud, or something else and click "Submit"',
         color: "orange"
       }
+      
     ],
     finalStep: {
       title: "Complete the Process Here",
@@ -147,7 +148,7 @@ export const PLATFORM_INSTRUCTIONS = {
       {
         number: 1,
         title: "Find Report Option",
-        description: 'Click the three dots (⋯) on the profile, below the cover picture, then select "Report @user"',
+        description: 'Click the three dots (⋯) on the profile, below the cover picture, then select "Report @username"',
         icon: "⋯",
         color: "blue"
       },

@@ -349,9 +349,9 @@ const InstructionsModal = ({ isOpen, onClose, platform, profile, onTakedownReque
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-start bg-black/70 backdrop-blur-sm md:pl-16 md:pt-16">
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto mx-4">
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-700 sticky top-0 bg-gray-900 rounded-t-2xl">
+        <div className="flex items-center justify-between p-6 border-b border-gray-700 sticky top-0 bg-gray-900 rounded-t-2xl z-10">
           <div className="flex items-center gap-3">
             <div className="relative">
               <AlertCircle className="w-6 h-6 text-red-400" />
@@ -373,7 +373,7 @@ const InstructionsModal = ({ isOpen, onClose, platform, profile, onTakedownReque
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-6 pt-8">
           <div className="space-y-4">
             {instructions.steps.map((step, index) => {
               const colorClass = COLOR_CLASSES[step.color] || COLOR_CLASSES.blue;
@@ -431,13 +431,7 @@ const InstructionsModal = ({ isOpen, onClose, platform, profile, onTakedownReque
           </div>
 
           {/* Debug info (remove in production) */}
-          {process.env.NODE_ENV === 'development' && profile && (
-            <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-              <p className="text-yellow-300 text-xs">
-                Debug: Profile ID: {profile.id || 'Not available'}
-              </p>
-            </div>
-          )}
+     
 
           {/* Action Button */}
           <div className="mt-8 pt-6 border-t border-gray-700">
