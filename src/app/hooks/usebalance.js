@@ -1,35 +1,64 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export function useBalance(initialBalance = 0) {
   const [balance, setBalance] = useState(initialBalance);
   const [isLoading, setIsLoading] = useState(false);
 
   // Get user-specific balance key
-  const getBalanceKey = () => {
+  const getBalanceKey = useCallback(() => {
     if (typeof window === 'undefined') return 'userBalance';
     
     const userId = localStorage.getItem('user_id') || localStorage.getItem('userId');
     return userId ? `userBalance_${userId}` : 'userBalance';
-  };
+  }, []);
 
-  // Load balance from localStorage on component mount
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
+  // Load balance from localStorage
+  const loadBalance = useCallback(() => {
+    if (typeof window === 'undefined') return initialBalance;
     
     const balanceKey = getBalanceKey();
     const savedBalance = localStorage.getItem(balanceKey);
     
     if (savedBalance !== null) {
-      // Always use saved balance if it exists, ignore initialBalance parameter
-      setBalance(parseInt(savedBalance));
+      const parsedBalance = parseInt(savedBalance);
+      setBalance(parsedBalance);
+      return parsedBalance;
     } else {
-      // Only use initialBalance for completely new users
       setBalance(initialBalance);
       localStorage.setItem(balanceKey, initialBalance.toString());
+      return initialBalance;
     }
-  }, [initialBalance]);
+  }, [initialBalance, getBalanceKey]);
 
-  
+  // Load balance from localStorage on component mount
+  useEffect(() => {
+    loadBalance();
+  }, [loadBalance]);
+
+  // Refresh balance function
+  const refreshBalance = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    
+    setIsLoading(true);
+    try {
+      const balanceKey = getBalanceKey();
+      const savedBalance = localStorage.getItem(balanceKey);
+      
+      if (savedBalance !== null) {
+        const parsedBalance = parseInt(savedBalance);
+        setBalance(parsedBalance);
+        console.log('🔄 Balance refreshed:', parsedBalance);
+        return parsedBalance;
+      }
+      return balance;
+    } catch (error) {
+      console.error('Error refreshing balance:', error);
+      return balance;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [balance, getBalanceKey]);
+
   const deductCredit = async (amount = 1) => {
     if (balance < amount) {
       throw new Error('Insufficient credits');
@@ -103,6 +132,7 @@ export function useBalance(initialBalance = 0) {
     addCredits,
     resetBalance,
     getCurrentBalance,
+    refreshBalance, // Add this function
     isLoading,
     canAfford: balance >= 1
   };

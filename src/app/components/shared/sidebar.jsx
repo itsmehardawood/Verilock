@@ -353,7 +353,7 @@
 
 'use client';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Home, Search, History, FileText, CreditCard, LogOut, X, Archive } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin, FaTiktok } from 'react-icons/fa';
 import { useBalance } from '@/app/hooks/usebalance';
@@ -362,9 +362,10 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
   const [activeItem, setActiveItem] = useState('dashboard');
   const [userInfo, setUserInfo] = useState(null);
   const router = useRouter();
+  const pathname = usePathname();
   
-  // Use balance hook to get current balance
-  const { balance, isLoading: balanceLoading } = useBalance();
+  // Use balance hook to get current balance with auto-refresh
+  const { balance, isLoading: balanceLoading, refreshBalance } = useBalance();
 
   // Get user info from localStorage on component mount
   useEffect(() => {
@@ -399,6 +400,53 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
     getUserInfo();
   }, []);
 
+  // Set active item based on current pathname when component mounts or pathname changes
+  useEffect(() => {
+    const findActiveItem = (path) => {
+      // Check main items
+      for (const item of menuItems) {
+        if (item.href === path) {
+          return item.id;
+        }
+        // Check children items
+        if (item.children) {
+          for (const child of item.children) {
+            if (child.href === path) {
+              return child.id;
+            }
+          }
+        }
+      }
+      return 'dashboard'; // fallback
+    };
+
+    setActiveItem(findActiveItem(pathname));
+  }, [pathname]);
+
+  // Auto-refresh balance periodically and on focus
+  useEffect(() => {
+    // Refresh balance immediately when component mounts
+    refreshBalance();
+
+    // Set up interval to refresh balance every 30 seconds
+    const interval = setInterval(() => {
+      refreshBalance();
+    }, 30000);
+
+    // Refresh balance when window gains focus (user switches back to tab)
+    const handleFocus = () => {
+      refreshBalance();
+    };
+
+    window.addEventListener('focus', handleFocus);
+
+    // Cleanup
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [refreshBalance]);
+
   const menuItems = [
     { id: 'dashboard', icon: Home, label: 'Home', href: '/user/Home' },
     {
@@ -415,12 +463,15 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
     },
     { id: 'history', icon: History, label: 'Takedown Profiles', href: '/user/history' },
     { id: 'Reviewlater', icon: Archive, label: 'Review Later', href: '/user/reviewlater' },
-    // { id: 'reports', icon: FileText, label: 'Reports', href: '/user/reports' },
     { id: 'billing', icon: CreditCard, label: 'Payment Management', href: '/user/Billing' },
   ];
 
   const handleNavigation = (href, id) => {
     setActiveItem(id);
+    // Also store the active item in localStorage for persistence across reloads
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sidebarActiveItem', id);
+    }
     router.push(href);
     toggleSidebar();
   };
@@ -434,6 +485,7 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
       localStorage.removeItem('role');
       localStorage.removeItem('user'); // for backward compatibility
       localStorage.removeItem('token');
+      localStorage.removeItem('sidebarActiveItem');
     }
     router.push('/');
   };
