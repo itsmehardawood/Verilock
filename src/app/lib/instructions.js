@@ -42,27 +42,27 @@ export const PLATFORM_INSTRUCTIONS = {
       {
         number: 1,
         title: "Open Profile & Find Menu",
-        description: 'Click on three dots "..." button below the profile header, then select "Report / Block"',
+        description: 'Click on More button or "..." three dots button below the profile header, then select "Report / Block"',
         icon: "⋯",
         color: "blue"
       },
       {
         number: 2,
         title: "Select Reporting",
-        description: 'Choose "Report @username or entire account"',
+        description: 'Choose "Report @username or entire account on the Report or block pop-up window"',
         important: "This is the most important step!",
         color: "purple"
       },
       {
         number: 3,
         title: "Identify Impersonation",
-        description: 'Select "not a real person" or "impersonation someone"',
+        description: 'Select This person is impersonating someone or This account is not a real person on the Report this profile pop-up window."',
         color: "pink"
       },
       {
         number: 4,
-        title: "Submit Your Report",
-        description: 'Click "Submit" or "Send" to complete the reporting process on LinkedIn',
+        title: "Select Submit report.",
+        description: 'Click "Submit report" or "Send" to complete the reporting process on LinkedIn',
         color: "orange"
       }
     ],
@@ -147,7 +147,7 @@ export const PLATFORM_INSTRUCTIONS = {
     steps: [
       {
         number: 1,
-        title: "Find Report Option",
+        title: "Select the overflow icon",
         description: 'Click the three dots (⋯) on the profile, below the cover picture, then select "Report @username"',
         icon: "⋯",
         color: "blue"
@@ -155,20 +155,27 @@ export const PLATFORM_INSTRUCTIONS = {
       {
         number: 2,
         title: "Select Issue Type",
-        description: 'Select "What type of issue are you reporting" → Choose "Impersonation"',
+        description: 'Select Report and then select the type of issue you’d like to report." ',
         important: "This is the most important step!",
         color: "purple"
       },
       {
         number: 3,
-        title: "Identify Impersonation",
-        description: 'Choose "Pretending to be me, my brand or a user that I represent"',
+        title: "Select Specific Problem",
+        description: 'If you select They’re being abusive or harmful, we’ll ask you to provide additional information about the issue you’re reporting. We may also ask you to select additional posts from the account you’re reporting so we have better context to evaluate your report ',
+        color: "purple"
+      },
+      
+      {
+        number: 4,
+        title: "Choose Additional Options",
+        description: 'We will include the text of the posts you reported in our follow-up emails and notifications to you. To opt-out of receiving this information, please uncheck the box next to Updates about this report can show these posts.',
         color: "pink"
       },
       {
-        number: 4,
+        number: 5,
         title: "Complete Form & Submit",
-        description: 'Click Next and fill out the form to submit your request',
+        description: 'Once you’ve submitted your report, we’ll provide recommendations for additional actions you can take to improve your X experience',
         color: "orange"
       }
     ],
