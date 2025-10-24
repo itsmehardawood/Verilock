@@ -41,8 +41,12 @@ const Analytics = () => {
         throw new Error('Failed to fetch takedown data');
       }
 
-      const takedownData = await takedownResponse.json();
-      console.log('📊 Takedown data from API:', takedownData);
+      const apiResponse = await takedownResponse.json();
+      console.log('📊 Full API Response:', apiResponse);
+
+      // ✅ FIXED: Extract reports array from the response
+      const takedownData = apiResponse.reports || [];
+      console.log('📋 Takedown reports data:', takedownData);
 
       // Process the takedown data to get platform statistics
       const platformStats = processTakedownData(takedownData);
@@ -61,7 +65,7 @@ const Analytics = () => {
     }
   };
 
-  // ✅ NEW: Process actual takedown data from API
+  // ✅ FIXED: Process actual takedown data from API with correct structure
   const processTakedownData = (takedownData) => {
     const platforms = ['facebook', 'instagram', 'twitter', 'tiktok', 'linkedin'];
     const platformStats = {};
@@ -77,44 +81,75 @@ const Analytics = () => {
       };
     });
 
+    console.log('🔍 Processing takedown data:', takedownData);
+
     // Process each takedown record
     if (Array.isArray(takedownData)) {
-      takedownData.forEach(record => {
+      takedownData.forEach((record, index) => {
+        console.log(`📝 Record ${index}:`, record);
+        
+        // ✅ FIXED: Check for different possible platform field locations
+        let platform = null;
+        
+        // Check multiple possible locations for platform data
         if (record.reportedProfile && record.reportedProfile.platform) {
-          const platform = record.reportedProfile.platform.toLowerCase();
+          platform = record.reportedProfile.platform.toLowerCase();
+        } else if (record.platform) {
+          platform = record.platform.toLowerCase();
+        } else if (record.profile && record.profile.platform) {
+          platform = record.profile.platform.toLowerCase();
+        }
+
+        console.log(`🏷️  Detected platform for record ${index}:`, platform);
+
+        if (platform && platforms.includes(platform)) {
+          platformStats[platform].profilesDetected++;
           
-          if (platforms.includes(platform)) {
-            platformStats[platform].profilesDetected++;
-            
-            // Count based on status
-            if (record.status === 'takedown_complete' || record.status === 'completed') {
-              platformStats[platform].takedownRequests++;
-              platformStats[platform].successful++;
-            } else if (record.status === 'pending' || record.status === 'in_review') {
-              platformStats[platform].pending++;
-            } else if (record.status === 'ignored' || record.status === 'dismissed') {
-              platformStats[platform].ignored++;
-            } else {
-              platformStats[platform].takedownRequests++; // Count as request for other statuses
-            }
+          // ✅ FIXED: Check status with multiple possible field names
+          const status = record.status || record.takedownStatus || 'unknown';
+          console.log(`📊 Status for ${platform}:`, status);
+
+          // Count based on status
+          if (status === 'takedown_complete' || status === 'completed' || status === 'successful') {
+            platformStats[platform].takedownRequests++;
+            platformStats[platform].successful++;
+          } else if (status === 'pending' || status === 'in_review' || status === 'processing') {
+            platformStats[platform].pending++;
+            platformStats[platform].takedownRequests++; // Count pending as requests too
+          } else if (status === 'ignored' || status === 'dismissed' || status === 'rejected') {
+            platformStats[platform].ignored++;
+          } else {
+            // For any other status, count as a takedown request
+            platformStats[platform].takedownRequests++;
           }
+
+          console.log(`✅ Updated stats for ${platform}:`, platformStats[platform]);
+        } else {
+          console.warn(`❌ Unknown or missing platform in record ${index}:`, platform);
         }
       });
+    } else {
+      console.warn('❌ Takedown data is not an array:', takedownData);
     }
 
     return platformStats;
   };
 
-  // ✅ NEW: Generate analytics from actual takedown data
+  // ✅ FIXED: Generate analytics from actual takedown data
   const generateAnalyticsFromTakedownData = (platformStats, range) => {
     let totalProfilesDetected = 0;
     let totalTakedownRequests = 0;
 
+    console.log('📊 Calculating totals from platform stats:', platformStats);
+
     // Calculate totals
-    Object.values(platformStats).forEach(stats => {
+    Object.values(platformStats).forEach((stats, index) => {
       totalProfilesDetected += stats.profilesDetected;
       totalTakedownRequests += stats.takedownRequests;
+      console.log(`Platform ${Object.keys(platformStats)[index]}:`, stats);
     });
+
+    console.log('🎯 Final totals:', { totalProfilesDetected, totalTakedownRequests });
 
     // Generate platform distribution for pie chart
     const platformDistribution = Object.entries(platformStats)
@@ -126,13 +161,17 @@ const Analytics = () => {
       }))
       .filter(item => item.value > 0);
 
+    console.log('🥧 Platform distribution:', platformDistribution);
+
     // Calculate accuracy rate
     const accuracyRate = totalProfilesDetected > 0 
       ? Math.round((totalTakedownRequests / totalProfilesDetected) * 100)
       : 0;
 
+    console.log('📈 Accuracy rate:', accuracyRate);
+
     // Generate platform-specific chart data
-    return {
+    const result = {
       totalScans: totalProfilesDetected,
       totalFakes: totalTakedownRequests,
       accuracyRate: accuracyRate > 100 ? 100 : accuracyRate,
@@ -143,101 +182,124 @@ const Analytics = () => {
       tiktokData: generatePlatformChartData('tiktok', platformStats.tiktok, range),
       linkedinData: generatePlatformChartData('linkedin', platformStats.linkedin, range)
     };
+
+    console.log('🎨 Final analytics data:', result);
+    return result;
   };
 
-  // ✅ NEW: Generate chart data based on actual platform stats
-  const generatePlatformChartData = (platform, stats, range) => {
-    const { profilesDetected, takedownRequests, pending, ignored, successful } = stats;
-    
-    // If no data, return empty structure
-    if (profilesDetected === 0) {
-      return getEmptyPlatformData(platform, range);
-    }
 
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const currentMonth = new Date().getMonth();
+  // ✅ FIXED: Generate chart data based on actual platform stats
+const generatePlatformChartData = (platform, stats, range) => {
+  const { profilesDetected, takedownRequests, pending, ignored, successful } = stats;
+  
+  console.log(`📈 Generating chart for ${platform}:`, stats);
 
-    let dataPoints = 6;
-    if (range === '7days') dataPoints = 7;
-    else if (range === '30days') dataPoints = 4;
-    else if (range === '90days') dataPoints = 3;
-    else if (range === 'year') dataPoints = 12;
+  // If no data, return empty structure
+  if (profilesDetected === 0) {
+    console.log(`📭 No data for ${platform}, returning empty structure`);
+    return getEmptyPlatformData(platform, range);
+  }
 
-    switch (platform) {
-      case 'facebook':
-        // Line chart with actual data distribution
-        return Array.from({ length: dataPoints }, (_, index) => {
-          const monthIndex = (currentMonth - dataPoints + 1 + index + 12) % 12;
-          // Distribute actual data across time periods
-          const scans = Math.round(profilesDetected / dataPoints);
-          const takedowns = Math.round(takedownRequests / dataPoints);
-          
-          return {
-            month: months[monthIndex],
-            scans: Math.max(0, scans),
-            takedowns: Math.max(0, takedowns)
-          };
-        });
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const currentMonth = new Date().getMonth();
 
-      case 'instagram':
-        // Pie chart with actual status data
-        const instagramData = [
-          { name: 'Successful', value: successful, color: '#10B981' },
-          { name: 'Pending', value: pending, color: '#F59E0B' },
-          { name: 'Ignored', value: ignored, color: '#6B7280' }
-        ].filter(item => item.value > 0);
+  let dataPoints = 6;
+  if (range === '7days') dataPoints = 7;
+  else if (range === '30days') dataPoints = 4;
+  else if (range === '90days') dataPoints = 3;
+  else if (range === 'year') dataPoints = 12;
 
-        return instagramData.length > 0 ? instagramData : [
-          { name: 'No Takedowns', value: 1, color: '#6B7280' }
-        ];
+  let chartData = [];
 
-      case 'twitter':
-        // Bar chart with weekly distribution
-        return days.map(day => {
-          // Distribute data across days
-          const dailyScans = Math.round(profilesDetected / 7);
-          const dailyTakedowns = Math.round(takedownRequests / 7);
-          
-          return {
-            day,
-            scans: dailyScans,
-            takedowns: dailyTakedowns
-          };
-        });
+  switch (platform) {
+    case 'facebook':
+      // Line chart with actual data distribution
+      chartData = Array.from({ length: dataPoints }, (_, index) => {
+        const monthIndex = (currentMonth - dataPoints + 1 + index + 12) % 12;
+        // ✅ FIXED: Ensure at least 1 for small numbers
+        const scans = Math.max(1, Math.round(profilesDetected / dataPoints));
+        const takedowns = Math.max(0, Math.round(takedownRequests / dataPoints));
+        
+        return {
+          month: months[monthIndex],
+          scans: scans,
+          takedowns: takedowns
+        };
+      });
+      break;
 
-      case 'tiktok':
-        // Line chart showing growth
-        return Array.from({ length: dataPoints }, (_, index) => {
-          const monthIndex = (currentMonth - dataPoints + 1 + index + 12) % 12;
-          const progress = index / dataPoints;
-          const cumulativeScans = Math.round(profilesDetected * progress);
-          const cumulativeTakedowns = Math.round(takedownRequests * progress);
-          
-          return {
-            month: months[monthIndex],
-            profiles: cumulativeScans,
-            engagement: Math.min(100, Math.round((cumulativeTakedowns / (cumulativeScans || 1)) * 100))
-          };
-        });
+    case 'instagram':
+      // Pie chart with actual status data
+      chartData = [
+        { name: 'Successful', value: successful, color: '#10B981' },
+        { name: 'Pending', value: pending, color: '#F59E0B' },
+        { name: 'Ignored', value: ignored, color: '#6B7280' }
+      ].filter(item => item.value > 0);
 
-      case 'linkedin':
-        // Bar chart for professional platform
-        return days.map(day => {
-          const dailyScans = Math.round(profilesDetected / 7);
-          const dailyTakedowns = Math.round(takedownRequests / 7);
-          
-          return {
-            day,
-            professional: dailyScans,
-            verified: dailyTakedowns
-          };
-        });
+      if (chartData.length === 0) {
+        chartData = [{ name: 'No Takedowns', value: 1, color: '#6B7280' }];
+      }
+      break;
 
-      default:
-        return [];
-    }
-  };
+    case 'twitter':
+      // ✅ FIXED: Bar chart with proper distribution for small numbers
+      chartData = days.map((day, index) => {
+        // ✅ FIXED: Distribute data properly for small numbers
+        // For small numbers, concentrate data on a few days instead of spreading too thin
+        const isActiveDay = index < Math.min(profilesDetected, 3); // Concentrate on first few days
+        const dailyScans = isActiveDay ? Math.max(1, Math.ceil(profilesDetected / Math.min(profilesDetected, 3))) : 0;
+        const dailyTakedowns = isActiveDay ? Math.max(0, Math.ceil(takedownRequests / Math.min(takedownRequests, 3))) : 0;
+        
+        return {
+          day,
+          scans: dailyScans,
+          takedowns: dailyTakedowns
+        };
+      });
+      break;
+
+    case 'tiktok':
+      // ✅ FIXED: Line chart showing growth with proper scaling
+      chartData = Array.from({ length: dataPoints }, (_, index) => {
+        const monthIndex = (currentMonth - dataPoints + 1 + index + 12) % 12;
+        const progress = (index + 1) / dataPoints;
+        // ✅ FIXED: Ensure values are at least 1 for visibility
+        const cumulativeScans = Math.max(1, Math.round(profilesDetected * progress));
+        const cumulativeTakedowns = Math.max(0, Math.round(takedownRequests * progress));
+        
+        return {
+          month: months[monthIndex],
+          profiles: cumulativeScans,
+          engagement: Math.min(100, Math.round((cumulativeTakedowns / (cumulativeScans || 1)) * 100))
+        };
+      });
+      break;
+
+    case 'linkedin':
+      // ✅ FIXED: Bar chart for professional platform with proper distribution
+      chartData = days.map((day, index) => {
+        // ✅ FIXED: Concentrate data on weekdays for LinkedIn
+        const isWeekday = index < 5; // Mon-Fri
+        const isActiveDay = isWeekday && index < Math.min(profilesDetected, 3);
+        const dailyScans = isActiveDay ? Math.max(1, Math.ceil(profilesDetected / Math.min(profilesDetected, 3))) : 0;
+        const dailyTakedowns = isActiveDay ? Math.max(0, Math.ceil(takedownRequests / Math.min(takedownRequests, 3))) : 0;
+        
+        return {
+          day,
+          professional: dailyScans,
+          verified: dailyTakedowns
+        };
+      });
+      break;
+
+    default:
+      chartData = [];
+  }
+
+  console.log(`📊 Chart data for ${platform}:`, chartData);
+  return chartData;
+};
 
   // Helper function to get platform colors
   const getPlatformColor = (platform) => {
@@ -256,31 +318,41 @@ const Analytics = () => {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const dataPoints = range === '7days' ? 7 : 6;
 
+    let emptyData = [];
+
     switch (platform) {
       case 'facebook':
-        return Array.from({ length: dataPoints }, (_, index) => ({
+        emptyData = Array.from({ length: dataPoints }, (_, index) => ({
           month: months[index % 12],
           scans: 0,
           takedowns: 0
         }));
+        break;
       case 'instagram':
-        return [{ name: 'No Data', value: 1, color: '#6B7280' }];
+        emptyData = [{ name: 'No Data', value: 1, color: '#6B7280' }];
+        break;
       case 'twitter':
-        return days.map(day => ({ day, scans: 0, takedowns: 0 }));
+        emptyData = days.map(day => ({ day, scans: 0, takedowns: 0 }));
+        break;
       case 'tiktok':
-        return Array.from({ length: dataPoints }, (_, index) => ({
+        emptyData = Array.from({ length: dataPoints }, (_, index) => ({
           month: months[index % 12],
           profiles: 0,
           engagement: 0
         }));
+        break;
       case 'linkedin':
-        return days.map(day => ({ day, professional: 0, verified: 0 }));
+        emptyData = days.map(day => ({ day, professional: 0, verified: 0 }));
+        break;
       default:
-        return [];
+        emptyData = [];
     }
+
+    return emptyData;
   };
 
   const loadFallbackData = () => {
+    console.warn('🔄 Loading fallback data from localStorage');
     // Fallback to localStorage if API fails
     const user_id = localStorage.getItem('user_id') || localStorage.getItem('userId');
     const platforms = ['facebook', 'instagram', 'twitter', 'tiktok', 'linkedin'];
@@ -311,6 +383,7 @@ const Analytics = () => {
     setAnalyticsData(processedData);
   };
 
+  // ... rest of your component (CustomTooltip, JSX, etc.) remains the same
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
