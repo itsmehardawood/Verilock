@@ -465,7 +465,7 @@ const InstructionsModal = ({ isOpen, onClose, platform, profile, onTakedownReque
                     {step.url && (
                       <button
                         onClick={() => openReportWindow(step.url)}
-                        className="inline-flex items-center space-x-1 text-green-400 hover:text-green-300 transition-colors mt-2 text-sm cursor-pointer bg-green-500/10 hover:bg-green-500/20 px-3 py-1 rounded-lg border border-green-500/30"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 mt-4" 
                       >
                         <ExternalLink className="w-3 h-3" />
                         <span>{step.urlText || "Open Reporting Form"}</span>
