@@ -77,84 +77,7 @@ const ReviewLaterProfiles = () => {
     return matchesPriority && matchesPlatform && matchesSearch;
   });
 
-  // ✅ NEW: Helper function to get platform icon
-  // const getPlatformIcon = (platform) => {
-  //   switch (platform?.toLowerCase()) {
-  //     case 'instagram':
-  //       return '📷';
-  //     case 'facebook':
-  //       return '👥';
-  //     case 'linkedin':
-  //       return '💼';
-  //     case 'twitter':
-  //       return '🐦';
-  //     case 'tiktok':
-  //       return '🎵';
-  //     default:
-  //       return '🌐';
-  //   }
-  // };
-
-  // ✅ NEW: Helper function to display profile-specific data
-  // const renderPlatformSpecificData = (profile) => {
-  //   if (!profile.originalData) return null;
-
-  //   const { originalData, platform } = profile;
-    
-  //   switch (platform?.toLowerCase()) {
-  //     case 'instagram':
-  //       return (
-  //         <div className="flex flex-wrap gap-4 text-xs text-gray-400 mt-2">
-  //           {originalData.followers && (
-  //             <span><strong className="text-white">{originalData.followers}</strong> followers</span>
-  //           )}
-  //           {originalData.following && (
-  //             <span><strong className="text-white">{originalData.following}</strong> following</span>
-  //           )}
-  //           {originalData.postsCount && (
-  //             <span><strong className="text-white">{originalData.postsCount}</strong> posts</span>
-  //           )}
-  //           {originalData.verified && (
-  //             <span className="text-green-400">✓ Verified</span>
-  //           )}
-  //           {originalData.private && (
-  //             <span className="text-yellow-400">🔒 Private</span>
-  //           )}
-  //         </div>
-  //       );
-      
-  //     case 'facebook':
-  //       return (
-  //         <div className="flex flex-wrap gap-4 text-xs text-gray-400 mt-2">
-  //           {originalData.verified && (
-  //             <span className="text-green-400">✓ Verified</span>
-  //           )}
-  //           {originalData.userData && originalData.userData.length > 0 && (
-  //             <span><strong className="text-white">{originalData.userData.length}</strong> profile details</span>
-  //           )}
-  //         </div>
-  //       );
-      
-  //     case 'linkedin':
-  //       return (
-  //         <div className="flex flex-wrap gap-4 text-xs text-gray-400 mt-2">
-  //           {originalData.headline && (
-  //             <span className="line-clamp-1">{originalData.headline}</span>
-  //           )}
-  //           {originalData.location && (
-  //             <span>📍 {originalData.location}</span>
-  //           )}
-  //           {originalData.connections && (
-  //             <span><strong className="text-white">{originalData.connections}</strong> connections</span>
-  //           )}
-  //         </div>
-  //       );
-      
-  //     default:
-  //       return null;
-  //   }
-  // };
-
+  
    // ✅ NEW: Helper function to display profile-specific data
   const renderPlatformSpecificData = (profile) => {
     // Use originalData if available, otherwise use profile data directly
@@ -367,7 +290,7 @@ const ReviewLaterProfiles = () => {
               <option value="all">All Platforms</option>
               <option value="Instagram">Instagram</option>
               <option value="Facebook">Facebook</option>
-              {/* <option value="LinkedIn">LinkedIn</option> */}
+              <option value="LinkedIn">LinkedIn</option>
               <option value="Twitter">Twitter</option>
               <option value="TikTok">TikTok</option>
             </select>
@@ -487,18 +410,18 @@ const ReviewLaterProfiles = () => {
                   <div className="flex lg:flex-col gap-2">
                     <button 
                       onClick={() => handleViewDetails(profile)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium whitespace-nowrap flex items-center gap-2"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium whitespace-nowrap flex items-center gap-3"
                     >
                       <Eye className="w-4 h-4" />
-                      view Details
+                      View Details
                     </button>
-                    <button 
+                    {/* <button 
                       // onClick={() => handleMoveToTakedown(profile)}
                       onClick={(e) => openProfileWindow(profile.profileUrl, e)}
                       className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium whitespace-nowrap"
                     >
                       Takedown Request
-                    </button>
+                    </button> */}
                     <button 
                       onClick={() => handleRemoveFromReview(profile)}
                       className="px-4 py-2 border border-gray-600 text-gray-400 rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium whitespace-nowrap flex items-center gap-2"

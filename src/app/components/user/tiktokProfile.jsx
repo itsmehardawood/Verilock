@@ -630,11 +630,11 @@ export default function TikTokProfile({
           </p>
           
           {/* ✅ OPTIONAL: Show TikTok review count */}
-          {tiktokReviewCount > 0 && (
+          {/* {tiktokReviewCount > 0 && (
             <p className="text-sm text-blue-400 mt-1">
               You have {tiktokReviewCount} TikTok profile{tiktokReviewCount !== 1 ? 's' : ''} in Review Later
             </p>
-          )}
+          )} */}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
