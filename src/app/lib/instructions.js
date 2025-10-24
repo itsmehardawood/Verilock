@@ -8,7 +8,7 @@ export const PLATFORM_INSTRUCTIONS = {
         number: 1,
         title: "Submit Report via Facebook Help",
         description: 'To report this profile or account, click on the "Report " button and follow the necessary steps.',
-        color: "orange",
+        color: "blue",
         url: "https://www.facebook.com/help/174210519303259/?helpref=related_articles",
         urlText: "Report"
       },
@@ -26,7 +26,7 @@ export const PLATFORM_INSTRUCTIONS = {
         number: 1,
         title: "Submit Report via LinkedIn Help",
         description: 'For additional reporting options or if you encounter issues, use the official LinkedIn reporting form',
-        color: "orange",
+        color: "blue",
         url: "https://www.linkedin.com/help/linkedin/answer/a1338436",
         urlText: "Report"
       },
@@ -42,16 +42,16 @@ export const PLATFORM_INSTRUCTIONS = {
     steps: [
       {
         number: 1,
-        title: "In-App Reporting (U.S. Accounts)",
+        title: "Reporting (IN U.S. Accounts)",
         description: 'To report this profile or account, click on the "Report" button and follow the necessary steps.',
         important: "Use this form for U.S. accounts",
-        color: "blue",
+        color: "red",
         url: "https://www.tiktok.com/legal/report/submit-requests",
         urlText: "U.S. Reporting"
       },
       {
         number: 2,
-        title: "Web Reporting (Outside U.S.)",
+        title: "Reporting (Outside U.S.)",
         description: 'For accounts outside the United States, use this below web reporting form for impersonation reports',
         important: "Use this form for non-U.S. accounts",
         color: "purple",

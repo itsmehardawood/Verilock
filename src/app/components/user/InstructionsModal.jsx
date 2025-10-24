@@ -253,8 +253,8 @@ const InstructionsModal = ({ isOpen, onClose, platform, profile, onTakedownReque
 
   // Function to open reporting URL in new window
   const openReportWindow = (url) => {
-    const width = 600;
-    const height = 500;
+    const width = 700;
+    const height = 640;
     const left = window.screenX + (window.outerWidth - width) / 6;
     const top = window.screenY + (window.outerHeight - height) / 4;
     
@@ -423,7 +423,7 @@ const InstructionsModal = ({ isOpen, onClose, platform, profile, onTakedownReque
         {/* Content */}
         <div className="p-6 pt-8">
           {/* Quick Action - Open Profile */}
-          <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+          {/* <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-300 font-medium text-sm">First, open the profile to report:</p>
@@ -437,7 +437,7 @@ const InstructionsModal = ({ isOpen, onClose, platform, profile, onTakedownReque
                 Open Profile
               </button>
             </div>
-          </div>
+          </div> */}
 
           <div className="space-y-4">
             {instructions.steps.map((step, index) => {
