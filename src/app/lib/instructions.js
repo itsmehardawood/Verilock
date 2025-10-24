@@ -1,4 +1,4 @@
-// utils/platform-instructions.js
+// lib/platform-instructions.js
 
 // Platform-specific reporting instructions with enhanced structure
 export const PLATFORM_INSTRUCTIONS = {
@@ -6,30 +6,13 @@ export const PLATFORM_INSTRUCTIONS = {
     steps: [
       {
         number: 1,
-        title: "Open Profile & Find Menu",
-        description: 'Tap the ⋯ three-dot menu in the top right corner, then select "Report Profile"',
-        icon: "⋯",
-        color: "blue"
+        title: "Submit Report via Facebook Help",
+        description: 'To report this profile or account, click on the "Report " button and follow the necessary steps.',
+        color: "orange",
+        url: "https://www.facebook.com/help/174210519303259/?helpref=related_articles",
+        urlText: "Report"
       },
-      {
-        number: 2,
-        title: "Select Reporting Reason",
-        description: 'Select "Something about this profile" and then click "Fake Profile"',
-        important: "This is the most important step!",
-        color: "purple"
-      },
-      {
-        number: 3,
-        title: "Identify Impersonation",
-        description: 'Choose Me, a friend, or public figure',
-        color: "pink"
-      },
-      {
-        number: 4,
-        title: "Submit Your Report",
-        description: 'Click "Submit" to complete the reporting process on Facebook',
-        color: "orange"
-      }
+      
     ],
     finalStep: {
       title: "Complete the Process Here",
@@ -37,34 +20,17 @@ export const PLATFORM_INSTRUCTIONS = {
       important: "You must complete both Facebook's reporting AND click 'Takedown Submitted' below"
     }
   },
-  linkedin: { // ✅ ADDED LINKEDIN INSTRUCTIONS
+  linkedin: {
     steps: [
       {
         number: 1,
-        title: "Open Profile & Find Menu",
-        description: 'Click on More button or "..." three dots button below the profile header, then select "Report / Block"',
-        icon: "⋯",
-        color: "blue"
+        title: "Submit Report via LinkedIn Help",
+        description: 'For additional reporting options or if you encounter issues, use the official LinkedIn reporting form',
+        color: "orange",
+        url: "https://www.linkedin.com/help/linkedin/answer/a1338436",
+        urlText: "Report"
       },
-      {
-        number: 2,
-        title: "Select Reporting",
-        description: 'Choose "Report @username or entire account on the Report or block pop-up window"',
-        important: "This is the most important step!",
-        color: "purple"
-      },
-      {
-        number: 3,
-        title: "Identify Impersonation",
-        description: 'Select This person is impersonating someone or This account is not a real person on the Report this profile pop-up window."',
-        color: "pink"
-      },
-      {
-        number: 4,
-        title: "Select Submit report.",
-        description: 'Click "Submit report" or "Send" to complete the reporting process on LinkedIn',
-        color: "orange"
-      }
+      
     ],
     finalStep: {
       title: "Complete the Process Here",
@@ -76,30 +42,23 @@ export const PLATFORM_INSTRUCTIONS = {
     steps: [
       {
         number: 1,
-        title: "Open Profile & Find Menu",
-        description: 'Tap the ⋯ three-dot menu or arrow button on top of profile, then select "Report"',
-        icon: "⋯",
-        color: "blue"
+        title: "In-App Reporting (U.S. Accounts)",
+        description: 'To report this profile or account, click on the "Report" button and follow the necessary steps.',
+        important: "Use this form for U.S. accounts",
+        color: "blue",
+        url: "https://www.tiktok.com/legal/report/submit-requests",
+        urlText: "U.S. Reporting"
       },
       {
         number: 2,
-        title: "Select Reporting Reason",
-        description: 'Choose "Report account" or "Report content" → "Pretending to be someone"',
-        important: "This is the most important step!",
-        color: "purple"
+        title: "Web Reporting (Outside U.S.)",
+        description: 'For accounts outside the United States, use this below web reporting form for impersonation reports',
+        important: "Use this form for non-U.S. accounts",
+        color: "purple",
+        url: "https://www.tiktok.com/legal/report/feedback",
+        urlText: "International Reporting"
       },
-      {
-        number: 3,
-        title: "Identify Impersonation",
-        description: 'Choose "Me" or "Celebrity"',
-        color: "pink"
-      },
-      {
-        number: 4,
-        title: "Submit Your Report",
-        description: 'Click "Me" and then "Submit" to complete the reporting process on TikTok',
-        color: "orange"
-      }
+      
     ],
     finalStep: {
       title: "Complete the Process Here",
@@ -111,30 +70,12 @@ export const PLATFORM_INSTRUCTIONS = {
     steps: [
       {
         number: 1,
-        title: "Open Profile & Find Menu",
-        description: 'Tap the ⋯ three-dot menu in the top beside username, then select "Report"',
-        icon: "⋯",
-        color: "blue"
+        title: "Instagram Reporting Page",
+        description: "To report this profile or account, click on the 'Report' button and follow the necessary steps.",
+        color: "orange",
+        url: "https://help.instagram.com/contact/636276399721841",
+        urlText: "Report"
       },
-      {
-        number: 2,
-        title: "Select Reporting Reason",
-        description: 'Choose "Report account" → "They are pretending to be someone else"',
-        important: "This is the most important step!",
-        color: "purple"
-      },
-      {
-        number: 3,
-        title: "Identify Impersonation",
-        description: 'Choose "Me" or "Someone else"',
-        color: "pink"
-      },
-      {
-        number: 4,
-        title: "Choose Problem & Submit",
-        description: 'Select Bullying or Harassment , Scam or Fraud, or something else and click "Submit"',
-        color: "orange"
-      }
       
     ],
     finalStep: {
@@ -147,42 +88,18 @@ export const PLATFORM_INSTRUCTIONS = {
     steps: [
       {
         number: 1,
-        title: "Select the overflow icon",
-        description: 'Click the three dots (⋯) on the profile, below the cover picture, then select "Report @username"',
-        icon: "⋯",
-        color: "blue"
-      },
-      {
-        number: 2,
-        title: "Select Issue Type",
-        description: 'Select Report and then select the type of issue you’d like to report." ',
-        important: "This is the most important step!",
-        color: "purple"
-      },
-      {
-        number: 3,
-        title: "Select Specific Problem",
-        description: 'If you select They’re being abusive or harmful, we’ll ask you to provide additional information about the issue you’re reporting. We may also ask you to select additional posts from the account you’re reporting so we have better context to evaluate your report ',
-        color: "purple"
+        title: "Official X Reporting Portal",
+        description: 'To report this profile or account, click on the "Report" button and follow the necessary steps.',
+        color: "blue",
+        url: "https://help.x.com/en/rules-and-policies/x-report-violation",
+        urlText: "Open X Reporting Panel"
       },
       
-      {
-        number: 4,
-        title: "Choose Additional Options",
-        description: 'We will include the text of the posts you reported in our follow-up emails and notifications to you. To opt-out of receiving this information, please uncheck the box next to Updates about this report can show these posts.',
-        color: "pink"
-      },
-      {
-        number: 5,
-        title: "Complete Form & Submit",
-        description: 'Once you’ve submitted your report, we’ll provide recommendations for additional actions you can take to improve your X experience',
-        color: "orange"
-      }
     ],
     finalStep: {
       title: "Complete the Process Here",
       description: "After submitting on Twitter/X, return here and click 'Takedown Submitted' to track your report in our system",
-      important: "You must complete both Twitter's reporting AND click 'Takedown Submitted' below"
+      // important: "You must complete both Twitter's reporting AND click 'Takedown Submitted' below"
     }
   }
 };

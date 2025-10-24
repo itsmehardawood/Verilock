@@ -237,7 +237,7 @@
 // components/InstructionsModal.js
 'use client';
 import React, { useState } from 'react';
-import { X, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { X, AlertCircle, CheckCircle, Loader2, ExternalLink } from 'lucide-react';
 import { PLATFORM_INSTRUCTIONS, COLOR_CLASSES } from '@/app/lib/instructions';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -250,6 +250,54 @@ const InstructionsModal = ({ isOpen, onClose, platform, profile, onTakedownReque
 
   const instructions = PLATFORM_INSTRUCTIONS[platform];
   if (!instructions) return null;
+
+  // Function to open reporting URL in new window
+  const openReportWindow = (url) => {
+    const width = 600;
+    const height = 500;
+    const left = window.screenX + (window.outerWidth - width) / 6;
+    const top = window.screenY + (window.outerHeight - height) / 4;
+    
+    const features = `
+      width=${width},
+      height=${height},
+      left=${left},
+      top=${top},
+      resizable=yes,
+      scrollbars=yes,
+      status=no,
+      toolbar=no,
+      menubar=no,
+      noopener,
+      noreferrer
+    `.replace(/\s+/g, "");
+
+    window.open(url, "_blank", features);
+  };
+
+  // Function to open profile in new window
+  const openProfileWindow = (url) => {
+    const width = 600;
+    const height = 700;
+    const left = window.screenX + (window.outerWidth - width) / 1;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    
+    const features = `
+      width=${width},
+      height=${height},
+      left=${left},
+      top=${top},
+      resizable=yes,
+      scrollbars=yes,
+      status=no,
+      toolbar=no,
+      menubar=no,
+      noopener,
+      noreferrer
+    `.replace(/\s+/g, "");
+
+    window.open(url, "_blank", features);
+  };
 
   // Handle the "Let's Continue" button click
   const handleContinue = async () => {
@@ -374,6 +422,23 @@ const InstructionsModal = ({ isOpen, onClose, platform, profile, onTakedownReque
 
         {/* Content */}
         <div className="p-6 pt-8">
+          {/* Quick Action - Open Profile */}
+          <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-300 font-medium text-sm">First, open the profile to report:</p>
+                <p className="text-gray-400 text-xs mt-1">Click the button below to open the profile in a new window</p>
+              </div>
+              <button
+                onClick={() => openProfileWindow(profile.profileUrl)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Open Profile
+              </button>
+            </div>
+          </div>
+
           <div className="space-y-4">
             {instructions.steps.map((step, index) => {
               const colorClass = COLOR_CLASSES[step.color] || COLOR_CLASSES.blue;
@@ -395,6 +460,18 @@ const InstructionsModal = ({ isOpen, onClose, platform, profile, onTakedownReque
                   <div className="flex-1">
                     <p className="text-gray-100 font-medium mb-1">{step.title}</p>
                     <p className="text-gray-300 text-sm">{step.description}</p>
+                    
+                    {/* ✅ ADDED: URL Button for Reporting Forms */}
+                    {step.url && (
+                      <button
+                        onClick={() => openReportWindow(step.url)}
+                        className="inline-flex items-center space-x-1 text-green-400 hover:text-green-300 transition-colors mt-2 text-sm cursor-pointer bg-green-500/10 hover:bg-green-500/20 px-3 py-1 rounded-lg border border-green-500/30"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        <span>{step.urlText || "Open Reporting Form"}</span>
+                      </button>
+                    )}
+                    
                     {step.important && (
                       <div className="mt-2 flex items-center gap-2 text-xs text-purple-300">
                         <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
@@ -426,12 +503,14 @@ const InstructionsModal = ({ isOpen, onClose, platform, profile, onTakedownReque
               <div className="flex-1">
                 <p className="text-green-400 font-bold mb-1">{instructions.finalStep.title}</p>
                 <p className="text-gray-300 text-sm">{instructions.finalStep.description}</p>
+                {/* <div className="mt-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                  <p className="text-green-300 text-xs font-medium">
+                    💡 {instructions.finalStep.important}
+                  </p>
+                </div> */}
               </div>
             </div>
           </div>
-
-          {/* Debug info (remove in production) */}
-     
 
           {/* Action Button */}
           <div className="mt-8 pt-6 border-t border-gray-700">
@@ -461,4 +540,4 @@ const InstructionsModal = ({ isOpen, onClose, platform, profile, onTakedownReque
   );
 };
 
-export default InstructionsModal;     
+export default InstructionsModal;

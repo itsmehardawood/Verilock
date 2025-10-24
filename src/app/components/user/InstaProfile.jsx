@@ -69,7 +69,7 @@ function ProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPe
   };
 
   const openProfileWindow = (url) => {
-    const width = 450;
+    const width = 600;
     const height = 700;
     const left = window.screenX + (window.outerWidth - width) / 1;
     const top = window.screenY + (window.outerHeight - height) / 2;
