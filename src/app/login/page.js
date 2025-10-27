@@ -651,6 +651,18 @@ const storageHelper = {
     }
   },
   
+  // Special function to store user ID without quotes
+  setUserId: (userId) => {
+    try {
+      if (typeof window !== "undefined") {
+        // Store as raw string without JSON stringification
+        localStorage.setItem('userId', userId);
+      }
+    } catch (error) {
+      console.error("Error storing user ID:", error);
+    }
+  },
+  
   getItem: (key) => {
     try {
       if (typeof window !== "undefined") {
@@ -659,6 +671,19 @@ const storageHelper = {
       }
     } catch (error) {
       console.error("Error retrieving data:", error);
+      return null;
+    }
+  },
+  
+  // Special function to get user ID
+  getUserId: () => {
+    try {
+      if (typeof window !== "undefined") {
+        // Get raw string value
+        return localStorage.getItem('userId');
+      }
+    } catch (error) {
+      console.error("Error retrieving user ID:", error);
       return null;
     }
   },
@@ -701,8 +726,10 @@ export default function LoginPage() {
   // Check if user is already logged in
   useEffect(() => {
     const checkExistingAuth = () => {
-      const userId = storageHelper.getItem("userId");
+      const userId = storageHelper.getUserId(); // Use the new getUserId method
       const userRole = storageHelper.getItem("role");
+      
+      console.log("Checking existing auth - User ID:", userId, "Role:", userRole);
       
       if (userId && userRole) {
         if (userRole === "user" || userRole === "User") {
@@ -821,9 +848,9 @@ export default function LoginPage() {
     
     const user = userData.user;
     
-    // Store user ID - using _id from MongoDB
+    // Store user ID - using _id from MongoDB - WITHOUT QUOTES
     const userId = user._id;
-    storageHelper.setItem("userId", userId);
+    storageHelper.setUserId(userId); // Use the new setUserId method
     
     // Store role separately for quick access
     storageHelper.setItem("role", user.role);
@@ -839,12 +866,16 @@ export default function LoginPage() {
       loginTime: new Date().toISOString()
     };
     
-    storageHelper.setItem("userData", userInfo);
+    storageHelper.setItem('userData', userInfo);
     
     console.log("User data stored successfully:", {
       userId: userId,
       role: user.role
     });
+    
+    // Debug: Check how the user ID is stored
+    const storedUserId = localStorage.getItem('userId');
+    console.log("User ID stored in localStorage as:", storedUserId, "Type:", typeof storedUserId);
   };
 
   const handleSignIn = async (e) => {
