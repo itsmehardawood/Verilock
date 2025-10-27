@@ -320,7 +320,9 @@ const InstructionsModal = ({ isOpen, onClose, platform, profile, onTakedownReque
     setIsReporting(true);
     try {
       // Get user_id from localStorage (logged in user)
-      const user_id = localStorage.getItem('user_id') || localStorage.getItem('userId');
+const rawUserId = localStorage.getItem('user_id') || localStorage.getItem('userId');
+const user_id = rawUserId?.replace(/"/g, ''); // clean the quotes
+
       
       if (!user_id) {
         throw new Error('User not found. Please login again.');
