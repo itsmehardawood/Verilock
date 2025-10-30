@@ -69,7 +69,7 @@ export async function fetchInstagramProfiles(searchName, limit) {
   }
 }
 
-export async function fetchLinkedInProfiles(searchName, limit) {
+export async function fetchLinkedInProfiles(searchName, limit, location = "") {
   try {
     const params = new URLSearchParams({
       search_query: searchName,
@@ -77,8 +77,27 @@ export async function fetchLinkedInProfiles(searchName, limit) {
       profile_scraper_mode: "Short",
     });
 
+    // ✅ PREPARE REQUEST BODY with location array
+    const requestBody = {};
+    
+    if (location && location.trim() !== "") {
+      requestBody.locations = [location.trim()];
+    }
+
+    console.log("📍 [fetchLinkedInProfiles] API Request:", {
+      searchName,
+      limit,
+      location,
+      params: Object.fromEntries(params),
+      requestBody
+    });
+
     const response = await fetch(`${API_BASE_URL}/customer/linkedin_search?${params}`, {
       method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: Object.keys(requestBody).length > 0 ? JSON.stringify(requestBody) : undefined,
     });
     
     if (!response.ok) {
@@ -89,7 +108,7 @@ export async function fetchLinkedInProfiles(searchName, limit) {
     const result = await response.json();
     console.log("✅ [fetchLinkedInProfiles] Parsed response data:", result);
     
-        // Step 2: If profiles exist, fetch their profile pictures
+    // Step 2: If profiles exist, fetch their profile pictures
     if (result?.profiles?.length) {
       const enrichedProfiles = await Promise.all(
         result.profiles.map(async (profile) => {

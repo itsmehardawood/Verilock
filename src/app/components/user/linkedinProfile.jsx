@@ -5,6 +5,8 @@ import { fetchLinkedInProfiles } from "@/app/lib/api/customer";
 import { useBalance } from "@/app/hooks/usebalance";
 import { useReview } from "@/app/contexts/ReviewContext";
 import InstructionsModal from "./InstructionsModal";
+import COUNTRIES from "@/app/lib/Countries";
+// import COUNTRIES from "@/utils/countries";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -298,6 +300,7 @@ export default function LinkedInProfile({
   const [error, setError] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
   const [selectedProfile, setSelectedProfile] = useState(null);
+  const [location, setLocation] = useState(""); // ✅ NEW: Location state
   
   // New states for load more functionality
   const [currentLimit, setCurrentLimit] = useState(10);
@@ -339,7 +342,7 @@ export default function LinkedInProfile({
 
       console.log("🚀 Searching LinkedIn for:", username, "with limit:", 10);
 
-      const apiResponse = await fetchLinkedInProfiles(username, 10);
+      const apiResponse = await fetchLinkedInProfiles(username, 10, location);
       console.log("📦 [Full API Response]:", apiResponse);
 
       // ✅ Extract the results array from the API response
@@ -414,84 +417,85 @@ const formattedProfiles = resultsArray.map((profile, index) => {
   };
 
   const handleLoadMore = async () => {
-    if (loadingMore || totalFetched >= 30) return;
+  if (loadingMore || totalFetched >= 30) return;
+  
+  setLoadingMore(true);
+  setError(null);
+
+  try {
+    const nextLimit = 10;
+    const totalAfterFetch = totalFetched + nextLimit;
     
-    setLoadingMore(true);
-    setError(null);
+    console.log("🔄 Loading more profiles:", nextLimit, "Total will be:", totalAfterFetch);
 
-    try {
-      const nextLimit = 10;
-      const totalAfterFetch = totalFetched + nextLimit;
-      
-      console.log("🔄 Loading more profiles:", nextLimit, "Total will be:", totalAfterFetch);
+    // ✅ FIXED: Add location parameter here
+    const apiResponse = await fetchLinkedInProfiles(username, totalAfterFetch, location);
+    console.log("📦 [Load More API Response]:", apiResponse);
 
-      const apiResponse = await fetchLinkedInProfiles(username, totalAfterFetch);
-      console.log("📦 [Load More API Response]:", apiResponse);
+    // ✅ Extract the results array from the API response
+    const resultsArray =
+      Array.isArray(apiResponse) &&
+      apiResponse.length > 0 &&
+      Array.isArray(apiResponse[0].results)
+        ? apiResponse[0].results
+        : [];
 
-      // ✅ Extract the results array from the API response
-      const resultsArray =
-        Array.isArray(apiResponse) &&
-        apiResponse.length > 0 &&
-        Array.isArray(apiResponse[0].results)
-          ? apiResponse[0].results
-          : [];
-
-      if (!resultsArray.length) {
-        setHasMore(false);
-        return;
-      }
-
-      // ✅ CORRECTED: Transform each result in load more
-const formattedProfiles = resultsArray.map((profile, index) => {
-  const currentPosition = profile.currentPositions && profile.currentPositions.length > 0 
-    ? profile.currentPositions[0] 
-    : null;
-
-  return {
-    id: profile.id || index,
-    username: profile.id || "N/A",
-    fullName: `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || "LinkedIn User",
-    profileUrl: profile.linkedinUrl || `https://www.linkedin.com/in/${profile.id}/`, // CORRECTED
-    profilePicUrl: profile.pictureUrl || null, // CORRECTED
-    headline: currentPosition ? currentPosition.title : "",
-    summary: profile.summary || "",
-    location: profile.location?.linkedinText || "",
-    openProfile: profile.openProfile || false,
-    premium: profile.premium || false,
-    currentPosition: currentPosition ? {
-      title: currentPosition.title,
-      companyName: currentPosition.companyName,
-      tenure: currentPosition.tenureAtPosition,
-      startedOn: currentPosition.startedOn,
-      companyUrl: currentPosition.companyLinkedinUrl
-    } : null,
-  };
-});
-
-      console.log("✅ [Updated Profiles after Load More]:", formattedProfiles);
-      setSearchResults(formattedProfiles);
-      setTotalFetched(formattedProfiles.length);
-      setCurrentLimit(totalAfterFetch);
-      
-      // ✅ CALLBACK: Update profiles detected count
-      if (onProfilesDetected) {
-        onProfilesDetected(formattedProfiles.length);
-      }
-      
-      // Check if we can load more (max 30 profiles)
-      if (formattedProfiles.length >= 30 || formattedProfiles.length < totalAfterFetch) {
-        setHasMore(false);
-      } else {
-        setHasMore(true);
-      }
-
-    } catch (err) {
-      console.error("❌ Error during load more:", err);
-      setError(err.message || "An error occurred while loading more profiles");
-    } finally {
-      setLoadingMore(false);
+    if (!resultsArray.length) {
+      setHasMore(false);
+      return;
     }
-  };
+
+    // ✅ CORRECTED: Transform each result in load more
+    const formattedProfiles = resultsArray.map((profile, index) => {
+      const currentPosition = profile.currentPositions && profile.currentPositions.length > 0 
+        ? profile.currentPositions[0] 
+        : null;
+
+      return {
+        id: profile.id || index,
+        username: profile.id || "N/A",
+        fullName: `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || "LinkedIn User",
+        profileUrl: profile.linkedinUrl || `https://www.linkedin.com/in/${profile.id}/`,
+        profilePicUrl: profile.pictureUrl || null,
+        headline: currentPosition ? currentPosition.title : "",
+        summary: profile.summary || "",
+        location: profile.location?.linkedinText || "",
+        openProfile: profile.openProfile || false,
+        premium: profile.premium || false,
+        currentPosition: currentPosition ? {
+          title: currentPosition.title,
+          companyName: currentPosition.companyName,
+          tenure: currentPosition.tenureAtPosition,
+          startedOn: currentPosition.startedOn,
+          companyUrl: currentPosition.companyLinkedinUrl
+        } : null,
+      };
+    });
+
+    console.log("✅ [Updated Profiles after Load More]:", formattedProfiles);
+    setSearchResults(formattedProfiles);
+    setTotalFetched(formattedProfiles.length);
+    setCurrentLimit(totalAfterFetch);
+    
+    // ✅ CALLBACK: Update profiles detected count
+    if (onProfilesDetected) {
+      onProfilesDetected(formattedProfiles.length);
+    }
+    
+    // Check if we can load more (max 30 profiles)
+    if (formattedProfiles.length >= 30 || formattedProfiles.length < totalAfterFetch) {
+      setHasMore(false);
+    } else {
+      setHasMore(true);
+    }
+
+  } catch (err) {
+    console.error("❌ Error during load more:", err);
+    setError(err.message || "An error occurred while loading more profiles");
+  } finally {
+    setLoadingMore(false);
+  }
+};
 
   const openProfileWindow = (url) => {
     const width = 450;
@@ -546,34 +550,61 @@ const formattedProfiles = resultsArray.map((profile, index) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Name or Keywords
-            </label>
-            <div className="flex">
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter name or keywords for search"
-                className="flex-1 px-4 py-3 bg-gray-900 text-gray-100 border border-gray-600 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                required
-                disabled={loading || !canAfford}
-              />
-              <button
-                type="submit"
-                disabled={loading || !username.trim() || !canAfford || balanceLoading}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 rounded-r-lg transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <SearchIcon className="w-5 h-5" />
-                )}
-                <span>{loading ? "Searching..." : "Search"}</span>
-              </button>
-            </div>
-          </div>
+   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+  {/* Name/Keywords Field */}
+  <div>
+    <label className="block text-sm font-medium text-gray-300 mb-2">
+      Name 
+    </label>
+    <input
+      type="text"
+      value={username}
+      onChange={(e) => setUsername(e.target.value)}
+      placeholder="Enter name or keywords"
+      className="w-full px-4 py-3 bg-gray-900 text-gray-100 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+      required
+      disabled={loading || !canAfford}
+    />
+  </div>
+
+  {/* Location Dropdown */}
+  <div>
+    <label className="block text-sm font-medium text-gray-300 mb-2">
+      Location (Optional)
+    </label>
+    <select
+      value={location}
+      onChange={(e) => setLocation(e.target.value)}
+      className="w-[500] px-4 py-3 bg-gray-900 text-gray-100 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+      disabled={loading || !canAfford}
+    >
+      <option value="">select-country</option>
+      {COUNTRIES.map((country) => (
+        <option key={country} value={country}>
+          {country}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  {/* Search Button */}
+  <div>
+    <button
+      type="submit"
+      disabled={loading || !username.trim() || !canAfford || balanceLoading}
+      className="w-[200px] ml-38 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed "
+    >
+      {loading ? (
+        <Loader2 className="w-5 h-5 animate-spin" />
+      ) : (
+        <SearchIcon className="w-5 h-5" />
+      )}
+      <span>{loading ? "Searching..." : "Search"}</span>
+    </button>
+  </div>
+</div>
+
+  
 
           {/* Credit Information */}
           <div className="bg-blue-900/40 border border-blue-700 rounded-lg p-4 flex items-start space-x-3">
