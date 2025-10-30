@@ -23,13 +23,13 @@ import { initializeApp } from "firebase/app";
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBs9K1-5yom0DA0ZejNooQxWhN0jYSehas",
-  authDomain: "socialmediasecurity-3fec6.firebaseapp.com",
-  projectId: "socialmediasecurity-3fec6",
-  storageBucket: "socialmediasecurity-3fec6.firebasestorage.app",
-  messagingSenderId: "522357795307",
-  appId: "1:522357795307:web:ebfa5d69e5f9c1eb5bd1ae",
-  measurementId: "G-8HFZLHBQTH"
+  apiKey: process.env.NEXT_PUBLIC_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_MSG_ID,
+  appId:process.env.NEXT_PUBLIC_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_MEASURE_ID
 }
 
 // Initialize Firebase
