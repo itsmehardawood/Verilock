@@ -82,8 +82,7 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest
     window.open(url, "_blank", features);
   };
 
-  // ✅ NEW: Combined takedown handler
-  // ✅ SIMPLIFIED: Takedown handler 
+  // ✅ NEW: takedown handler
   const handleTakedownAction = () => {
     // Open profile in new tab
     openProfileWindow(profile.profileUrl);
@@ -99,70 +98,6 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest
     // openProfileWindow(profile.profileUrl);
   };
 
-
-  // ✅ Handle Reported Successfully
-  // const handleReportSuccessfully = async () => {
-  //   setIsReporting(true);
-  //   try {
-  //     // Get user_id from localStorage (logged in user)
-  //     const user_id = localStorage.getItem('user_id') || localStorage.getItem('userId');
-      
-  //     if (!user_id) {
-  //       throw new Error('User not found. Please login again.');
-  //     }
-
-  //     // Prepare report data according to API requirements
-  //     const reportData = {
-  //       reportedProfile: {
-  //         id: profile.id.toString(), // Convert to string as required
-  //         platform: "TikTok",
-  //         username: profile.username,
-  //         fullName: profile.nickName || profile.username, // Use nickName as fullName for TikTok
-  //         profileUrl: profile.profileUrl,
-  //         profilePicUrl: profile.profilePicUrl,
-  //         followers: profile.followers || 0
-  //       },
-  //       reason: "Impersonation",
-  //       status: "takedown_complete"
-  //     };
-
-  //     console.log('📤 Sending TikTok report data:', reportData);
-
-  //     const response = await fetch(`${BASE_URL}/api/takedown?user_id=${user_id}`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(reportData),
-  //     });
-
-  //     if (response.ok) {
-  //       const result = await response.json();
-  //       console.log('✅ TikTok profile reported successfully:', result);
-  //       setReportSuccess(true);
-        
-  //       // ✅ CALLBACK: Increment takedown requests count
-  //       if (onTakedownRequest) {
-  //         onTakedownRequest();
-  //       }
-        
-  //       // Close modal after success
-  //       setTimeout(() => {
-  //         onClose();
-  //         setReportSuccess(false);
-  //         setTakedownClicked(false); // Reset for next time
-  //       }, 2000);
-  //     } else {
-  //       const errorData = await response.json();
-  //       throw new Error(errorData.error || 'Failed to report profile');
-  //     }
-  //   } catch (error) {
-  //     console.error('❌ Error reporting TikTok profile:', error);
-  //     alert(error.message || 'Failed to report profile. Please try again.');
-  //   } finally {
-  //     setIsReporting(false);
-  //   }
-  // };
 
   // ✅ Handle Review Later with Context API
   const handleReviewLater = () => {
@@ -180,7 +115,7 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest
       onClose();
       setReviewLaterSuccess(false);
     }, 2000);
-    console.log('📝 TikTok profile added to review later:', profile);
+    console.log('📝 TikTok profile added to review later:');
   };
 
   // ✅ Handle Ignore
@@ -192,7 +127,7 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest
     }
     
     onClose();
-    console.log('❌ TikTok profile ignored:', profile);
+    // console.log('❌ TikTok profile ignored:');
   };
 
   return (
@@ -307,72 +242,18 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest
                   <span className="text-gray-400 text-xs">Videos</span>
                 </div>
               </div>
-
-              {/* ✅ CONCISE: TikTok Reporting Steps */}
-              {/* <div className="border-t border-gray-700 my-3 pt-3">
-                <h2 className="text-red-500 font-semibold mb-2 flex items-center gap-2 text-sm">
-                  <AlertCircle className="w-4 h-4" />
-                  Follow these instructions to Report on TikTok
-                </h2>
-                
-                <div className="space-y-1 text-xs">
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-sm">1</span>
-                    <span>Open profile → Tap <strong>⋯</strong> beside Share <strong></strong> → then click <strong>Report</strong></span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">2</span>
-                    <span>Select <strong>"Report account"</strong> then select a scenario <strong>"Impersonation/ Pretending to be someone"</strong></span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
-                    <span>Select who he/she is Pretending to be (Me or celebrity)</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
-                    <span>click on submit button. After clicking it you have successfully reported this profile.</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-yellow-400 mt-1">
-                    <CheckCircle className="w-3 h-3" />
-                    <span className="font-medium">After request submission please click on "Takedown Submitted" below as well. Thanks!</span>
-                  </div>
-                </div>
-              </div> */}
+              
 
               {/* ✅ UPDATED: Action Buttons - Made more compact */}
               <div className="flex justify-end space-x-2 mt-4">
-                {/* UPDATED: Single button that changes behavior */}
-                {/* <button
-                  onClick={handleTakedownAction}
-                  disabled={isReporting}
-                  className={`${
-                    takedownClicked 
-                      ? 'bg-green-600 hover:bg-green-700' 
-                      : 'bg-red-600 hover:bg-red-700'
-                  } text-white px-4 py-2 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1 text-sm`}
-                >
-                  {isReporting ? (
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                  ) : (
-                    <CheckCircle className="w-3 h-3" />
-                  )}
-                  <span>
-                    {isReporting 
-                      ? "Reporting..." 
-                      : takedownClicked 
-                        ? "Takedown Submitted" 
-                        : "Request Takedown"
-                    }
-                  </span>
-                </button> */}
 
                 <button
-                                onClick={handleTakedownAction}
-                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center space-x-1 text-sm"
-                              >
-                                <CheckCircle className="w-3 h-3" />
-                                <span>Request Takedown</span>
-                              </button>
+                  onClick={handleTakedownAction}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center space-x-1 text-sm"
+                >
+                  <CheckCircle className="w-3 h-3" />
+                  <span>Request Takedown</span>
+                </button>
                 
                 <button
                   onClick={handleReviewLater}
@@ -388,13 +269,13 @@ function TikTokProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest
                 </button>
               </div>
                {/* Instructions Modal */}
-                    <InstructionsModal
-                      isOpen={showInstructions}
-                      onClose={handleInstructionsClose}
-                      platform="tiktok" // Change this for different platforms
-                       profile={profile} 
-                      onTakedownRequest={onTakedownRequest}
-                    />
+                <InstructionsModal
+                isOpen={showInstructions}
+                onClose={handleInstructionsClose}
+                platform="tiktok" // Change this for different platforms
+                profile={profile} 
+                onTakedownRequest={onTakedownRequest}
+              />
             </>
           )}
         </div>
@@ -467,7 +348,7 @@ export default function TikTokProfile({
           ? apiResponse[0].results
           : [];
 
-      console.log("✅ [Extracted Results Array]:", resultsArray);
+      // console.log("✅ [Extracted Results Array]:", resultsArray);
       
       if (!resultsArray.length) {
         console.warn("⚠️ No profiles found");
@@ -496,7 +377,7 @@ export default function TikTokProfile({
         };
       });
 
-      console.log("✅ [Formatted Profiles]:", formattedProfiles);
+      // console.log("✅ [Formatted Profiles]:", formattedProfiles);
       setSearchResults(formattedProfiles);
       setTotalFetched(formattedProfiles.length);
       
@@ -537,7 +418,7 @@ export default function TikTokProfile({
       console.log("🔄 Loading more profiles:", nextLimit, "Total will be:", totalAfterFetch);
 
       const apiResponse = await fetchTikTokProfiles(username, totalAfterFetch);
-      console.log("📦 [Load More API Response]:", apiResponse);
+      // console.log("📦 [Load More API Response]:", apiResponse);
 
       // ✅ Extract the results array from the API response
       const resultsArray =
@@ -571,7 +452,7 @@ export default function TikTokProfile({
         };
       });
 
-      console.log("✅ [Updated Profiles after Load More]:", formattedProfiles);
+      // console.log("✅ [Updated Profiles after Load More]:", formattedProfiles);
       setSearchResults(formattedProfiles);
       setTotalFetched(formattedProfiles.length);
       setCurrentLimit(totalAfterFetch);

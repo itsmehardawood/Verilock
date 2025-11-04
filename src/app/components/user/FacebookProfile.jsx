@@ -94,75 +94,9 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
   // Close instructions and mark takedown as clicked
   const handleInstructionsClose = () => {
     setShowInstructions(false);
-    // Open profile in new tab after instructions
-    // openProfileWindow(profile.profileUrl);
   };
 
-  // ✅ Handle Reported Successfully
-  // const handleReportSuccessfully = async () => {
-  //   setIsReporting(true);
-  //   try {
-  //     // Get user_id from localStorage (logged in user)
-  //     const user_id = localStorage.getItem('user_id') || localStorage.getItem('userId');
-      
-  //     if (!user_id) {
-  //       throw new Error('User not found. Please login again.');
-  //     }
-
-  //     // Prepare report data according to API requirements
-  //     const reportData = {
-  //       reportedProfile: {
-  //         id: profile.id.toString(), // Convert to string as required
-  //         platform: "Facebook",
-  //         username: profile.username,
-  //         fullName: profile.fullName,
-  //         profileUrl: profile.profileUrl,
-  //         profilePicUrl: profile.profilePicUrl,
-  //         followers: 0 // Facebook doesn't provide followers in current data
-  //       },
-  //       reason: "Impersonation",
-  //       status: "takedown_complete"
-  //     };
-
-  //     console.log('📤 Sending report data:', reportData);
-      
-
-  //     const response = await fetch(`${BASE_URL}/api/takedown?user_id=${user_id}`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(reportData),
-  //     });
-
-  //     if (response.ok) {
-  //       const result = await response.json();
-  //       console.log('✅ Profile reported successfully:', result);
-  //       setReportSuccess(true);
-
-  //       // ✅ CALLBACK: Increment takedown requests count
-  //       if (onTakedownRequest) {
-  //         onTakedownRequest();
-  //       }
-        
-  //       // Close modal after success
-  //       setTimeout(() => {
-  //         onClose();
-  //         setReportSuccess(false);
-  //         setTakedownClicked(false); // Reset for next time
-  //       }, 2000);
-  //     } else {
-  //       const errorData = await response.json();
-  //       throw new Error(errorData.error || 'Failed to report profile');
-  //     }
-  //   } catch (error) {
-  //     console.error('❌ Error reporting profile:', error);
-  //     alert(error.message || 'Failed to report profile. Please try again.');
-  //   } finally {
-  //     setIsReporting(false);
-  //   }
-  // };
-
+  
   const handleReviewLater = () => {
     addToReviewLater(profile, 'Facebook');
     setReviewLaterSuccess(true); // Show success message
@@ -177,7 +111,7 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
       onClose();
       setReviewLaterSuccess(false);
     }, 2000);
-    console.log('📝 Facebook profile added to review later:', profile);
+    // console.log('📝 Facebook profile added to review later:', profile);
   };
 
   // ✅ Handle Ignore
@@ -240,10 +174,6 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
                 src={profile.profilePicUrl}
                 alt={profile.fullName}
                 className="w-20 h-20 rounded-full border border-gray-600 object-cover flex-shrink-0"
-                // onError={(e) => {
-                //   e.target.src = "/images/facebook.png";
-                //   e.target.onerror = null;
-                // }}
               />
 
               <div className="flex-1">
@@ -274,35 +204,7 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
 
             {/* ✅ CONCISE: Facebook Reporting Steps */}
           <div className="border-t border-gray-700 my-4"></div>
-          {/* <div className="mb-4">
-            <h2 className="text-red-500 font-semibold mb-3 flex items-center gap-2 ">
-              <AlertCircle className="w-5 h-5" />
-              Follow these instructions to Report on Facebook
-            </h2>
-            
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2 text-gray-300">
-                <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center">1</span>
-                <span>Open profile → Tap <strong>⋯</strong> in the top bar right corner <strong> Click Report from it</strong></span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-300">
-                <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">2</span>
-                <span>Select Why are you reporting this profile?<strong>Select →  "Fake profile"</strong></span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-300">
-                <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">3</span>
-                <span>Choose Who or what is it pretending to be?</span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-300">
-                <span className="bg-blue-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
-                <span>You're about to submit a report , just click on submit button.</span>
-              </div>
-              <div className="flex items-center gap-2 text-green-400 mt-2">
-                <CheckCircle className="w-4 h-4" />
-                <span className="font-medium">Then After request submision also click on "Takedown Submitted" below as well. Thanks!</span>
-              </div>
-            </div>
-          </div> */}
+          
 
             {profile.userData && profile.userData.length > 0 && (
               <>
@@ -343,30 +245,7 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
             
             {/* ✅ UPDATED: Action Buttons with Reported Successfully */}
             <div className="flex justify-end space-x-3">
-              {/* UPDATED: Single button that changes behavior */}
-                              {/* <button
-                                onClick={handleTakedownAction}
-                                disabled={isReporting}
-                                className={`${
-                      takedownClicked 
-                          ? 'bg-green-600 hover:bg-green-700' 
-                          : 'bg-red-600 hover:bg-red-700'
-                          } text-white px-4 py-2 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1 text-sm`}
-                >
-                {isReporting ? (
-                <Loader2 className="w-3 h-3 animate-spin" />
-                ) : (
-                <CheckCircle className="w-3 h-3" />
-                )}
-                  <span>
-                    {isReporting 
-                      ? "Reporting..." 
-                      : takedownClicked 
-                      ? "Takedown Submitted" 
-                      : "Request Takedown"
-                    }
-                 </span>
-               </button> */}
+              
                <button
                 onClick={handleTakedownAction}
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center space-x-1 text-sm"
@@ -476,12 +355,12 @@ export default function FacebookProfile({
     try {
       // First deduct the credit
       const newBalance = await deductCredit(1);
-      console.log("💰 Credit deducted. New balance:", newBalance);
+      // console.log("💰 Credit deducted. New balance:", newBalance);
 
-      console.log("🚀 Searching Facebook for:", username, "with limit:", 10);
+      // console.log("🚀 Searching Facebook for:", username, "with limit:", 10);
 
       const apiResponse = await fetchFacebookProfiles(username, 10);
-      console.log("📦 [Full API Response]:", apiResponse);
+      // console.log("📦 [Full API Response]:", apiResponse);
 
       // ✅ Extract the results array from the API response
       const resultsArray =
@@ -491,7 +370,7 @@ export default function FacebookProfile({
           ? apiResponse[0].results
           : [];
 
-      console.log("✅ [Extracted Results Array]:", resultsArray);
+      // console.log("✅ [Extracted Results Array]:", resultsArray);
 
       if (!resultsArray.length) {
         console.warn("⚠️ No profiles found");
@@ -501,7 +380,7 @@ export default function FacebookProfile({
 
       // ✅ Transform each result using Facebook API field names
       const formattedProfiles = resultsArray.map((profile, index) => {
-        console.log(`Profile ${index}:`, profile);
+        // console.log(`Profile ${index}:`, profile);
         
         return {
           id: profile.userId || index,
@@ -555,7 +434,7 @@ export default function FacebookProfile({
       console.log("🔄 Loading more profiles:", nextLimit, "Total will be:", totalAfterFetch);
 
       const apiResponse = await fetchFacebookProfiles(username, totalAfterFetch);
-      console.log("📦 [Load More API Response]:", apiResponse);
+      // console.log("📦 [Load More API Response]:", apiResponse);
 
       // ✅ Extract the results array from the API response
       const resultsArray =
@@ -583,7 +462,7 @@ export default function FacebookProfile({
         };
       });
 
-      console.log("✅ [Updated Profiles after Load More]:", formattedProfiles);
+      // console.log("✅ [Updated Profiles after Load More]:", formattedProfiles);
       setSearchResults(formattedProfiles);
       setTotalFetched(formattedProfiles.length);
       setCurrentLimit(totalAfterFetch);

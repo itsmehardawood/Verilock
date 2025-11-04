@@ -383,20 +383,6 @@ const handleOtpSubmit = async (e) => {
       <nav className="relative z-20 bg-white">
         <div className="max-w-6xl mx-auto px-3 sm:px-5 lg:px-3">
           <div className="flex justify-between items-center h-22">
-            {/* <div className="flex items-center">
-              <Link
-                href="/"
-                className="text-2xl pl-8 font-bold text-gray-900 hover:text-blue-600 transition-colors"
-              >
-                <video autoPlay loop muted playsInline width="70">
-                  <source
-                    src="https://dw1u598x1c0uz.cloudfront.net/CardNest%20Logo%20WebM%20version.webm"
-                    alt="CardNest Logo"
-                  />
-                  Your browser does not support the video tag.
-                </video>
-              </Link>
-            </div> */}
           </div>
         </div>
       </nav>

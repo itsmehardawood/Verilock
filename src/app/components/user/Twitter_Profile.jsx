@@ -104,72 +104,6 @@ const [showInstructions, setShowInstructions] = useState(false);
     setShowInstructions(true);
   };
 
-
-  // ✅ NEW: Handle Reported Successfully
-  // const handleReportSuccessfully = async () => {
-  //   setIsReporting(true);
-  //   try {
-  //     // Get user_id from localStorage (logged in user)
-  //     const user_id = localStorage.getItem('user_id') || localStorage.getItem('userId');
-      
-  //     if (!user_id) {
-  //       throw new Error('User not found. Please login again.');
-  //     }
-
-  //     // Prepare report data according to API requirements
-  //     const reportData = {
-  //       reportedProfile: {
-  //         id: profile.id.toString(), // Convert to string as required
-  //         platform: "Twitter",
-  //         username: profile.username,
-  //         fullName: profile.fullName || profile.username,
-  //         profileUrl: profile.profileUrl,
-  //         profilePicUrl: profile.profilePicUrl,
-  //         followers: profile.followers || 0
-  //       },
-  //       reason: "Impersonation",
-  //       status: "takedown_complete"
-  //     };
-
-  //     console.log('📤 Sending Twitter report data:', reportData);
-
-  //     const response = await fetch(`${BASE_URL}/api/takedown?user_id=${user_id}`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(reportData),
-  //     });
-
-  //     if (response.ok) {
-  //       const result = await response.json();
-  //       console.log('✅ Twitter profile reported successfully:', result);
-  //       setReportSuccess(true);
-
-  //       // ✅ CALLBACK: Increment takedown requests count
-  //       if (onTakedownRequest) {
-  //         onTakedownRequest();
-  //       }
-        
-        
-  //       // Close modal after success
-  //       setTimeout(() => {
-  //         onClose();
-  //         setReportSuccess(false);
-  //         setTakedownClicked(false); // Reset for next time
-  //       }, 2000);
-  //     } else {
-  //       const errorData = await response.json();
-  //       throw new Error(errorData.error || 'Failed to report profile');
-  //     }
-  //   } catch (error) {
-  //     console.error('❌ Error reporting Twitter profile:', error);
-  //     alert(error.message || 'Failed to report profile. Please try again.');
-  //   } finally {
-  //     setIsReporting(false);
-  //   }
-  // };
-
   
   // Close instructions and mark takedown as clicked
   const handleInstructionsClose = () => {
@@ -194,7 +128,7 @@ const [showInstructions, setShowInstructions] = useState(false);
       onClose();
       setReviewLaterSuccess(false);
     }, 2000);
-    console.log('📝 Twitter profile added to review later:', profile);
+    console.log('📝 Twitter profile added to review later:');
   };
 
     // ✅ Handle Ignore
@@ -474,7 +408,7 @@ export default function TwitterProfile({
           ? apiResponse[0].results
           : [];
 
-      console.log("✅ [Extracted Results Array]:", resultsArray);
+      // console.log("✅ [Extracted Results Array]:", resultsArray);
 
       if (!resultsArray.length) {
         console.warn("⚠️ No profiles found");
@@ -484,7 +418,7 @@ export default function TwitterProfile({
 
       // ✅ Transform each result using Twitter API field names
       const formattedProfiles = resultsArray.map((profile, index) => {
-        console.log(`Profile ${index}:`, profile);
+        // console.log(`Profile ${index}:`, profile);
         
         return {
           id: profile.user_id || index,
@@ -504,7 +438,7 @@ export default function TwitterProfile({
         };
       });
 
-      console.log("✅ [Formatted Profiles]:", formattedProfiles);
+      // console.log("✅ [Formatted Profiles]:", formattedProfiles);
       setSearchResults(formattedProfiles);
       setTotalFetched(formattedProfiles.length);
 
@@ -580,7 +514,7 @@ export default function TwitterProfile({
         };
       });
 
-      console.log("✅ [Updated Profiles after Load More]:", formattedProfiles);
+      // console.log("✅ [Updated Profiles after Load More]:", formattedProfiles);
       setSearchResults(formattedProfiles);
       setTotalFetched(formattedProfiles.length);
       setCurrentLimit(totalAfterFetch);

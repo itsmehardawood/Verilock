@@ -343,7 +343,7 @@ export default function LinkedInProfile({
       console.log("🚀 Searching LinkedIn for:", username, "with limit:", 10);
 
       const apiResponse = await fetchLinkedInProfiles(username, 10, location);
-      console.log("📦 [Full API Response]:", apiResponse);
+      // console.log("📦 [Full API Response]:", apiResponse);
 
       // ✅ Extract the results array from the API response
       const resultsArray =
@@ -353,7 +353,7 @@ export default function LinkedInProfile({
           ? apiResponse[0].results
           : [];
 
-      console.log("✅ [Extracted Results Array]:", resultsArray);
+      // console.log("✅ [Extracted Results Array]:", resultsArray);
 
       if (!resultsArray.length) {
         console.warn("⚠️ No profiles found");
@@ -388,7 +388,7 @@ const formattedProfiles = resultsArray.map((profile, index) => {
   };
 });
 
-      console.log("✅ [Formatted Profiles]:", formattedProfiles);
+      // console.log("✅ [Formatted Profiles]:", formattedProfiles);
       setSearchResults(formattedProfiles);
       setTotalFetched(formattedProfiles.length);
       
@@ -430,7 +430,7 @@ const formattedProfiles = resultsArray.map((profile, index) => {
 
     // ✅ FIXED: Add location parameter here
     const apiResponse = await fetchLinkedInProfiles(username, totalAfterFetch, location);
-    console.log("📦 [Load More API Response]:", apiResponse);
+    // console.log("📦 [Load More API Response]:", apiResponse);
 
     // ✅ Extract the results array from the API response
     const resultsArray =
@@ -472,7 +472,7 @@ const formattedProfiles = resultsArray.map((profile, index) => {
       };
     });
 
-    console.log("✅ [Updated Profiles after Load More]:", formattedProfiles);
+    // console.log("✅ [Updated Profiles after Load More]:", formattedProfiles);
     setSearchResults(formattedProfiles);
     setTotalFetched(formattedProfiles.length);
     setCurrentLimit(totalAfterFetch);

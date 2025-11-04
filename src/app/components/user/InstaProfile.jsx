@@ -130,7 +130,7 @@ function ProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPe
         status: "takedown_complete"
       };
 
-      console.log('📤 Sending Instagram report data:', reportData);
+      // console.log('📤 Sending Instagram report data:', reportData);
 
       const response = await fetch(`${BASE_URL}/api/takedown?user_id=${user_id}`, {
         method: 'POST',
@@ -142,7 +142,7 @@ function ProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPe
 
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ Instagram profile reported successfully:', result);
+        console.log('✅ Instagram profile reported successfully:');
         setReportSuccess(true);
 
         // ✅ CALLBACK: Increment takedown requests count
@@ -184,7 +184,7 @@ function ProfileDetailsModal({ isOpen, profile, onClose, onTakedownRequest, onPe
       setReviewLaterSuccess(false);
     }, 2000);
 
-    console.log('📝 Instagram profile added to review later:', profile);
+    console.log('📝 Instagram profile added to review later:');
   };
 
   // ✅ Handle Ignore
@@ -487,7 +487,7 @@ export default function InstaProfile({
       console.log("🚀 Searching Instagram for:", username, "with limit:", 10);
 
       const apiResponse = await fetchInstagramProfiles(username, 10);
-      console.log("📦 [Full API Response]:", apiResponse);
+      // console.log("📦 [Full API Response]:", apiResponse);
 
       // ✅ Extract the results array from the API response
       const resultsArray =
@@ -497,7 +497,7 @@ export default function InstaProfile({
           ? apiResponse[0].results
           : [];
 
-      console.log("✅ [Extracted Results Array]:", resultsArray);
+      // console.log("✅ [Extracted Results Array]:", resultsArray);
 
       if (!resultsArray.length) {
         console.warn("⚠️ No profiles found");
@@ -507,7 +507,7 @@ export default function InstaProfile({
 
       // ✅ Transform each result
       const formattedProfiles = resultsArray.map((profile, index) => {
-        console.log(`Profile ${index}:`, profile);
+        // console.log(`Profile ${index}:`, profile);
         
         return {
           id: profile.id || index,
@@ -527,7 +527,7 @@ export default function InstaProfile({
         };
       });
 
-      console.log("✅ [Formatted Profiles]:", formattedProfiles);
+      // console.log("✅ [Formatted Profiles]:", formattedProfiles);
       setSearchResults(formattedProfiles);
       setTotalFetched(formattedProfiles.length);
 
@@ -568,7 +568,7 @@ export default function InstaProfile({
       console.log("🔄 Loading more profiles:", nextLimit, "Total will be:", totalAfterFetch);
 
       const apiResponse = await fetchInstagramProfiles(username, totalAfterFetch);
-      console.log("📦 [Load More API Response]:", apiResponse);
+      // console.log("📦 [Load More API Response]:", apiResponse);
 
       // ✅ Extract the results array from the API response
       const resultsArray =
@@ -603,7 +603,7 @@ export default function InstaProfile({
         };
       });
 
-      console.log("✅ [Updated Profiles after Load More]:", formattedProfiles);
+      // console.log("✅ [Updated Profiles after Load More]:", formattedProfiles);
       setSearchResults(formattedProfiles);
       setTotalFetched(formattedProfiles.length);
       setCurrentLimit(totalAfterFetch);
