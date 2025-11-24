@@ -1,4 +1,6 @@
 // File: app/api/fetchProfileImage/route.js
+
+export const runtime = "edge";
 import * as cheerio from "cheerio";
 
 export async function POST(request) {

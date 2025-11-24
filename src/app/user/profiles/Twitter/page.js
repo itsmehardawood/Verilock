@@ -1,6 +1,6 @@
 'use client';
 import StatsCard from '@/app/components/shared/StatsCard';
-import Facebook from '@/app/components/user/search_Profile'
+// import Facebook from '@/app/components/user/search_Profile'
 import TwitterProfile from '@/app/components/user/Twitter_Profile';
 import { useStats } from '@/app/hooks/useStats';
 import { AlertCircle, CreditCard, EyeOffIcon, Menu, Search } from 'lucide-react'
