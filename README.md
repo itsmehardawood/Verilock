@@ -16,6 +16,29 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## CardNest Crypto Integration
+
+This workspace now includes a CardNest integration entry at:
+
+- `/user/crypto-integration`
+
+The integration creates CardNest sessions server-side at:
+
+- `POST /api/cardnest/session`
+
+Add the following environment variables in your local environment file:
+
+```bash
+CARDNEST_MERCHANT_ID=YOUR_MERCHANT_ID
+CARDNEST_BASE_URL=https://crypto.cardnest.io
+```
+
+Notes:
+
+- Keep `CARDNEST_MERCHANT_ID` server-side only.
+- The frontend calls your local API route, then redirects to CardNest using the returned `redirect_to` URL.
+- Treat `session_id` as one-time and short-lived.
+
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

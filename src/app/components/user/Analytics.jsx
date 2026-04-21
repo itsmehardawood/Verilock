@@ -69,7 +69,7 @@ const Analytics = () => {
         }
       });
 
-      console.log('📊 Platform stats from localStorage:', platformStats);
+      // console.log('📊 Platform stats from localStorage:', platformStats);
 
       // Generate platform-specific data
       const platformDistribution = processPlatformDistributionFromStats(platformStats);
