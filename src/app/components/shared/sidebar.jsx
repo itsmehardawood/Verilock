@@ -373,21 +373,21 @@
           if (typeof window !== 'undefined') {
             // Read from "userData" as stored in your login page
             const userData = localStorage.getItem('userData');
-            console.log('Retrieved userData from localStorage:', userData);
+            // console.log('Retrieved userData from localStorage:', userData);
             
             if (userData) {
               const parsedUser = JSON.parse(userData);
               setUserInfo(parsedUser);
-              console.log('Parsed user info:', parsedUser);
+                  // console.log('Parsed user info:', parsedUser);
             } else {
-              console.log('No userData found in localStorage');
+              // console.log('No userData found in localStorage');
               
               // Fallback: Check if user info is stored as "user" (for backward compatibility)
               const fallbackUserData = localStorage.getItem('user');
               if (fallbackUserData) {
                 const parsedUser = JSON.parse(fallbackUserData);
                 setUserInfo(parsedUser);
-                console.log('Found fallback user data:', parsedUser);
+                // console.log('Found fallback user data:', parsedUser);
               }
             }
           }

@@ -39,7 +39,7 @@ export default function TestLogin() {
         localStorage.setItem("userId", data.user._id);
         localStorage.setItem("userInfo", JSON.stringify(data.user)); // optional
       }
-      console.log("Login successful:", data);
+      // console.log("Login successful:", data);
 
       router.push("/user/Home");
     } catch (err) {

@@ -31,13 +31,21 @@ Add the following environment variables in your local environment file:
 ```bash
 CARDNEST_MERCHANT_ID=YOUR_MERCHANT_ID
 CARDNEST_BASE_URL=https://crypto.cardnest.io
+CARDNEST_ENCRYPTION_KEY=YOUR_CARDNEST_AES128_KEY
+NEXT_PUBLIC_CARDNEST_BASE_URL=https://crypto.cardnest.io
 ```
 
 Notes:
 
 - Keep `CARDNEST_MERCHANT_ID` server-side only.
-- The frontend calls your local API route, then redirects to CardNest using the returned `redirect_to` URL.
+- The frontend calls your local API route, then appends `redirect_to` to `NEXT_PUBLIC_CARDNEST_BASE_URL`.
 - Treat `session_id` as one-time and short-lived.
+
+Callback processing:
+
+- If you embed CardNest in an iframe, `window.handleApiResponse(jsonString)` is available.
+- Encrypted callback data is posted to `POST /api/cardnest/callback`.
+- Decryption is handled server-side with `CARDNEST_ENCRYPTION_KEY`.
 
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 

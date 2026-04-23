@@ -1,11 +1,114 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ShieldCheck, ExternalLink, AlertCircle } from 'lucide-react';
 
+const CARDNEST_BASE_URL = process.env.NEXT_PUBLIC_CARDNEST_BASE_URL || 'https://crypto.cardnest.io';
+const CARDNEST_ORIGIN = new URL(CARDNEST_BASE_URL).origin;
+
+function buildCardNestRedirect(redirectPath) {
+  if (typeof redirectPath !== 'string' || !redirectPath.startsWith('/')) {
+    throw new Error('CardNest returned an invalid redirect path');
+  }
+
+  const base = new URL(CARDNEST_BASE_URL);
+  if (base.protocol !== 'https:') {
+    throw new Error('CardNest base URL must use HTTPS');
+  }
+
+  return `${base.origin}${redirectPath}`;
+}
+
 export default function CryptoIntegrationPage() {
+  const router = useRouter();
   const [isStarting, setIsStarting] = useState(false);
   const [error, setError] = useState('');
+  const [iframeUrl, setIframeUrl] = useState('');
+
+  const processCardNestPayload = async (payload) => {
+    if (!payload?.encrypted_data) {
+      throw new Error('Missing encrypted_data in CardNest callback payload');
+    }
+
+    const callbackResponse = await fetch('/api/cardnest/callback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        encrypted_data: payload.encrypted_data,
+        status: payload.status,
+      }),
+    });
+
+    const callbackData = await callbackResponse.json();
+    if (!callbackResponse.ok || !callbackData?.success) {
+      throw new Error(callbackData?.error || 'CardNest callback processing failed');
+    }
+
+    if (callbackData.approved === true) {
+      router.push('/success-crypto');
+      return;
+    }
+
+    router.push('/failed-crypto');
+  };
+
+  useEffect(() => {
+    window.handleApiResponse = async (jsonString) => {
+      try {
+        const payload = JSON.parse(jsonString);
+        await processCardNestPayload(payload);
+      } catch (err) {
+        setError(err?.message || 'Invalid callback payload received from CardNest');
+      }
+    };
+
+    const onMessage = async (event) => {
+      try {
+        if (event.origin !== CARDNEST_ORIGIN) {
+          return;
+        }
+
+        const messageEnvelope = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+
+        if (
+          messageEnvelope?.source !== 'cardnest-crypto-validation' ||
+          messageEnvelope?.type !== 'handleApiResponse'
+        ) {
+          return;
+        }
+
+        let payload = null;
+        if (messageEnvelope?.encrypted_data) {
+          payload = {
+            encrypted_data: messageEnvelope.encrypted_data,
+            status: messageEnvelope.status,
+          };
+        } else if (typeof messageEnvelope?.data === 'string') {
+          payload = JSON.parse(messageEnvelope.data);
+        } else if (messageEnvelope?.data && typeof messageEnvelope.data === 'object') {
+          payload = messageEnvelope.data;
+        }
+
+        if (!payload?.encrypted_data) {
+          return;
+        }
+
+        await processCardNestPayload(payload);
+      } catch (err) {
+        setError(err?.message || 'Unable to process CardNest callback message');
+      }
+    };
+
+    window.addEventListener('message', onMessage);
+
+    return () => {
+      window.removeEventListener('message', onMessage);
+      delete window.handleApiResponse;
+    };
+  }, [router]);
 
   const startValidation = async () => {
     setIsStarting(true);
@@ -25,7 +128,8 @@ export default function CryptoIntegrationPage() {
         throw new Error(data.error || 'Unable to start CardNest validation session');
       }
 
-      window.location.href = data.redirect_to;
+      setIframeUrl(buildCardNestRedirect(data.redirect_to));
+      setIsStarting(false);
     } catch (err) {
       setError(err.message || 'Unable to start validation session');
       setIsStarting(false);
@@ -55,8 +159,8 @@ export default function CryptoIntegrationPage() {
               <ol className="list-decimal list-inside text-sm text-gray-300 space-y-2">
                 <li>Your app creates a secure CardNest session on the server.</li>
                 <li>CardNest returns a one-time session identifier.</li>
-                <li>You are redirected to the CardNest validation screen.</li>
-                <li>CardNest returns approved or rejected status.</li>
+                <li>Frontend appends CardNest base URL + returned redirect path.</li>
+                <li>CardNest returns encrypted callback data after validation.</li>
               </ol>
             </div>
 
@@ -90,9 +194,20 @@ export default function CryptoIntegrationPage() {
             </button>
 
             <p className="text-sm text-gray-400">
-              This action opens the CardNest hosted validation page.
+              This action loads the CardNest hosted validation page inside this screen.
             </p>
           </div>
+
+          {iframeUrl && (
+            <div className="mt-6 rounded-xl border border-gray-700 bg-slate-950/70 p-2">
+              <iframe
+                title="CardNest Validation"
+                src={iframeUrl}
+                className="h-[70vh] w-full rounded-lg"
+                allow="clipboard-read; clipboard-write"
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

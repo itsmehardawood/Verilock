@@ -1,6 +1,19 @@
 const CARDNEST_BASE_URL = process.env.CARDNEST_BASE_URL || 'https://crypto.cardnest.io';
 const CARDNEST_MERCHANT_ID = process.env.CARDNEST_MERCHANT_ID;
 
+function getCardNestOrigin() {
+  try {
+    const parsed = new URL(CARDNEST_BASE_URL);
+    if (parsed.protocol !== 'https:') {
+      throw new Error('CARDNEST_BASE_URL must use HTTPS');
+    }
+
+    return parsed.origin;
+  } catch {
+    throw new Error('CARDNEST_BASE_URL is invalid');
+  }
+}
+
 export async function POST() {
   try {
     if (!CARDNEST_MERCHANT_ID) {
@@ -13,7 +26,9 @@ export async function POST() {
       );
     }
 
-    const upstreamResponse = await fetch(`${CARDNEST_BASE_URL}/api/session`, {
+    const cardNestOrigin = getCardNestOrigin();
+
+    const upstreamResponse = await fetch(`${cardNestOrigin}/api/session`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -34,10 +49,16 @@ export async function POST() {
       );
     }
 
-    // Ensure redirect is an absolute URL for client-side navigation.
-    const redirectTo = upstreamData.redirect_to?.startsWith('http')
-      ? upstreamData.redirect_to
-      : `${CARDNEST_BASE_URL}${upstreamData.redirect_to}`;
+    const redirectTo = upstreamData?.redirect_to;
+    if (typeof redirectTo !== 'string' || !redirectTo.startsWith('/')) {
+      return Response.json(
+        {
+          success: false,
+          error: 'Invalid redirect path returned by CardNest',
+        },
+        { status: 502 }
+      );
+    }
 
     return Response.json(
       {
@@ -63,6 +84,7 @@ export async function GET() {
     success: true,
     endpoint: '/api/cardnest/session',
     method: 'POST',
+    cardnest_origin: CARDNEST_BASE_URL,
     configured: Boolean(CARDNEST_MERCHANT_ID),
   });
 }

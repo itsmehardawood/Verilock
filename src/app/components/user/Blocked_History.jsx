@@ -488,13 +488,13 @@ const BlockedHistory = () => {
         params.append('search', searchQuery.trim());
       }
 
-      console.log('📡 Fetching reports with params:', Object.fromEntries(params));
+      // console.log('📡 Fetching reports with params:', Object.fromEntries(params));
       
       const response = await fetch(`${BASE_URL}/api/takedown?${params}`);
       const data = await response.json();
 
       if (response.ok) {
-        console.log('✅ API Response:', data);
+        // console.log('✅ API Response:', data);
         setBlockedProfiles(data.reports || []);
         setStats(data.stats || {
           totalTakedowns: 0,

@@ -4,7 +4,7 @@
 export async function POST(req) {
   try {
     const body = await req.json();
-    console.log("✅ Signup data received:", body);
+    // console.log("✅ Signup data received:", body);
 
     // Validate required fields
     if (!body.email || !body.phone || !body.firebaseUid) {
@@ -30,7 +30,7 @@ export async function POST(req) {
       verified: true, // Since Firebase already verified the phone
     };
 
-    console.log("✅ User account created (mock):", userData);
+    // console.log("✅ User account created (mock):", userData);
 
     return Response.json({
       success: true,

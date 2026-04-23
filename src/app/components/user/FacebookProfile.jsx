@@ -177,7 +177,7 @@ function FacebookProfileDetailsModal({ isOpen, profile, onClose, onTakedownReque
       onClose();
       setReviewLaterSuccess(false);
     }, 2000);
-    console.log('📝 Facebook profile added to review later:', profile);
+    // console.log('📝 Facebook profile added to review later:', profile);
   };
 
   // ✅ Handle Ignore
